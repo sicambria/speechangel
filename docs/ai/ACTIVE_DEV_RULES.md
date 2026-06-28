@@ -29,4 +29,28 @@ For agent-neutral *behavior* rules (how to work), see `docs/ai/AI_BEHAVIOR_GUARD
 
 ## Rules
 
-_None yet. The first rule is added when the first incident promotes one._
+### MATCH-001 — Test behaviour-defining defaults at their shipped value
+Any constant that defines runtime behaviour (e.g. `MatcherConfig.defaultAcceptanceThreshold`) MUST have
+an end-to-end test that exercises the **shipped** default, not a permissive stand-in. Asserting only
+*discrimination* with a relaxed threshold can hide a config that rejects all real input.
+- **Why:** `docs/errors/2026-06/2026-06-28_shipped-config-untested-by-permissive-test-threshold.md`
+- **Gate:** `core/enrollment/src/test/kotlin/com/speechangel/core/enrollment/RecognizerTest.kt` ("shipped default config accepts …"); real-audio FRR/FAR calibration tracked in `docs/ROADMAP.md`.
+
+### BUILD-001 — Pin the JDK; never assume the host default
+Invoke Gradle through `make` or with `JAVA_HOME` pinned to JDK 21 (`/usr/lib/jvm/java-21-openjdk-amd64`).
+The host default JDK is 25, which AGP 8.7 does not support. The shell only runs absolute binary paths.
+- **Why:** `docs/errors/2026-06/2026-06-28_host-toolchain-jdk-and-shell-quirks.md`
+- **Gate:** `scripts/setup/check-env.sh` (`make setup`); CI uses `setup-java@v4` JDK 21.
+
+### BUILD-002 — Compose-friendly ktlint; verify with spotlessCheck
+Keep `function-naming` / `property-naming` ktlint rules disabled for Kotlin (Compose uses PascalCase
+composables and theme vals). Confirm formatting with `spotlessCheck`, never a bare `spotlessApply`
+exit code (the configuration cache can serve a partial apply).
+- **Why:** `docs/errors/2026-06/2026-06-28_spotless-ktlint-compose-and-config-cache.md`
+- **Gate:** `.editorconfig` + root Spotless config; `spotlessCheck` in `make verify` and CI.
+
+### BUILD-003 — Bring up each module standalone
+Compile and test each Gradle module green in isolation before wiring the next; never enable the whole
+module graph blind. This localises version-coupled API mismatches.
+- **Why:** `docs/errors/2026-06/2026-06-28_module-bringup-compile-gotchas.md`
+- **Gate:** advisory (workflow rule); backstopped by `make verify`.

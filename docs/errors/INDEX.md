@@ -4,6 +4,11 @@
 Generated index of all incident notes under `docs/errors/<YYYY-MM>/`. Regenerate with
 `node scripts/audits/verify-learning-loop.mjs --write-index` (npm: `knowledge:index`).
 
-**Total incidents: 0**
+**Total incidents: 4**
 
-_No incidents yet. The first one is scaffolded with `node scripts/ops/create-incident-report.mjs`._
+| Date | Area | Status | Title | Note |
+|---|---|---|---|---|
+| 2026-06-28 | BUILD | resolved | spotless ktlint Compose crash and config-cache partial format | `docs/errors/2026-06/2026-06-28_spotless-ktlint-compose-and-config-cache.md` |
+| 2026-06-28 | MATCH | resolved | shipped config untested by permissive test threshold | `docs/errors/2026-06/2026-06-28_shipped-config-untested-by-permissive-test-threshold.md` |
+| 2026-06-28 | BUILD | resolved | module bring-up compile gotchas | `docs/errors/2026-06/2026-06-28_module-bringup-compile-gotchas.md` |
+| 2026-06-28 | BUILD | resolved | host toolchain JDK and shell quirks | `docs/errors/2026-06/2026-06-28_host-toolchain-jdk-and-shell-quirks.md` |
