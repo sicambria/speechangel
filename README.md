@@ -1,6 +1,6 @@
 # SpeechAngel
 
-[![CI](https://github.com/sicambria/speechangel/actions/workflows/ci.yml/badge.svg)](https://github.com/sicambria/speechangel/actions/workflows/ci.yml)
+[![CI](https://github.com/sicambria/speechangel/actions/workflows/ci.yml/badge.svg?branch=phase012-eval-and-app-layer)](https://github.com/sicambria/speechangel/actions/workflows/ci.yml)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Android minSdk 26](https://img.shields.io/badge/minSdk-26_(Android_8)-brightgreen.svg)](https://developer.android.com/about/versions/oreo)
 [![Kotlin 2.0](https://img.shields.io/badge/Kotlin-2.0.21-7F52FF.svg?logo=kotlin&logoColor=white)](https://kotlinlang.org)
