@@ -1,5 +1,11 @@
 # SpeechAngel
 
+[![CI](https://github.com/sicambria/speechangel/actions/workflows/ci.yml/badge.svg)](https://github.com/sicambria/speechangel/actions/workflows/ci.yml)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![Android minSdk 26](https://img.shields.io/badge/minSdk-26_(Android_8)-brightgreen.svg)](https://developer.android.com/about/versions/oreo)
+[![Kotlin 2.0](https://img.shields.io/badge/Kotlin-2.0.21-7F52FF.svg?logo=kotlin&logoColor=white)](https://kotlinlang.org)
+[![On-device only](https://img.shields.io/badge/on--device-no_cloud-important.svg)](https://github.com/sicambria/speechangel)
+
 **On-device, trainable, *language-independent* voice control for Android — built for people who cannot use their hands and whose speech may be atypical (stroke, illness, dysarthria).**
 
 SpeechAngel recognises a small set of commands by matching the acoustic shape of **your own** recordings — no language model, no cloud, no phonemes. You teach it a few examples of each command on the phone; it listens hands-free and performs a fixed device action for each. Because it matches your sounds rather than a language, it works for speech that no speech-to-text engine understands.
