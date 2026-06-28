@@ -25,4 +25,5 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
 }
