@@ -21,6 +21,7 @@ const VERIFIERS = [
   "verify-gradle-wrapper-pinned.mjs",
   "verify-version-catalog-usage.mjs",
   "verify-foreground-service-types.mjs",
+  "verify-listening-offmain.mjs",
   "verify-no-secrets.mjs",
 ];
 

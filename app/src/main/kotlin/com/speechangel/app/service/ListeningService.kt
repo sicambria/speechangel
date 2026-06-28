@@ -14,11 +14,9 @@ import com.speechangel.app.action.CommandActionBus
 import com.speechangel.core.dsp.Vad
 import com.speechangel.core.enrollment.CommandRepository
 import com.speechangel.core.enrollment.Recognizer
-import com.speechangel.core.enrollment.ReservedCommands
 import com.speechangel.core.enrollment.TemplateRepository
-import com.speechangel.core.enrollment.WakeDecision
+import com.speechangel.core.enrollment.WakeGatedRecognizer
 import com.speechangel.core.enrollment.WakeWordGate
-import com.speechangel.core.model.AudioSamples
 import com.speechangel.core.model.RecognitionResult
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -43,20 +41,28 @@ import javax.inject.Inject
 class ListeningService : LifecycleService() {
 
     @Inject lateinit var recognizer: Recognizer
+
     @Inject lateinit var recorder: com.speechangel.data.audio.AudioRecorder
+
     @Inject lateinit var templateRepository: TemplateRepository
+
     @Inject lateinit var commandRepository: CommandRepository
+
     @Inject lateinit var actionBus: CommandActionBus
+
     @Inject lateinit var wakeWordGate: WakeWordGate
+
     @Inject lateinit var vad: Vad
 
     private lateinit var templateCache: StateFlow<List<com.speechangel.core.model.Template>>
+    private lateinit var pipeline: WakeGatedRecognizer
     private var loop: Job? = null
 
     override fun onCreate() {
         super.onCreate()
         templateCache = templateRepository.observeTemplates()
             .stateIn(lifecycleScope, SharingStarted.Eagerly, emptyList())
+        pipeline = WakeGatedRecognizer(recognizer, wakeWordGate, vad, recorder.sampleRateHz, WINDOW_MS, WAKE_WINDOW_MS)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -67,42 +73,24 @@ class ListeningService : LifecycleService() {
     }
 
     private suspend fun listenLoop() {
-        var wakeDetected = false
-        val cmdBuf  = ArrayDeque<AudioSamples>()
-        val wakeBuf = ArrayDeque<AudioSamples>()
-        val targetSamples     = recorder.sampleRateHz * WINDOW_MS      / 1000
-        val wakeWindowSamples = recorder.sampleRateHz * WAKE_WINDOW_MS / 1000
-
+        // Per-frame wake-gating + recognition (MFCC + DTW) is CPU-heavy; it MUST stay off the main
+        // thread. The whole state-machine step runs on Dispatchers.Default; the collector keeps only
+        // the cheap template lookup and the debounce delays. (Guarded by verify-listening-offmain.mjs.)
         recorder.stream(FRAME_MS).collect { frame ->
             val all = templateCache.value
-            if (all.isEmpty()) { delay(IDLE_DELAY_MS); return@collect }
-
-            val wakeTemplates = all.filter { it.commandId == ReservedCommands.WAKE }
-            val cmdTemplates  = ReservedCommands.commandTemplates(all)
-
-            if (wakeTemplates.isNotEmpty() && !wakeDetected) {
-                wakeBuf.add(frame)
-                while (wakeBuf.sumOf { it.samples.size } > wakeWindowSamples) wakeBuf.removeFirst()
-                val wakeWindow = vad.trim(AudioSamples.concat(wakeBuf))
-                when (wakeWordGate.evaluate(wakeWindow, wakeTemplates)) {
-                    is WakeDecision.Wake   -> {
-                        wakeDetected = true; wakeBuf.clear(); cmdBuf.clear()
-                        return@collect
-                    }
-                    is WakeDecision.NoWake -> return@collect
-                }
+            if (all.isEmpty()) {
+                pipeline.reset()
+                delay(IDLE_DELAY_MS)
+                return@collect
             }
 
-            cmdBuf.add(frame)
-            if (cmdBuf.sumOf { it.samples.size } < targetSamples) return@collect
-
-            val window = AudioSamples.concat(cmdBuf)
-            cmdBuf.clear(); wakeBuf.clear(); wakeDetected = false
-
-            val result = withContext(Dispatchers.Default) { recognizer.recognize(window, cmdTemplates) }
-            if (result is RecognitionResult.Match) {
-                commandRepository.getCommand(result.commandId)?.let { actionBus.publish(it.action) }
-                delay(POST_MATCH_DELAY_MS)
+            val outcome = withContext(Dispatchers.Default) { pipeline.onFrame(frame, all) }
+            if (outcome is WakeGatedRecognizer.Outcome.Recognized) {
+                val result = outcome.result
+                if (result is RecognitionResult.Match) {
+                    commandRepository.getCommand(result.commandId)?.let { actionBus.publish(it.action) }
+                    delay(POST_MATCH_DELAY_MS)
+                }
             }
         }
     }

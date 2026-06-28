@@ -47,8 +47,7 @@ internal object RecognitionModule {
 
     @Provides
     @Singleton
-    fun provideWakeWordGate(mfcc: MfccExtractor, matcher: TemplateMatcher): WakeWordGate =
-        WakeWordGate(mfcc, matcher, wakeThreshold = 8.0f)
+    fun provideWakeWordGate(mfcc: MfccExtractor, matcher: TemplateMatcher): WakeWordGate = WakeWordGate(mfcc, matcher, wakeThreshold = 8.0f)
 
     @Provides
     @Singleton

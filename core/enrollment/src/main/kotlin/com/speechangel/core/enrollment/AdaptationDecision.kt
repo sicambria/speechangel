@@ -3,6 +3,7 @@ package com.speechangel.core.enrollment
 import com.speechangel.core.model.FeatureSequence
 import com.speechangel.core.model.Template
 import com.speechangel.core.model.TemplateId
+import com.speechangel.core.model.VoiceCondition
 
 /** What confirmation-gated adaptation should do: add the confirmed example, remove any displaced ones. */
 data class AdaptationDecision(val toAdd: Template, val toRemove: List<TemplateId>)
@@ -16,8 +17,12 @@ data class AdaptationDecision(val toAdd: Template, val toRemove: List<TemplateId
  * Selection: the **most redundant** template = smallest minimum pairwise [distance] to its siblings.
  * Tie-break: oldest `createdAtEpochMs`, then `TemplateId.value` (a total order → fully deterministic).
  *
- * `require(maxPerCommand >= 4)` guarantees that with ≤ 4 conditions a ≥ 2 bucket always exists once the
- * cap is exceeded (pigeonhole over `existing.size = maxPerCommand` items), so a victim is always found.
+ * `require(maxPerCommand > VoiceCondition.entries.size)` is what makes the contract satisfiable: only
+ * when the cap strictly exceeds the number of conditions does pigeonhole guarantee that, at the cap,
+ * some condition bucket has ≥ 2 members — so a non-sole victim always exists. (A `>= 4` bound was a
+ * latent off-by-one: 4 templates in 4 distinct conditions at `maxPerCommand = 4` left `eligible`
+ * empty and silently exceeded the cap.) The trailing `check` is a defence-in-depth tripwire so any
+ * future weakening of the precondition fails loudly instead of silently growing the template set.
  */
 fun decideAdaptation(
     existing: List<Template>,
@@ -25,7 +30,10 @@ fun decideAdaptation(
     maxPerCommand: Int = 5,
     distance: (FeatureSequence, FeatureSequence) -> Double,
 ): AdaptationDecision {
-    require(maxPerCommand >= 4) { "maxPerCommand must be >= 4 so a sole-condition example is never evicted" }
+    require(maxPerCommand > VoiceCondition.entries.size) {
+        "maxPerCommand ($maxPerCommand) must exceed the number of VoiceConditions " +
+            "(${VoiceCondition.entries.size}) so a non-sole victim always exists at the cap"
+    }
     if (existing.size + 1 <= maxPerCommand) return AdaptationDecision(candidate, emptyList())
 
     val bucketSize = existing.groupingBy { it.condition }.eachCount()
@@ -38,7 +46,12 @@ fun decideAdaptation(
             { t -> t.id.value },
         ),
     )
-    return AdaptationDecision(candidate, victim?.let { listOf(it.id) } ?: emptyList())
+    val decision = AdaptationDecision(candidate, victim?.let { listOf(it.id) } ?: emptyList())
+    check(existing.size + 1 - decision.toRemove.size <= maxPerCommand) {
+        "adaptation would exceed cap $maxPerCommand: ${existing.size} existing + candidate, " +
+            "${decision.toRemove.size} removed (no eligible ≥2 bucket found)"
+    }
+    return decision
 }
 
 /** Smallest DTW distance from [t] to any other template in [all] (a redundancy score; lower = more redundant). */

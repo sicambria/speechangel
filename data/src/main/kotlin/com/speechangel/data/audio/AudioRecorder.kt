@@ -81,11 +81,14 @@ class AndroidAudioRecorder @Inject constructor() : AudioRecorder {
         val minBuffer = AudioRecord.getMinBufferSize(SAMPLE_RATE, CHANNEL, ENCODING)
         if (minBuffer <= 0) throw AudioCaptureException("Unsupported audio configuration on this device")
         val recorder = AudioRecord(
+            // Headroom: the collector processes each frame inline (off-main), so size the hardware
+            // buffer for several frames to absorb processing spikes without dropping audio / clipping
+            // a command onset during the wake→command transition.
             MediaRecorder.AudioSource.VOICE_RECOGNITION,
             SAMPLE_RATE,
             CHANNEL,
             ENCODING,
-            maxOf(minBuffer, frameSamples * 2),
+            maxOf(minBuffer, frameSamples * 4),
         )
         if (recorder.state != AudioRecord.STATE_INITIALIZED) {
             recorder.release()

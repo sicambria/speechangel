@@ -13,8 +13,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.lifecycleScope
 import com.speechangel.app.service.ListeningService
 import com.speechangel.app.ui.SpeechAngelNavHost
-import com.speechangel.app.ui.theme.SpeechAngelTheme
 import com.speechangel.app.ui.policy.MicDisclosureDialog
+import com.speechangel.app.ui.theme.SpeechAngelTheme
 import com.speechangel.data.prefs.ListeningPreferences
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
@@ -37,8 +37,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         lifecycleScope.launch {
             listening = preferences.isListeningEnabledNow()
-            if (preferences.micDisclosed.first()) requestRuntimePermissions()
-            else showDisclosure = true
+            if (preferences.micDisclosed.first()) {
+                requestRuntimePermissions()
+            } else {
+                showDisclosure = true
+            }
         }
         setContent {
             SpeechAngelTheme {

@@ -43,8 +43,7 @@ class TryViewModelTest {
     private var vmIdCounter = 0
     private val enroller = Enroller(mfcc, vad, idGenerator = { "vm-${vmIdCounter++}" })
 
-    private fun viewModel(recorder: AudioRecorder) =
-        TryViewModel(recognizer, recorder, templates, commands, enroller, matcher)
+    private fun viewModel(recorder: AudioRecorder) = TryViewModel(recognizer, recorder, templates, commands, enroller, matcher)
 
     private fun enroll(freq: Double, command: String, label: String) = runBlocking {
         commands.upsertCommand(VoiceCommand(CommandId(command), label, ActionId("HOME")))

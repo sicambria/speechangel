@@ -18,7 +18,10 @@ class AudioSamples(val samples: FloatArray, val sampleRateHz: Int) {
             require(frames.isNotEmpty())
             val out = FloatArray(frames.sumOf { it.samples.size })
             var off = 0
-            for (f in frames) { f.samples.copyInto(out, off); off += f.samples.size }
+            for (f in frames) {
+                f.samples.copyInto(out, off)
+                off += f.samples.size
+            }
             return AudioSamples(out, frames.first().sampleRateHz)
         }
     }
