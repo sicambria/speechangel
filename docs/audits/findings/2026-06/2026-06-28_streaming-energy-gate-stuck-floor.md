@@ -33,5 +33,7 @@ command never drags the floor up to itself) while removing the permanent latch.
 - **Decision:** fix — added an asymmetric `speechLeak` term (rate ≪ `adaptation`) so the floor
   creeps toward sustained loud input without a short utterance moving it; doc comment updated to
   describe the refined invariant.
+- **Resolution:** fixed in f12c861 (`StreamingEnergyGate.kt`); regression tests in fd785d3
+  (`StreamingEnergyGateTest.kt`) lock the re-baseline + brief-command invariants.
 - **Follow-up:** none. Component is currently referenced only by its own unit test; wired into the
   always-on Stage-1 path per `CLAUDE.md` §4 architecture.

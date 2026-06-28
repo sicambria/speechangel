@@ -31,4 +31,5 @@ require threshold re-calibration.
 - **Decision:** fix — added an explanatory comment at the divisor and a note on
   `MatcherConfig.defaultAcceptanceThreshold` that thresholds live on the `(n+m)`-normalized scale.
   Documentation only; no behavioural change.
+- **Resolution:** fixed in f12c861 (`Dtw.kt`, `TemplateMatcher.kt`).
 - **Follow-up:** none.

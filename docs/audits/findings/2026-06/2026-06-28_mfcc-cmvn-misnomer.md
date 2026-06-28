@@ -32,4 +32,5 @@ normalized and why.
 - **Decision:** fix — renamed `applyCmvn` → `applyCmn` and `cmvn` → `cmn`; comment now states
   variance is deliberately left un-normalized to keep DTW distances on a stable, calibratable scale.
   Flag is internal to `MfccExtractor` (no app/data callers), so the rename is contained.
+- **Resolution:** fixed in f12c861 (`MfccExtractor.kt`).
 - **Follow-up:** none.

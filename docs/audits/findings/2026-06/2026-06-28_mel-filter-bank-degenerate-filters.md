@@ -32,4 +32,5 @@ config; pure defensive robustness for unusual configs.
 
 - **Decision:** fix — `logEnergies` now falls back to the center bin's power when a filter's triangle
   collapses, guaranteeing every filter captures at least one bin. No change for the default config.
+- **Resolution:** fixed in f12c861 (`MelFilterBank.kt`).
 - **Follow-up:** none.
