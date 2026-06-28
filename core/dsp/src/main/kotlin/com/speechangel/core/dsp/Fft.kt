@@ -50,8 +50,12 @@ internal object Fft {
             }
             j = j or bit
             if (i < j) {
-                val tr = re[i]; re[i] = re[j]; re[j] = tr
-                val ti = im[i]; im[i] = im[j]; im[j] = ti
+                val tr = re[i]
+                re[i] = re[j]
+                re[j] = tr
+                val ti = im[i]
+                im[i] = im[j]
+                im[j] = ti
             }
         }
         // Butterfly stages.

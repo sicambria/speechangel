@@ -32,6 +32,5 @@ include(":core:model")
 include(":core:dsp")
 include(":core:matching")
 include(":core:enrollment")
-// :app and :data are added back once their modules are scaffolded (see tasks).
-// include(":data")
-// include(":app")
+include(":data")
+include(":app")

@@ -19,8 +19,12 @@ class DtwTest {
         val base = seq(floatArrayOf(0f), floatArrayOf(1f), floatArrayOf(2f), floatArrayOf(3f))
         // Same shape, stretched in time (duplicated frames) -> DTW should align well.
         val warped = seq(
-            floatArrayOf(0f), floatArrayOf(0f), floatArrayOf(1f),
-            floatArrayOf(2f), floatArrayOf(3f), floatArrayOf(3f),
+            floatArrayOf(0f),
+            floatArrayOf(0f),
+            floatArrayOf(1f),
+            floatArrayOf(2f),
+            floatArrayOf(3f),
+            floatArrayOf(3f),
         )
         val different = seq(floatArrayOf(3f), floatArrayOf(2f), floatArrayOf(1f), floatArrayOf(0f))
 

@@ -13,9 +13,7 @@ object TestSignals {
         return AudioSamples(samples, sampleRateHz)
     }
 
-    fun silence(durationMs: Int, sampleRateHz: Int = 16_000): AudioSamples {
-        return AudioSamples(FloatArray(sampleRateHz * durationMs / 1000), sampleRateHz)
-    }
+    fun silence(durationMs: Int, sampleRateHz: Int = 16_000): AudioSamples = AudioSamples(FloatArray(sampleRateHz * durationMs / 1000), sampleRateHz)
 
     /** silence | tone | silence — for VAD endpointing tests. */
     fun burst(

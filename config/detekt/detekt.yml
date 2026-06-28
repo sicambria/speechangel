@@ -6,6 +6,7 @@ build:
 complexity:
   TooManyFunctions:
     thresholdInClasses: 20
+    thresholdInInterfaces: 25
     thresholdInFiles: 25
   LongParameterList:
     functionThreshold: 8
@@ -14,12 +15,15 @@ complexity:
     threshold: 18
   LongMethod:
     threshold: 80
+  NestedBlockDepth:
+    threshold: 5
 
 style:
   MagicNumber:
     active: false
+  # Guard-clause early returns are idiomatic here; allow a few more than the default.
   ReturnCount:
-    max: 4
+    max: 6
   MaxLineLength:
     maxLineLength: 140
   UnusedPrivateMember:

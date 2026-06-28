@@ -22,7 +22,14 @@ subprojects {
             target("src/**/*.kt")
             targetExclude("**/build/**")
             ktlint(ktlintVersion)
-                .editorConfigOverride(mapOf("ktlint_standard_no-wildcard-imports" to "disabled"))
+                .editorConfigOverride(
+                    mapOf(
+                        "ktlint_standard_no-wildcard-imports" to "disabled",
+                        // Jetpack Compose uses PascalCase @Composable functions and theme vals.
+                        "ktlint_standard_function-naming" to "disabled",
+                        "ktlint_standard_property-naming" to "disabled",
+                    ),
+                )
             trimTrailingWhitespace()
             endWithNewline()
         }

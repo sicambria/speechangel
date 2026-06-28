@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SpeechAngel</string>
+    <string name="accessibility_label">SpeechAngel voice control</string>
+    <string name="accessibility_description">SpeechAngel lets you control your device hands-free using your own voice commands. It performs only the fixed actions you assign to each command; it does not read your screen content or act on its own.</string>
+    <string name="listening_channel_name">Always-on listening</string>
+    <string name="listening_notification_title">SpeechAngel is listening</string>
+    <string name="listening_notification_text">Say one of your commands.</string>
+</resources>
