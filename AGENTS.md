@@ -98,8 +98,11 @@ A plan names: the goal, the affected modules, the Definition of Done (tests + th
 ## 4. Incident & Error Protocol (the 9 steps)
 
 <!-- BUG_RCA_DISCOVERY_GATE: ANY failure found ANY way — a bug, a build break, a red gate, a
-     console error, an incidental observation — triggers this protocol. "Found incidentally" is
-     not an exemption. Do not silently fix-and-move-on. -->
+     console error, an incidental observation, or a PLANNING-PHASE DESIGN ERROR — triggers this
+     protocol. "Found incidentally" and "caught during plan review before any code was written"
+     are NOT exemptions. A design error that would have caused a silent regression if not caught
+     is just as incident-worthy as a runtime failure — it tells you your design process has a gap.
+     Do not silently fix-and-move-on in either case. -->
 
 1. **Stop & read existing knowledge.** `cat docs/errors/INDEX.md` — has this class been seen before?
 2. **Classify the failure.** Run `node scripts/workflow/classify.mjs <changed-paths>` to surface the

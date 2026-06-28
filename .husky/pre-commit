@@ -35,4 +35,35 @@ if [ "$BRANCH" = "main" ] || [ "$BRANCH" = "master" ]; then
   fi
 fi
 
+# --- Advisory: stale "planned" plans when Kotlin files are staged ----------------------------
+STAGED_KT="$(git diff --cached --name-only | grep '\.kt$' || true)"
+if [ -n "$STAGED_KT" ]; then
+  STALE="$("$NODE_BIN" - << 'EOF'
+const fs = require('fs'), path = require('path');
+const plansDir = 'docs/plans';
+const stale = [];
+function walk(dir) {
+  if (!fs.existsSync(dir)) return;
+  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    const p = path.join(dir, e.name);
+    if (e.isDirectory()) walk(p);
+    else if (e.name.endsWith('.md') && !e.name.endsWith('TEMPLATE.md') && !e.name.endsWith('INDEX.md')) {
+      const t = fs.readFileSync(p, 'utf8');
+      const m = t.match(/\*\*Status:\*\*\s*([a-z]+)/i);
+      if (m && m[1].toLowerCase() === 'planned') stale.push(p);
+    }
+  }
+}
+walk(plansDir);
+if (stale.length) process.stdout.write(stale.join('\n'));
+EOF
+  )"
+  if [ -n "$STALE" ]; then
+    echo "[pre-commit] ADVISORY: Kotlin files staged but these plans are still 'planned' (not active/done):"
+    echo "$STALE" | sed 's/^/    /'
+    echo "[pre-commit] Consider updating plan Status to 'active' before landing the implementation."
+    echo "[pre-commit] (advisory only — not blocking this commit)"
+  fi
+fi
+
 echo "[pre-commit] OK"
