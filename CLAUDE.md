@@ -1,4 +1,6 @@
-# CLAUDE.md — Claude Code operational patterns for SpeechAngel
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 Read `AGENTS.md` first (operating rules + Incident Protocol) and `docs/ai/START_HERE.md`
 (source-of-truth order). This file holds the **Claude-Code-specific** patterns: the exact working
@@ -36,13 +38,15 @@ ANDROID_HOME=/home/arsvivendi/Android/Sdk \
 /home/arsvivendi/git/speechangel/gradlew -p /home/arsvivendi/git/speechangel <tasks>
 ```
 
-`:app` and `:data` are now **enabled** in `settings.gradle.kts` (all six modules are included). The
-README claims `:app:assembleDebug` is green, but that has **not been re-verified on this host** — so
-treat full builds as heavy-and-unconfirmed, not proven. **Default to not running full builds**; the
-fast green gate remains the four core test tasks:
-`:core:model:test :core:dsp:test :core:matching:test :core:enrollment:test`. You may run a single
-`:core:matching:test` to confirm something. Run `:app:assembleDebug` / `:data` tasks only when the
-task genuinely needs them (it is the first thing to confirm before relying on the README's claim).
+All six modules (`:core:*`, `:data`, `:app`) are enabled in `settings.gradle.kts`.
+`:app:assembleDebug` is **verified green** on this host (builds in ~4 s from cache).
+Default to the four core test tasks as the fast gate:
+
+```
+:core:model:test  :core:dsp:test  :core:matching:test  :core:enrollment:test
+```
+
+Run `:app:assembleDebug` / `:data` tasks when the task genuinely needs them.
 
 See `docs/DEPENDENCIES.md` for the full host/SDK/emulator dependency manifest and
 `scripts/setup/install-deps.sh` to provision the run tier.
@@ -52,7 +56,91 @@ See `docs/DEPENDENCIES.md` for the full host/SDK/emulator dependency manifest an
 
 ---
 
-## 2. The workflow scripts are dependency-free Node ESM
+## 2. Make targets (preferred interface)
+
+The `Makefile` pins `JAVA_HOME` and `ANDROID_HOME` so you don't need to prefix every Gradle call:
+
+| Target | What it runs |
+|---|---|
+| `make test` | All JVM unit tests |
+| `make static` | detekt + spotlessCheck + `:app:lintDebug` |
+| `make format` | Auto-format (spotless/ktlint) |
+| `make build` | Debug APK (`:app:assembleDebug`) |
+| `make verify` | Full local gate: static + lint + tests + APK (mirrors CI) |
+| `make guardrails` | All AI-workflow audit scripts |
+| `make ci` | `verify` + `guardrails` |
+| `make emulator` | Boot the dev AVD (`changemappers-test`, Pixel 6 API 35) |
+
+Run a single module's tests directly when you only touched one area:
+
+```sh
+JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 \
+ANDROID_HOME=/home/arsvivendi/Android/Sdk \
+/home/arsvivendi/git/speechangel/gradlew :core:matching:test
+```
+
+---
+
+## 3. Running the app on the emulator
+
+**AVD:** `changemappers-test` (Pixel 6, API 35, x86_64)  
+**APK output:** `app/build/outputs/apk/debug/app-debug.apk`  
+**Package:** `com.speechangel.app.debug`
+
+```sh
+# 1 — start emulator (background, no audio)
+ANDROID_HOME=/home/arsvivendi/Android/Sdk \
+$ANDROID_HOME/emulator/emulator -avd changemappers-test -no-audio -no-boot-anim \
+  -no-snapshot-save -gpu swiftshader_indirect &
+
+# 2 — wait for boot
+$ANDROID_HOME/platform-tools/adb -e wait-for-device
+until [ "$($ANDROID_HOME/platform-tools/adb -e shell getprop sys.boot_completed | tr -d '\r')" = "1" ]; do sleep 2; done
+
+# 3 — build + install + launch
+make build
+$ANDROID_HOME/platform-tools/adb -e install -r app/build/outputs/apk/debug/app-debug.apk
+$ANDROID_HOME/platform-tools/adb -e shell am start \
+  -n com.speechangel.app.debug/com.speechangel.app.MainActivity
+```
+
+Stop: `adb -e shell am force-stop com.speechangel.app.debug` then kill the emulator process.
+
+---
+
+## 4. Architecture — runtime signal flow
+
+The big picture that requires reading across several files:
+
+```
+AudioRecord (16 kHz PCM)
+  └─ StreamingEnergyGate  (core:dsp)   — coarse VAD; gates the MFCC stage
+       └─ MfccExtractor   (core:dsp)   — 13 MFCC + delta
+            └─ TemplateMatcher (core:matching) — length-normalised DTW vs enrolled templates
+                 └─ Recognizer (core:enrollment) — multi-template vote + OOV reject
+                      └─ CommandActionBus (app:action) — in-process event bus
+                           └─ SpeechAngelAccessibilityService (app:service)
+                                — ONE deterministic action per command (Play-policy line)
+```
+
+The `ListeningService` (foreground `microphone` service) owns the audio loop and drives the
+pipeline above. `WakeWordGate` (core:enrollment) sits between `Recognizer` and the bus as an
+optional coarse filter.
+
+Enrollment path: UI (`app:ui:teach`) → `Enroller` (core:enrollment) → `SpeechBackend`
+(core:enrollment) → Room database (`:data`). Templates are loaded from Room into
+`TemplateMatcher` on service start.
+
+**Hard constraints (do not cross):**
+- `AccessibilityService` must remain `isAccessibilityTool=true` and deterministic — no LLM, no
+  autonomous decisions (Google Play 2026 policy; see `research/04_build_and_reuse_plan.md` §7).
+- The recognizer is purely on-device — no cloud calls anywhere in the pipeline.
+- Always-on mic requires a `FOREGROUND_SERVICE_MICROPHONE` foreground service; the manifest and
+  notification channel are verified by `scripts/audits/verify-foreground-service-types.mjs`.
+
+---
+
+## 5. The workflow scripts are dependency-free Node ESM
 
 Every script under `scripts/` is a `.mjs` ESM module that runs on node v24 with **no external
 deps** (no `npm install` needed). Run any of them standalone:
@@ -67,7 +155,7 @@ npm layer to run.
 
 ---
 
-## 3. Enabling the git hooks
+## 6. Enabling the git hooks
 
 The hooks live in `.husky/` as plain executable shell scripts. **Husky is not installed** (no
 `npm install` is run for this workflow). To enable them on a host that uses them, point git at the
@@ -80,12 +168,11 @@ git config core.hooksPath .husky
 - `.husky/pre-commit` runs `node scripts/audits/run-all.mjs` and emits the advisory
   "non-docs on `main` should be in a worktree/plan" warning.
 - `.husky/pre-push` runs the guardrail bundle plus the Gradle quality + core-test gate with the
-  JDK 21 / `ANDROID_HOME` env. App/data assemble + instrumentation tests are a documented TODO
-  (Wave 7 — "wire only what is green") that lands once those modules exist.
+  JDK 21 / `ANDROID_HOME` env.
 
 ---
 
-## 4. Cost & context discipline (advisory)
+## 7. Cost & context discipline (advisory)
 
 - **Route read-only fan-out to a cheaper subagent.** Use the `Explore` agent for "where does X
   live across the modules" sweeps; keep the file dumps out of the main context.
@@ -95,5 +182,48 @@ git config core.hooksPath .husky
   between unrelated tasks. Re-read `AGENTS.md` + `START_HERE.md` after a compaction (the session-start
   invariant in `START_HERE.md`).
 - **One worktree / one dev concern at a time.** Stray parallel state is a cost and a correctness risk.
-- This discipline is **advisory** by design — there is no token-budget gate yet. It is a promotion
-  candidate if cost overruns recur.
+
+---
+
+## 8. Session-close protocol (mandatory — run in order)
+
+Every session that touches code or plans must close with these steps **before** ending. Missing any
+step is a process gap — the pre-commit hook and guardrails enforce them mechanically.
+
+1. **Update plan status.** For every plan whose A-deliverables landed this session:
+   - Set `Status: done (A-deliverables implemented YYYY-MM-DD; …)` (date is mandatory — the
+     guardrail rejects `done` without a `YYYY-MM-DD`).
+   - For plans still in progress: set `Status: active`.
+   - For plans blocked externally: set `Status: blocked` with a one-line blocker note.
+
+2. **Update `docs/plans/INDEX.md`.** Every plan file has an entry. Mark done plans with ✅ and a
+   date; mark active/blocked plans accordingly.
+
+3. **Write incident docs for every non-trivial error.** If any design error, build failure, or
+   wrong assumption cost > ~5 min to fix, create a note under `docs/errors/YYYY-MM/`:
+   - Required sections: Summary, Root Cause, Rerun Analysis, Prevention, Guardrail Updates,
+     Planning Integration, Shift-Left Decision, Automation Follow-Up.
+   - Cite a real repo file in `## Guardrail Updates` (never leave it empty).
+
+4. **Update `docs/ai/ACTIVE_DEV_RULES.md`.** If the incident produced a new rule, add it (e.g.
+   MATCH-002). If an existing rule proved insufficient, extend it.
+
+5. **Run `make guardrails` (or `node scripts/audits/run-all.mjs`).** All 9 checks must pass green
+   before the first commit. Fix any failures before committing — a red guardrail is a blocker.
+
+6. **Commit in logical chunks** (never one giant commit):
+   - Chunk 1: core logic changes (Domain models, matchers, enrollers).
+   - Chunk 2: app wiring (service, DI, ViewModels).
+   - Chunk 3: UI changes (screens, Compose).
+   - Chunk 4: docs + plan status updates.
+   - Chunk 5: workflow improvements (guardrails, hooks, CLAUDE.md, AGENTS.md).
+   Each chunk must pass `make guardrails` independently. Use `git add -p` or per-file staging.
+
+7. **Verify the commit message.** Each commit message must describe *why*, not just *what*.
+   Include the plan name or gap number when relevant (e.g. "Gap 1: two-stage ListeningService
+   loop — streaming mic + WakeWordGate wiring").
+
+> **Why this is mandatory:** in the session that introduced this protocol, plan status updates,
+> INDEX.md updates, incident docs, and guardrail fixes were all done manually — each one because
+> a process gap was discovered in real time. Automating the checklist prevents the same discovery
+> loop in every future session.
