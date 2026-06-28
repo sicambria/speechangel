@@ -97,7 +97,7 @@ Four-screen, one-path, zero-jargon, guardrailed (mirroring the proven TalkTeach 
 ---
 
 ## 6. Licensing strategy
-- Fork choice sets the floor: **Dicio (GPL-3)** → simplest to default the whole app **GPL-3** and reuse freely (consistent with Turán's GPL-3 lineage). **openclaw-assistant (MIT)** → more permissive but you re-add UX.
+- Fork choice sets the floor: **Dicio (GPL-3)** → compatible with defaulting the whole app **AGPL-3.0** (network-service copyleft strengthens the GPL-3 baseline; consistent with Turán's copyleft lineage). **openclaw-assistant (MIT)** → more permissive but you re-add UX.
 - Keep **Silero VAD (MIT)**, **whisper.cpp (MIT)**, **Vosk/sherpa-onnx (Apache-2.0)** — all compatible.
 - **Avoid:** Silero STT (CC-BY-NC), openWakeWord models (CC-BY-NC-SA), Picovoice (proprietary) — all fail commercial/OSS goals.
 - Verify per-repo DTW/MFCC and microWakeWord licenses before integration; ship a third-party-licenses/credits screen.

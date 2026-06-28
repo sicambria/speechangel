@@ -76,4 +76,4 @@ Or directly: `JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ANDROID_HOME=$HOME/An
 
 ## License
 
-GPL-3.0 (consistent with the Turán RMS lineage that motivated this project). See `research/04_build_and_reuse_plan.md` §6 for the licensing rationale and third-party components.
+AGPL-3.0. See `research/04_build_and_reuse_plan.md` §6 for the licensing rationale and third-party components.
