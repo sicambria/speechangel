@@ -66,10 +66,11 @@ survival 95, ux 94, policy 95.
 - ✅ `app` services: `OemAutostart` (pure, unit-tested), `BatteryOptimization`, `AssistantRole`
   (API-guarded), `BootReceiver` (legal tap-to-resume, not FGS-from-boot) + manifest registration.
 
-  Remaining wiring gaps (small, Bucket-B to verify): consume `AudioRecorder.stream()` +
-  `WakeWordGate` inside `ListeningService` for the live two-stage loop; show `MicDisclosureDialog`
-  before the first mic permission; surface the adaptation "remember this" affordance. `verify-docs-integrity`
-  is now fully green (all referenced files exist).
+- ✅ Wiring gaps (2026-06-28): `ListeningService` two-stage streaming loop (rolling 750ms wake window
+  via `WakeWordGate` + `Vad`, template `StateFlow` cache, `AudioSamples.concat`); `MicDisclosureDialog`
+  gated on `preferences.micDisclosed` before first mic permission; TryScreen "Remember this" affordance
+  (`TryViewModel.rememberThis()` → `decideAdaptation` → `TemplateRepository`). All new tests green;
+  `make test` + `make build` + 9/9 guardrails pass.
 
 **(3) B/C blockers documented:** real FRR/FAR (needs a labeled dysarthric-inclusive corpus), on-device
 survival (reboot/Doze/OEM), Play Permission Declaration Form (account), real Vosk/sherpa Path-A backend.

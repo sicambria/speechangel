@@ -4,7 +4,7 @@
 - **Phase:** 1 (screens) + 2 (adaptation)
 - **Roadmap item:** Phase 1 "4-screen enrollment UX (Teach / Name-Map / Try / Always-on) + caregiver
   setup wizard"; Phase 2 "Multi-template re-enrollment polish + confirmation-gated adaptation"
-- **Status:** planned
+- **Status:** done (A-deliverables implemented 2026-06-28; B-items — device visual QA — pending external input)
 - **Worktree:** n/a (single-session, on `main`)
 - **Plan quality:** 94/100 — independently confirmed over two review rounds (59 → 88 → 94)
 

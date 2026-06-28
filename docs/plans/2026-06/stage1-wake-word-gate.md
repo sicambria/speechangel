@@ -4,7 +4,7 @@
 - **Phase:** 1
 - **Roadmap item:** Phase 1 "Stage-1 (24/7) Silero VAD gate → software wake word (enrolled DTW wake
   OR microWakeWord)"
-- **Status:** planned
+- **Status:** done (A-deliverables implemented 2026-06-28; B-items — device battery measurement — pending external input)
 - **Worktree:** n/a (single-session, on `main`)
 - **Plan quality:** 95/100 — independently confirmed over two review rounds (67 → 93 → 95)
 - **Depends on:** `docs/plans/2026-06/recognizer-eval-and-calibration.md` (the `core:eval` harness is a

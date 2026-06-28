@@ -4,10 +4,11 @@
 Generated index of all incident notes under `docs/errors/<YYYY-MM>/`. Regenerate with
 `node scripts/audits/verify-learning-loop.mjs --write-index` (npm: `knowledge:index`).
 
-**Total incidents: 4**
+**Total incidents: 5**
 
 | Date | Area | Status | Title | Note |
 |---|---|---|---|---|
+| 2026-06-28 | MATCH | resolved (design corrected before any code was written) | wake gate requires utterance-length input, not per-frame input | `docs/errors/2026-06/2026-06-28_wake-gate-requires-utterance-not-frame.md` |
 | 2026-06-28 | BUILD | resolved | spotless ktlint Compose crash and config-cache partial format | `docs/errors/2026-06/2026-06-28_spotless-ktlint-compose-and-config-cache.md` |
 | 2026-06-28 | MATCH | resolved | shipped config untested by permissive test threshold | `docs/errors/2026-06/2026-06-28_shipped-config-untested-by-permissive-test-threshold.md` |
 | 2026-06-28 | BUILD | resolved | module bring-up compile gotchas | `docs/errors/2026-06/2026-06-28_module-bringup-compile-gotchas.md` |

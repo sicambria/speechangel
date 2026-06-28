@@ -49,6 +49,15 @@ exit code (the configuration cache can serve a partial apply).
 - **Why:** `docs/errors/2026-06/2026-06-28_spotless-ktlint-compose-and-config-cache.md`
 - **Gate:** `.editorconfig` + root Spotless config; `spotlessCheck` in `make verify` and CI.
 
+### MATCH-002 — Read the test before streaming into a DTW-based gate
+Before designing a per-frame streaming driver for any `evaluate()` / `match()` API that uses
+length-normalized DTW: read the existing tests to see what *input size* the passing cases use.
+Length-normalized DTW handles tempo variation of the same *content*; it does **not** make a short
+fragment match a full-utterance template. Silently wrong results (always-NoMatch) are harder to
+catch than crashes.
+- **Why:** `docs/errors/2026-06/2026-06-28_wake-gate-requires-utterance-not-frame.md`
+- **Gate:** advisory; the rolling-window pattern in `ListeningService` is the reference implementation; `WakeWordGateTest.kt` is the API-contract source-of-truth.
+
 ### BUILD-003 — Bring up each module standalone
 Compile and test each Gradle module green in isolation before wiring the next; never enable the whole
 module graph blind. This localises version-coupled API mismatches.

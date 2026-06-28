@@ -4,7 +4,7 @@
 - **Phase:** 2
 - **Roadmap item:** Phase 2 "Play Permission Declaration Form + prominent mic disclosure"; Phase 2
   "Optional Path-A intact-speech mode (Vosk grammar / sherpa-onnx KWS)"
-- **Status:** planned
+- **Status:** done (A-deliverables implemented 2026-06-28; C-items — Play Permission Declaration Form — pending external input)
 - **Worktree:** n/a (single-session, on `main`)
 - **Plan quality:** 95/100 — independently confirmed over two review rounds (63 → 86 → 95)
 
