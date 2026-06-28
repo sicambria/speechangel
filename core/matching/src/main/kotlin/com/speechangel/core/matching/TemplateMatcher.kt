@@ -13,6 +13,8 @@ import com.speechangel.core.model.TemplateId
  * @property defaultAcceptanceThreshold Maximum length-normalised DTW distance to accept a match.
  *   This is feature-scaling dependent and MUST be calibrated per deployment (Phase 0: measure
  *   FRR/FAR — see `research/04_build_and_reuse_plan.md`). Per-command overrides are supported.
+ *   The scale is set by [Dtw.distance]'s `(n + m)` normalization — changing that divisor invalidates
+ *   this threshold (audit 2026-06-28_dtw-length-normalization-convention).
  * @property bandRatio Sakoe–Chiba band passed to [Dtw].
  * @property marginWeight How much the gap to the runner-up command contributes to confidence.
  */

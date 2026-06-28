@@ -27,7 +27,12 @@ data class MfccConfig(
     val lowFreqHz: Double = 20.0,
     val highFreqHz: Double = 0.0, // 0 => Nyquist (sampleRate / 2)
     val cepstralLifter: Int = 22,
-    val applyCmvn: Boolean = true,
+    /**
+     * Cepstral Mean Normalization (CMN): subtract the per-coefficient mean over the utterance.
+     * Variance is deliberately NOT normalized — that would rescale DTW distances and invalidate the
+     * per-deployment acceptance-threshold calibration (audit 2026-06-28_mfcc-cmvn-misnomer).
+     */
+    val applyCmn: Boolean = true,
     val deltaOrder: DeltaOrder = DeltaOrder.NONE,
 ) {
     val frameLength: Int get() = sampleRateHz * frameLengthMs / 1000
@@ -64,7 +69,7 @@ class MfccExtractor(private val config: MfccConfig = MfccConfig()) {
             start += config.frameShift
         }
         var sequence = frames
-        if (config.applyCmvn) sequence = cmvn(sequence)
+        if (config.applyCmn) sequence = cmn(sequence)
         sequence = when (config.deltaOrder) {
             DeltaOrder.NONE -> sequence
             DeltaOrder.DELTA -> withDeltas(sequence, includeAcceleration = false)
@@ -120,7 +125,8 @@ class MfccExtractor(private val config: MfccConfig = MfccConfig()) {
             return out
         }
 
-        fun cmvn(frames: List<FloatArray>): ArrayList<FloatArray> {
+        /** Cepstral Mean Normalization: subtract the per-coefficient mean. Variance is left as-is. */
+        fun cmn(frames: List<FloatArray>): ArrayList<FloatArray> {
             if (frames.isEmpty()) return ArrayList()
             val width = frames[0].size
             val mean = DoubleArray(width)

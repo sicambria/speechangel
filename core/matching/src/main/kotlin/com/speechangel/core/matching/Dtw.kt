@@ -67,6 +67,10 @@ object Dtw {
         }
 
         val accumulated = prev[m]
+        // Normalize by (n + m), the standard Rabiner path-length proxy. This is a fixed convention,
+        // consistent across every match, so it never affects ranking — but it sets the SCALE on which
+        // acceptance thresholds live (see MatcherConfig.defaultAcceptanceThreshold). Changing this
+        // divisor would require re-calibrating every threshold.
         return if (accumulated == INF) INF else accumulated / (n + m)
     }
 }

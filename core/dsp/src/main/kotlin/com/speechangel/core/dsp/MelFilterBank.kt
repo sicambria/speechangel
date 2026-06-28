@@ -52,6 +52,10 @@ internal class MelFilterBank(
             for (k in center until right) {
                 if (right > center) energy += powerSpectrum[k] * (right - k).toDouble() / (right - center)
             }
+            // If the triangle collapsed (left == center == right, possible with a degenerate config),
+            // capture the center bin's raw power so the filter never silently drops a band
+            // (audit 2026-06-28_mel-filter-bank-degenerate-filters). No effect on the default config.
+            if (left == center && center == right) energy += powerSpectrum[center].toDouble()
             // Floor before log to avoid -inf on silent bands.
             out[m - 1] = ln(energy.coerceAtLeast(LOG_FLOOR)).toFloat()
         }
