@@ -13,16 +13,11 @@ object TestSignals {
         return AudioSamples(samples, sampleRateHz)
     }
 
-    fun silence(durationMs: Int, sampleRateHz: Int = 16_000): AudioSamples = AudioSamples(FloatArray(sampleRateHz * durationMs / 1000), sampleRateHz)
+    fun silence(durationMs: Int, sampleRateHz: Int = 16_000): AudioSamples =
+        AudioSamples(FloatArray(sampleRateHz * durationMs / 1000), sampleRateHz)
 
     /** silence | tone | silence — for VAD endpointing tests. */
-    fun burst(
-        freqHz: Double,
-        leadMs: Int,
-        toneMs: Int,
-        trailMs: Int,
-        sampleRateHz: Int = 16_000,
-    ): AudioSamples {
+    fun burst(freqHz: Double, leadMs: Int, toneMs: Int, trailMs: Int, sampleRateHz: Int = 16_000): AudioSamples {
         val lead = silence(leadMs, sampleRateHz).samples
         val mid = tone(freqHz, toneMs, sampleRateHz).samples
         val trail = silence(trailMs, sampleRateHz).samples

@@ -1,0 +1,37 @@
+#!/usr/bin/env sh
+# SpeechAngel pre-push hook (plain shell — husky-compatible, but husky is NOT installed).
+# Enable with:  git config core.hooksPath .husky      (see CLAUDE.md §3)
+#
+# Runs the guardrail bundle, then the Gradle quality + core-test gate with the captured
+# JDK 21 / ANDROID_HOME environment (CLAUDE.md §1.2). Heavier than pre-commit by design.
+
+set -e
+
+NODE_BIN="$(command -v node || true)"
+if [ -z "$NODE_BIN" ]; then
+  NODE_BIN="/home/arsvivendi/.nvm/versions/node/v24.16.0/bin/node"
+fi
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+echo "[pre-push] running guardrails:check ..."
+"$NODE_BIN" scripts/audits/run-all.mjs
+
+echo "[pre-push] running Gradle quality + core test gate (JDK 21 + Android SDK) ..."
+JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 \
+ANDROID_HOME=/home/arsvivendi/Android/Sdk \
+"$REPO_ROOT/gradlew" -p "$REPO_ROOT" \
+  detekt \
+  spotlessCheck \
+  :core:model:test \
+  :core:dsp:test \
+  :core:matching:test \
+  :core:enrollment:test
+
+# TODO (Wave 7 — "wire only what is green"): once :app and :data are scaffolded and re-enabled in
+# settings.gradle.kts, add their assemble + instrumentation tests here, e.g.:
+#   :app:assembleDebug :data:test :app:connectedDebugAndroidTest
+# Do NOT add them before those modules exist — a gate wired before its target is green bricks pushes.
+
+echo "[pre-push] OK"

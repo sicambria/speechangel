@@ -75,15 +75,13 @@ class MfccExtractor(private val config: MfccConfig = MfccConfig()) {
     }
 
     private companion object {
-        fun hammingWindow(n: Int): FloatArray =
-            FloatArray(n) { i -> (0.54 - 0.46 * cos(2.0 * PI * i / (n - 1))).toFloat() }
+        fun hammingWindow(n: Int): FloatArray = FloatArray(n) { i -> (0.54 - 0.46 * cos(2.0 * PI * i / (n - 1))).toFloat() }
 
-        fun cepstralLifter(numCoeffs: Int, lifter: Int): FloatArray =
-            if (lifter <= 0) {
-                FloatArray(numCoeffs) { 1f }
-            } else {
-                FloatArray(numCoeffs) { k -> (1.0 + lifter / 2.0 * sin(PI * k / lifter)).toFloat() }
-            }
+        fun cepstralLifter(numCoeffs: Int, lifter: Int): FloatArray = if (lifter <= 0) {
+            FloatArray(numCoeffs) { 1f }
+        } else {
+            FloatArray(numCoeffs) { k -> (1.0 + lifter / 2.0 * sin(PI * k / lifter)).toFloat() }
+        }
 
         fun preEmphasize(input: FloatArray, coeff: Float): FloatArray {
             if (coeff == 0f) return input.copyOf()

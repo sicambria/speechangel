@@ -1,0 +1,21 @@
+{
+  "name": "speechangel-workflow",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "AI-assisted development workflow + guardrail scripts for the SpeechAngel Android app. Dependency-free Node ESM; runs on node v24.",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "knowledge:index": "node scripts/audits/verify-learning-loop.mjs --write-index",
+    "knowledge:check": "node scripts/audits/verify-learning-loop.mjs",
+    "incident:new": "node scripts/ops/create-incident-report.mjs",
+    "audit:index": "node scripts/audits/verify-audit-loop.mjs --write-index",
+    "audit:check": "node scripts/audits/verify-audit-loop.mjs",
+    "audit:finding": "node scripts/ops/create-audit-finding.mjs",
+    "guardrails:check": "node scripts/audits/run-all.mjs",
+    "docs:check": "node scripts/audits/verify-docs-integrity.mjs",
+    "classify": "node scripts/workflow/classify.mjs"
+  }
+}

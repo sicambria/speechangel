@@ -6,11 +6,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "commands")
-data class CommandEntity(
-    @PrimaryKey val id: String,
-    val label: String,
-    val action: String,
-)
+data class CommandEntity(@PrimaryKey val id: String, val label: String, val action: String)
 
 @Entity(
     tableName = "templates",

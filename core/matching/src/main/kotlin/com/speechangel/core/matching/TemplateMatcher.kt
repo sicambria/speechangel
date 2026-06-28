@@ -16,11 +16,7 @@ import com.speechangel.core.model.TemplateId
  * @property bandRatio Sakoe–Chiba band passed to [Dtw].
  * @property marginWeight How much the gap to the runner-up command contributes to confidence.
  */
-data class MatcherConfig(
-    val defaultAcceptanceThreshold: Float = 8.0f,
-    val bandRatio: Double = 0.1,
-    val marginWeight: Float = 0.4f,
-)
+data class MatcherConfig(val defaultAcceptanceThreshold: Float = 8.0f, val bandRatio: Double = 0.1, val marginWeight: Float = 0.4f)
 
 /**
  * Speaker-dependent, language-independent command matcher.

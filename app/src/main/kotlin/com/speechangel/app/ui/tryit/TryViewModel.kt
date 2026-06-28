@@ -21,10 +21,7 @@ sealed interface TryResult {
     data object NoCommands : TryResult
 }
 
-data class TryUiState(
-    val isListening: Boolean = false,
-    val result: TryResult? = null,
-)
+data class TryUiState(val isListening: Boolean = false, val result: TryResult? = null)
 
 @HiltViewModel
 class TryViewModel @Inject constructor(

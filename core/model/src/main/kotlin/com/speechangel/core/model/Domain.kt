@@ -9,10 +9,7 @@ package com.speechangel.core.model
  */
 
 /** A mono PCM buffer normalised to the range [-1, 1]. */
-class AudioSamples(
-    val samples: FloatArray,
-    val sampleRateHz: Int,
-) {
+class AudioSamples(val samples: FloatArray, val sampleRateHz: Int) {
     val durationMs: Long get() = if (sampleRateHz <= 0) 0 else samples.size * 1000L / sampleRateHz
     val isEmpty: Boolean get() = samples.isEmpty()
 }
@@ -59,11 +56,7 @@ value class ActionId(val value: String)
 enum class VoiceCondition { NORMAL, TIRED, ILL, OTHER }
 
 /** A user-defined voice command and the deterministic action it triggers. */
-data class VoiceCommand(
-    val id: CommandId,
-    val label: String,
-    val action: ActionId,
-)
+data class VoiceCommand(val id: CommandId, val label: String, val action: ActionId)
 
 /** One enrolled acoustic template: the feature trajectory of a single recording of a command. */
 data class Template(
@@ -80,12 +73,7 @@ enum class RejectionReason { BELOW_CONFIDENCE, NO_TEMPLATES, SILENCE, EMPTY_INPU
 /** Outcome of matching an utterance against the enrolled templates. */
 sealed interface RecognitionResult {
     /** A confident match. [confidence] is in [0,1]; [distance] is the raw DTW cost (lower = closer). */
-    data class Match(
-        val commandId: CommandId,
-        val templateId: TemplateId,
-        val confidence: Float,
-        val distance: Float,
-    ) : RecognitionResult
+    data class Match(val commandId: CommandId, val templateId: TemplateId, val confidence: Float, val distance: Float) : RecognitionResult
 
     /** No command cleared its acceptance threshold. */
     data class NoMatch(

@@ -9,11 +9,7 @@ import android.accessibilityservice.AccessibilityService
  * autonomous agent, which is what keeps it inside Google Play's 2026 accessibility policy
  * (see `research/02_technological_findings.md` §T2.7). Each command maps to exactly one of these.
  */
-enum class DeviceAction(
-    val id: String,
-    val label: String,
-    val globalAction: Int,
-) {
+enum class DeviceAction(val id: String, val label: String, val globalAction: Int) {
     HOME("HOME", "Go to home screen", AccessibilityService.GLOBAL_ACTION_HOME),
     BACK("BACK", "Go back", AccessibilityService.GLOBAL_ACTION_BACK),
     RECENTS("RECENTS", "Show recent apps", AccessibilityService.GLOBAL_ACTION_RECENTS),

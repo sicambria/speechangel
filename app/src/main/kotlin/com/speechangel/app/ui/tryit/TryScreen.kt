@@ -29,10 +29,7 @@ import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TryScreen(
-    onBack: () -> Unit,
-    viewModel: TryViewModel = hiltViewModel(),
-) {
+fun TryScreen(onBack: () -> Unit, viewModel: TryViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     Scaffold(

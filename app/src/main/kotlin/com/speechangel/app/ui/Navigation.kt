@@ -15,10 +15,7 @@ private object Routes {
 }
 
 @Composable
-fun SpeechAngelNavHost(
-    isListening: Boolean,
-    onListeningChange: (Boolean) -> Unit,
-) {
+fun SpeechAngelNavHost(isListening: Boolean, onListeningChange: (Boolean) -> Unit) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = Routes.HOME) {
         composable(Routes.HOME) {

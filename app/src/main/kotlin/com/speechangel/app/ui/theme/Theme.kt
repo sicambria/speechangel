@@ -43,10 +43,7 @@ private val AccessibleTypography = Typography(
 )
 
 @Composable
-fun SpeechAngelTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit,
-) {
+fun SpeechAngelTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val colors = if (darkTheme) DarkColors else LightColors
     val view = LocalView.current
     if (!view.isInEditMode) {

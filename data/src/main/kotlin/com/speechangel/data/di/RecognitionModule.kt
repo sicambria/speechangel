@@ -42,16 +42,14 @@ internal object RecognitionModule {
 
     @Provides
     @Singleton
-    fun provideRecognizer(mfcc: MfccExtractor, vad: Vad, matcher: TemplateMatcher): Recognizer =
-        Recognizer(mfcc, vad, matcher)
+    fun provideRecognizer(mfcc: MfccExtractor, vad: Vad, matcher: TemplateMatcher): Recognizer = Recognizer(mfcc, vad, matcher)
 
     @Provides
     @Singleton
-    fun provideEnroller(mfcc: MfccExtractor, vad: Vad): Enroller =
-        Enroller(
-            mfcc = mfcc,
-            vad = vad,
-            idGenerator = { UUID.randomUUID().toString() },
-            clock = { System.currentTimeMillis() },
-        )
+    fun provideEnroller(mfcc: MfccExtractor, vad: Vad): Enroller = Enroller(
+        mfcc = mfcc,
+        vad = vad,
+        idGenerator = { UUID.randomUUID().toString() },
+        clock = { System.currentTimeMillis() },
+    )
 }

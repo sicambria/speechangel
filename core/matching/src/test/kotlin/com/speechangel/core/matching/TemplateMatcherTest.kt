@@ -15,8 +15,7 @@ class TemplateMatcherTest {
 
     private fun seq(vararg frames: FloatArray) = FeatureSequence(frames.toList())
 
-    private fun template(id: String, cmd: String, features: FeatureSequence) =
-        Template(TemplateId(id), CommandId(cmd), features)
+    private fun template(id: String, cmd: String, features: FeatureSequence) = Template(TemplateId(id), CommandId(cmd), features)
 
     private val commandA = seq(floatArrayOf(1f, 0f), floatArrayOf(1f, 0f), floatArrayOf(1f, 0f))
     private val commandB = seq(floatArrayOf(0f, 1f), floatArrayOf(0f, 1f), floatArrayOf(0f, 1f))

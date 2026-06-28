@@ -16,10 +16,7 @@ data class CommandRow(val command: VoiceCommand, val templateCount: Int)
 data class HomeUiState(val commands: List<CommandRow> = emptyList())
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
-    commandRepository: CommandRepository,
-    templateRepository: TemplateRepository,
-) : ViewModel() {
+class HomeViewModel @Inject constructor(commandRepository: CommandRepository, templateRepository: TemplateRepository) : ViewModel() {
 
     val state: StateFlow<HomeUiState> =
         combine(

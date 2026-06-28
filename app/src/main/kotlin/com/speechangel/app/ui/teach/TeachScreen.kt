@@ -29,10 +29,7 @@ import com.speechangel.core.enrollment.QualityIssue
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun TeachScreen(
-    onDone: () -> Unit,
-    viewModel: TeachViewModel = hiltViewModel(),
-) {
+fun TeachScreen(onDone: () -> Unit, viewModel: TeachViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     Scaffold(

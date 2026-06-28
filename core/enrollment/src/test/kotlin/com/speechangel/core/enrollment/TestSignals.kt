@@ -16,17 +16,10 @@ object TestSignals {
         }
     }
 
-    fun silence(durationMs: Int, sampleRateHz: Int = 16_000) =
-        AudioSamples(FloatArray(sampleRateHz * durationMs / 1000), sampleRateHz)
+    fun silence(durationMs: Int, sampleRateHz: Int = 16_000) = AudioSamples(FloatArray(sampleRateHz * durationMs / 1000), sampleRateHz)
 
     /** silence | tone | silence, so the energy VAD has a noise floor to measure against. */
-    fun utterance(
-        freqHz: Double,
-        toneMs: Int = 400,
-        sampleRateHz: Int = 16_000,
-        amplitude: Float = 0.3f,
-        padMs: Int = 150,
-    ): AudioSamples {
+    fun utterance(freqHz: Double, toneMs: Int = 400, sampleRateHz: Int = 16_000, amplitude: Float = 0.3f, padMs: Int = 150): AudioSamples {
         val lead = FloatArray(sampleRateHz * padMs / 1000)
         val mid = tone(freqHz, toneMs, sampleRateHz, amplitude)
         val trail = FloatArray(sampleRateHz * padMs / 1000)

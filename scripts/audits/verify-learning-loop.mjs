@@ -1,0 +1,165 @@
+#!/usr/bin/env node
+// verify-learning-loop.mjs  (the heart — meta §5.2 four-dimension completeness gate)
+// Enforces, per incident note under docs/errors/<YYYY-MM>/, that the learning loop is CLOSED:
+//
+//   1. Documented        — required sections present + non-empty; no template placeholders survive.
+//   2. Prevention        — ## Prevention is real; ## Guardrail Updates cite a REAL repo file.
+//   3. Planning forward   — ## Planning Integration names a concrete artifact (a docs/plans/ plan,
+//                          a Definition of Done, or an ACTIVE_DEV_RULES rule).
+//   4. Guarded (cost/benefit) — ## Shift-Left Decision records an explicit add|update|skip verb.
+//
+// Also regenerates/validates docs/errors/INDEX.md (with --write-index it writes the file).
+//
+// Loop birth-date: 2026-06-28 — there is no inherited exemption window; every note must comply.
+// On a repo with zero incidents (the current state) this passes vacuously (exit 0).
+//
+// Usage: node scripts/audits/verify-learning-loop.mjs [--write-index]
+
+import { writeFileSync } from "node:fs";
+import { repoRoot, walk, read, exists, done, info, join } from "../_lib.mjs";
+
+const NAME = "verify-learning-loop";
+const ERRORS_DIR = "docs/errors";
+
+const REQUIRED_HEADINGS = [
+  "## Summary",
+  "## Root Cause",
+  "## Prevention",
+  "## Guardrail Updates",
+  "## Planning Integration",
+  "## Shift-Left Decision",
+  "## Automation Follow-Up",
+];
+const REQUIRED_LABELS = ["Trigger:", "Automation Links:"];
+
+// Placeholder sentinels — any survivor means the note was scaffolded but not closed.
+const PLACEHOLDERS = [/<TODO/i, /\bTBD\b/, /<add\|update\|skip>/, /<reason>/, /<slug-title>/];
+
+function incidentFiles() {
+  return walk(ERRORS_DIR).filter(
+    (f) =>
+      f.endsWith(".md") &&
+      !f.endsWith("INDEX.md") &&
+      !f.includes("/rca/") // RCA plans are tracked separately, not learning-loop notes
+  );
+}
+
+// Extract the body of a `## Heading` section up to the next `## ` heading.
+function section(text, heading) {
+  const idx = text.indexOf(heading);
+  if (idx === -1) return null;
+  const rest = text.slice(idx + heading.length);
+  const next = rest.search(/\n## /);
+  return (next === -1 ? rest : rest.slice(0, next)).trim();
+}
+
+function validateNote(file, failures) {
+  const text = read(file);
+
+  // Dimension 1a: required structure
+  for (const h of REQUIRED_HEADINGS) {
+    if (!text.includes(h)) failures.push(`${file}: missing required section "${h}".`);
+  }
+  for (const l of REQUIRED_LABELS) {
+    if (!text.includes(l)) failures.push(`${file}: missing required label "${l}".`);
+  }
+
+  // Dimension 1b: no surviving placeholders
+  for (const re of PLACEHOLDERS) {
+    if (re.test(text)) {
+      failures.push(`${file}: unfilled template placeholder (${re}) — close the loop before committing.`);
+      return; // further checks are noise until placeholders are gone
+    }
+  }
+
+  // Dimension 1c: key sections non-empty
+  for (const h of ["## Summary", "## Root Cause", "## Prevention"]) {
+    const body = section(text, h);
+    if (!body || body.length < 8) failures.push(`${file}: section "${h}" is empty.`);
+  }
+
+  // Dimension 2: Guardrail Updates must cite a real repo file
+  const guard = section(text, "## Guardrail Updates") || "";
+  const paths = guard.match(/[A-Za-z0-9_./-]+\.(?:mjs|md|kt|kts|toml|json|xml|properties|ya?ml)/g) || [];
+  const citesReal = paths.some((p) => exists(p.replace(/^\.\//, "")));
+  if (!citesReal) {
+    failures.push(`${file}: ## Guardrail Updates cites no real repo file (cite e.g. scripts/audits/<x>.mjs).`);
+  }
+
+  // Dimension 3: Planning Integration must name a concrete artifact
+  const plan = section(text, "## Planning Integration") || "";
+  const namesArtifact =
+    /docs\/plans\//.test(plan) ||
+    /ACTIVE_DEV_RULES/.test(plan) ||
+    /\bDefinition of Done\b/i.test(plan) ||
+    /\bDoD\b/.test(plan);
+  if (!namesArtifact) {
+    failures.push(
+      `${file}: ## Planning Integration must name a concrete artifact (a docs/plans/ plan, a Definition of Done, or an ACTIVE_DEV_RULES rule).`
+    );
+  }
+
+  // Dimension 4: Shift-Left Decision must record an explicit add|update|skip verb
+  const shift = section(text, "## Shift-Left Decision") || "";
+  if (!/\b(add|update|skip)\b/i.test(shift)) {
+    failures.push(`${file}: ## Shift-Left Decision must record an explicit add|update|skip decision.`);
+  }
+}
+
+function buildIndex(files) {
+  const rows = files
+    .map((f) => {
+      const text = read(f);
+      const titleM = text.match(/^#\s*Incident:\s*(.+)$/m);
+      const dateM = text.match(/\*\*Date:\*\*\s*([0-9-]+)/);
+      const areaM = text.match(/\*\*Area:\*\*\s*(.+)/);
+      const statusM = text.match(/\*\*Status:\*\*\s*(.+)/);
+      return {
+        file: f,
+        title: titleM ? titleM[1].trim() : f,
+        date: dateM ? dateM[1].trim() : "?",
+        area: areaM ? areaM[1].trim() : "?",
+        status: statusM ? statusM[1].trim() : "?",
+      };
+    })
+    .sort((a, b) => (a.date < b.date ? 1 : -1));
+
+  let md = `<!-- GENERATED by scripts/audits/verify-learning-loop.mjs --write-index. Do not hand-edit. -->
+# Incident Index
+
+Generated index of all incident notes under \`docs/errors/<YYYY-MM>/\`. Regenerate with
+\`node scripts/audits/verify-learning-loop.mjs --write-index\` (npm: \`knowledge:index\`).
+
+**Total incidents: ${rows.length}**
+
+`;
+  if (rows.length === 0) {
+    md += "_No incidents yet. The first one is scaffolded with `node scripts/ops/create-incident-report.mjs`._\n";
+  } else {
+    md += "| Date | Area | Status | Title | Note |\n|---|---|---|---|---|\n";
+    for (const r of rows) md += `| ${r.date} | ${r.area} | ${r.status} | ${r.title} | \`${r.file}\` |\n`;
+  }
+  return md;
+}
+
+function main() {
+  const writeIndex = process.argv.includes("--write-index");
+  const failures = [];
+  const files = incidentFiles();
+
+  for (const f of files) validateNote(f, failures);
+
+  const indexMd = buildIndex(files);
+  const indexPath = join(repoRoot, ERRORS_DIR, "INDEX.md");
+  if (writeIndex) {
+    writeFileSync(indexPath, indexMd);
+    info(`wrote ${ERRORS_DIR}/INDEX.md (${files.length} incident${files.length === 1 ? "" : "s"}).`);
+  } else if (!exists(`${ERRORS_DIR}/INDEX.md`)) {
+    writeFileSync(indexPath, indexMd); // self-heal a missing index so the gate never fails-hard
+    info(`seeded missing ${ERRORS_DIR}/INDEX.md.`);
+  }
+
+  done(NAME, failures);
+}
+
+main();

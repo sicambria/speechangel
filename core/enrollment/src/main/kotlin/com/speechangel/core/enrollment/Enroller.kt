@@ -29,11 +29,7 @@ class Enroller(
     private val idGenerator: () -> String,
     private val clock: () -> Long = { 0L },
 ) {
-    fun enroll(
-        audio: AudioSamples,
-        commandId: CommandId,
-        condition: VoiceCondition = VoiceCondition.NORMAL,
-    ): EnrollmentResult {
+    fun enroll(audio: AudioSamples, commandId: CommandId, condition: VoiceCondition = VoiceCondition.NORMAL): EnrollmentResult {
         if (audio.isEmpty) return EnrollmentResult.Rejected(QualityIssue.TOO_SHORT)
         val speech = vad.trim(audio)
         if (speech.isEmpty) return EnrollmentResult.Rejected(QualityIssue.SILENT)

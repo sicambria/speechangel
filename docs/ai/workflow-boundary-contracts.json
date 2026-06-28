@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "description": "Contracts-as-data: real boundaries in SpeechAngel where a change on one side must be mirrored on the other. The classifier (scripts/workflow/classify.mjs) matches changed paths against `patterns` (JS regex, tested against each path) and surfaces the followUps. Advisory, not a hard gate. Author entries from boundaries you ACTUALLY trip (meta Wave 6).",
+  "contracts": [
+    {
+      "id": "fgs-manifest-sync",
+      "category": "android-platform",
+      "title": "Always-on microphone foreground service ↔ AndroidManifest service-type sync",
+      "description": "A microphone foreground service must declare foregroundServiceType=\"microphone\" AND the FOREGROUND_SERVICE_MICROPHONE permission in its AndroidManifest. Touching a service or the manifest means both sides must stay in sync (research/04_build_and_reuse_plan.md §1 CAPTURE layer).",
+      "patterns": [
+        "AndroidManifest\\.xml$",
+        "(?i)foregroundservice",
+        "(?i)Service\\.kt$"
+      ],
+      "followUps": [
+        {
+          "label": "Verify the foreground-service-type declaration",
+          "command": "node scripts/audits/verify-foreground-service-types.mjs",
+          "paths": ["**/AndroidManifest.xml"]
+        }
+      ]
+    },
+    {
+      "id": "dependency-catalog-sync",
+      "category": "build-reproducibility",
+      "title": "New dependency ↔ version-catalog entry (no hardcoded coordinates, no dynamic versions)",
+      "description": "Every dependency goes through gradle/libs.versions.toml — never a hardcoded \"group:artifact:version\" in a module build.gradle.kts, and never a dynamic version (+, latest.release, SNAPSHOT). Touching a build file or the catalog means re-running the reproducibility gates.",
+      "patterns": [
+        "libs\\.versions\\.toml$",
+        "build\\.gradle\\.kts$"
+      ],
+      "followUps": [
+        {
+          "label": "Verify all deps go through the catalog",
+          "command": "node scripts/audits/verify-version-catalog-usage.mjs",
+          "paths": ["**/build.gradle.kts"]
+        },
+        {
+          "label": "Verify no dynamic versions in the catalog",
+          "command": "node scripts/audits/verify-no-dynamic-versions.mjs",
+          "paths": ["gradle/libs.versions.toml"]
+        }
+      ]
+    },
+    {
+      "id": "incident-knowledge-closure",
+      "category": "learning-loop",
+      "title": "Incident note ↔ knowledge-index closure",
+      "description": "Adding or editing an incident under docs/errors/ means the learning loop must be closed: required sections filled, prevention links real, index regenerated. Otherwise knowledge:check blocks the commit.",
+      "patterns": [
+        "docs/errors/.*\\.md$"
+      ],
+      "followUps": [
+        {
+          "label": "Close + verify the learning loop",
+          "command": "node scripts/audits/verify-learning-loop.mjs",
+          "paths": ["docs/errors/"]
+        }
+      ]
+    }
+  ]
+}

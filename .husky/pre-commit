@@ -1,0 +1,38 @@
+#!/usr/bin/env sh
+# SpeechAngel pre-commit hook (plain shell — husky-compatible, but husky is NOT installed).
+# Enable with:  git config core.hooksPath .husky      (see CLAUDE.md §3)
+#
+# Runs the dependency-free guardrail bundle, then emits an ADVISORY worktree/plan reminder for
+# non-docs changes on main. The advisory is intentionally non-blocking at this stage of the port
+# (worktree tooling — Wave 1 — is deferred; see docs/meta/port-status.md). A hard block here would
+# brick the very commit that introduces these scripts.
+
+set -e
+
+# Resolve node: prefer PATH, fall back to the captured nvm path (CLAUDE.md host-capability lesson).
+NODE_BIN="$(command -v node || true)"
+if [ -z "$NODE_BIN" ]; then
+  NODE_BIN="/home/arsvivendi/.nvm/versions/node/v24.16.0/bin/node"
+fi
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+echo "[pre-commit] running guardrails:check ..."
+"$NODE_BIN" scripts/audits/run-all.mjs
+
+# --- Advisory: non-docs changes on main should be in a worktree/plan -------------------------
+BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo '')"
+if [ "$BRANCH" = "main" ] || [ "$BRANCH" = "master" ]; then
+  # staged files that are NOT under docs/ and not workflow scaffolding
+  NON_DOCS="$(git diff --cached --name-only | grep -vE '^(docs/|AGENTS\.md|CLAUDE\.md|README\.md|\.husky/|scripts/|package\.json|\.nvmrc)' || true)"
+  if [ -n "$NON_DOCS" ]; then
+    echo "[pre-commit] ADVISORY: substantive (non-docs) changes on '$BRANCH':"
+    echo "$NON_DOCS" | sed 's/^/    /'
+    echo "[pre-commit] These should normally be developed in a plan inside a worktree"
+    echo "             (docs/plans/2026-06/, docs/plans/worktrees/ — see AGENTS.md §3)."
+    echo "[pre-commit] (advisory only — not blocking this commit)"
+  fi
+fi
+
+echo "[pre-commit] OK"

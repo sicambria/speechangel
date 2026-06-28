@@ -13,11 +13,7 @@ import com.speechangel.core.model.Template
  * The Stage-2 recognition pipeline: VAD endpointing → MFCC feature extraction → template matching.
  * Pure and deterministic so it can be unit-tested end to end without a device.
  */
-class Recognizer(
-    private val mfcc: MfccExtractor,
-    private val vad: Vad,
-    private val matcher: TemplateMatcher,
-) {
+class Recognizer(private val mfcc: MfccExtractor, private val vad: Vad, private val matcher: TemplateMatcher) {
     fun recognize(
         audio: AudioSamples,
         templates: List<Template>,

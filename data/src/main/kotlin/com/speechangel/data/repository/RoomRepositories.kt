@@ -13,11 +13,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-internal class RoomCommandRepository @Inject constructor(
-    private val dao: SpeechAngelDao,
-) : CommandRepository {
-    override fun observeCommands(): Flow<List<VoiceCommand>> =
-        dao.observeCommands().map { list -> list.map { it.toDomain() } }
+internal class RoomCommandRepository @Inject constructor(private val dao: SpeechAngelDao) : CommandRepository {
+    override fun observeCommands(): Flow<List<VoiceCommand>> = dao.observeCommands().map { list -> list.map { it.toDomain() } }
 
     override suspend fun getCommand(id: CommandId): VoiceCommand? = dao.getCommand(id.value)?.toDomain()
 
@@ -26,16 +23,12 @@ internal class RoomCommandRepository @Inject constructor(
     override suspend fun deleteCommand(id: CommandId) = dao.deleteCommand(id.value)
 }
 
-internal class RoomTemplateRepository @Inject constructor(
-    private val dao: SpeechAngelDao,
-) : TemplateRepository {
-    override fun observeTemplates(): Flow<List<Template>> =
-        dao.observeTemplates().map { list -> list.map { it.toDomain() } }
+internal class RoomTemplateRepository @Inject constructor(private val dao: SpeechAngelDao) : TemplateRepository {
+    override fun observeTemplates(): Flow<List<Template>> = dao.observeTemplates().map { list -> list.map { it.toDomain() } }
 
     override suspend fun allTemplates(): List<Template> = dao.allTemplates().map { it.toDomain() }
 
-    override suspend fun templatesFor(commandId: CommandId): List<Template> =
-        dao.templatesFor(commandId.value).map { it.toDomain() }
+    override suspend fun templatesFor(commandId: CommandId): List<Template> = dao.templatesFor(commandId.value).map { it.toDomain() }
 
     override suspend fun countFor(commandId: CommandId): Int = dao.countFor(commandId.value)
 
