@@ -51,6 +51,18 @@ class RecognizerTest {
     }
 
     @Test
+    fun `the shipped default config accepts a fresh take of an enrolled command`() {
+        // Guards against a threshold that silently rejects all real input (the default ships in the app).
+        val defaultRecognizer = Recognizer(mfcc, vad, TemplateMatcher())
+        val result = defaultRecognizer.recognize(
+            TestSignals.utterance(250.0, toneMs = 400, amplitude = 0.25f),
+            templates,
+        )
+        assertThat(result).isInstanceOf(RecognitionResult.Match::class.java)
+        assertThat((result as RecognitionResult.Match).commandId).isEqualTo(CommandId("yes"))
+    }
+
+    @Test
     fun `silence is not forced onto a command`() {
         val result = recognizer.recognize(TestSignals.silence(500), templates)
         assertThat(result).isInstanceOf(RecognitionResult.NoMatch::class.java)

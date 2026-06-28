@@ -15,6 +15,13 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    lint {
+        abortOnError = true
+        warningsAsErrors = false
+        // Dependency/AGP versions are deliberately pinned for reproducibility; don't nag.
+        disable += setOf("GradleDependency", "AndroidGradlePluginVersion")
+    }
+
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
@@ -40,8 +47,11 @@ dependencies {
     implementation(libs.hilt.navigation.compose)
     implementation(libs.kotlinx.coroutines.android)
 
+    testImplementation(projects.core.dsp)
+    testImplementation(projects.core.matching)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
+    testImplementation(libs.turbine)
     testImplementation(libs.kotlinx.coroutines.test)
 
     androidTestImplementation(libs.androidx.junit)

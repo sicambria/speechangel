@@ -24,14 +24,14 @@ assemble: ## Build the debug APK
 test: ## Run all JVM unit tests
 	$(GRADLE) test
 
-static: ## Run detekt + spotless checks
-	$(GRADLE) detekt spotlessCheck
+static: ## Run detekt + spotless + Android lint
+	$(GRADLE) detekt spotlessCheck :app:lintDebug
 
 format: ## Auto-format all Kotlin (spotless)
 	$(GRADLE) spotlessApply
 
-verify: ## Full local gate: static analysis + tests + debug build (mirrors CI)
-	$(GRADLE) detekt spotlessCheck test :app:assembleDebug
+verify: ## Full local gate: static analysis + lint + tests + debug build (mirrors CI)
+	$(GRADLE) detekt spotlessCheck :app:lintDebug test :app:assembleDebug
 
 guardrails: ## Run the AI-workflow guardrail verifiers
 	$(NODE) scripts/audits/run-all.mjs
