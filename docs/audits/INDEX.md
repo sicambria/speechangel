@@ -4,6 +4,11 @@
 Generated index of all audit findings under `docs/audits/findings/<YYYY-MM>/`. Regenerate with
 `node scripts/audits/verify-audit-loop.mjs --write-index` (npm: `audit:index`).
 
-**Total findings: 0**
+**Total findings: 4**
 
-_No findings yet. Scaffold one with `node scripts/ops/create-audit-finding.mjs`._
+| Date | Severity | Disposition | Title | Finding |
+|---|---|---|---|---|
+| 2026-06-28 | low | fixed | streaming energy gate stuck floor | `docs/audits/findings/2026-06/2026-06-28_streaming-energy-gate-stuck-floor.md` |
+| 2026-06-28 | low | fixed | mfcc cmvn misnomer | `docs/audits/findings/2026-06/2026-06-28_mfcc-cmvn-misnomer.md` |
+| 2026-06-28 | low | fixed | mel filter bank degenerate filters | `docs/audits/findings/2026-06/2026-06-28_mel-filter-bank-degenerate-filters.md` |
+| 2026-06-28 | low | fixed | dtw length normalization convention | `docs/audits/findings/2026-06/2026-06-28_dtw-length-normalization-convention.md` |
