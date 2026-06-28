@@ -8,6 +8,9 @@
 //                    express its Definition of Done as FRR + FAR (never a bare "99%") — the project's
 //                    non-negotiable (research/ + ROADMAP cross-cutting rule).
 //   3. Worktree registry — every docs/plans/worktrees/<name>.md names a plan file that exists.
+//   4. Done discipline — a plan with Status `done` MUST include a YYYY-MM-DD date in its Status
+//                    line (e.g. `done (…2026-06-28…)`) so "done" is never set speculatively and
+//                    every completion is timestamped for the INDEX.md audit trail.
 //
 // `draft`-status plans are skipped (work in progress). TEMPLATE.md and .gitkeep are exempt.
 // On a repo with zero plans this passes vacuously (exit 0).
@@ -56,6 +59,12 @@ function statusOf(text) {
   return m ? m[1].toLowerCase() : null;
 }
 
+// Full Status line (everything after the label), for extra checks on done plans.
+function statusLineFull(text) {
+  const m = text.match(/\*\*Status:\*\*\s*(.+)/);
+  return m ? m[1].trim() : "";
+}
+
 function validatePlan(file, failures) {
   const text = read(file);
   const status = statusOf(text);
@@ -69,6 +78,13 @@ function validatePlan(file, failures) {
     return;
   }
   if (status === "draft") return; // work-in-progress — not yet held to the bar
+
+  // 4. done discipline — must include a YYYY-MM-DD date so completion is timestamped
+  if (status === "done" && !/\d{4}-\d{2}-\d{2}/.test(statusLineFull(text))) {
+    failures.push(
+      `${file}: Status is "done" but missing implementation date (YYYY-MM-DD) — e.g. done (…2026-06-28…).`
+    );
+  }
 
   // 1. structure
   for (const h of REQUIRED_HEADINGS) {
