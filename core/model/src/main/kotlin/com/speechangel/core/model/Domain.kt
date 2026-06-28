@@ -12,6 +12,16 @@ package com.speechangel.core.model
 class AudioSamples(val samples: FloatArray, val sampleRateHz: Int) {
     val durationMs: Long get() = if (sampleRateHz <= 0) 0 else samples.size * 1000L / sampleRateHz
     val isEmpty: Boolean get() = samples.isEmpty()
+
+    companion object {
+        fun concat(frames: Collection<AudioSamples>): AudioSamples {
+            require(frames.isNotEmpty())
+            val out = FloatArray(frames.sumOf { it.samples.size })
+            var off = 0
+            for (f in frames) { f.samples.copyInto(out, off); off += f.samples.size }
+            return AudioSamples(out, frames.first().sampleRateHz)
+        }
+    }
 }
 
 /**

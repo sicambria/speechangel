@@ -71,6 +71,8 @@ class TemplateMatcher(private val config: MatcherConfig = MatcherConfig()) {
         )
     }
 
+    fun distance(a: FeatureSequence, b: FeatureSequence): Double = Dtw.distance(a, b, config.bandRatio)
+
     private fun confidenceOf(best: Float, runnerUp: Float?, threshold: Float): Float {
         val base = (1f - best / threshold).coerceIn(0f, 1f)
         val margin = if (runnerUp != null && runnerUp > 0f) {

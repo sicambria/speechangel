@@ -14,8 +14,10 @@ import androidx.lifecycle.lifecycleScope
 import com.speechangel.app.service.ListeningService
 import com.speechangel.app.ui.SpeechAngelNavHost
 import com.speechangel.app.ui.theme.SpeechAngelTheme
+import com.speechangel.app.ui.policy.MicDisclosureDialog
 import com.speechangel.data.prefs.ListeningPreferences
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,6 +27,7 @@ class MainActivity : ComponentActivity() {
     @Inject lateinit var preferences: ListeningPreferences
 
     private var listening by mutableStateOf(false)
+    private var showDisclosure by mutableStateOf(false)
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions(),
@@ -32,15 +35,29 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        requestRuntimePermissions()
-        // Restore the persisted toggle so the boot "tap to resume" matches the real last state.
-        lifecycleScope.launch { listening = preferences.isListeningEnabledNow() }
+        lifecycleScope.launch {
+            listening = preferences.isListeningEnabledNow()
+            if (preferences.micDisclosed.first()) requestRuntimePermissions()
+            else showDisclosure = true
+        }
         setContent {
             SpeechAngelTheme {
                 SpeechAngelNavHost(
                     isListening = listening,
                     onListeningChange = ::applyListening,
                 )
+                if (showDisclosure) {
+                    MicDisclosureDialog(
+                        onAcknowledge = {
+                            showDisclosure = false
+                            lifecycleScope.launch {
+                                preferences.setMicDisclosed(true)
+                                requestRuntimePermissions()
+                            }
+                        },
+                        onDismiss = { showDisclosure = false },
+                    )
+                }
             }
         }
     }

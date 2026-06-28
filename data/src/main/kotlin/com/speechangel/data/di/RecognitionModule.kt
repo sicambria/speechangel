@@ -6,6 +6,7 @@ import com.speechangel.core.dsp.MfccExtractor
 import com.speechangel.core.dsp.Vad
 import com.speechangel.core.enrollment.Enroller
 import com.speechangel.core.enrollment.Recognizer
+import com.speechangel.core.enrollment.WakeWordGate
 import com.speechangel.core.matching.MatcherConfig
 import com.speechangel.core.matching.TemplateMatcher
 import dagger.Module
@@ -43,6 +44,11 @@ internal object RecognitionModule {
     @Provides
     @Singleton
     fun provideRecognizer(mfcc: MfccExtractor, vad: Vad, matcher: TemplateMatcher): Recognizer = Recognizer(mfcc, vad, matcher)
+
+    @Provides
+    @Singleton
+    fun provideWakeWordGate(mfcc: MfccExtractor, matcher: TemplateMatcher): WakeWordGate =
+        WakeWordGate(mfcc, matcher, wakeThreshold = 8.0f)
 
     @Provides
     @Singleton

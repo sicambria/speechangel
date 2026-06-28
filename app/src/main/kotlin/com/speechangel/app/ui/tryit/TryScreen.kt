@@ -2,6 +2,7 @@ package com.speechangel.app.ui.tryit
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -14,6 +15,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -62,6 +64,13 @@ fun TryScreen(onBack: () -> Unit, viewModel: TryViewModel = hiltViewModel()) {
             }
 
             ResultText(state.result)
+
+            if (state.canAdapt) {
+                OutlinedButton(onClick = viewModel::rememberThis) { Text("Remember this") }
+            }
+            if (state.adapted) {
+                Text("Saved!", style = MaterialTheme.typography.bodySmall)
+            }
 
             Button(onClick = onBack, modifier = Modifier.fillMaxWidth().height(56.dp)) {
                 Text("Back", style = MaterialTheme.typography.labelLarge)

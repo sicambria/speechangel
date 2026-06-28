@@ -38,6 +38,8 @@ android {
 dependencies {
     implementation(projects.data)
     implementation(projects.core.model)
+    implementation(projects.core.dsp)
+    implementation(projects.core.matching)
     implementation(projects.core.enrollment)
 
     implementation(libs.androidx.core.ktx)

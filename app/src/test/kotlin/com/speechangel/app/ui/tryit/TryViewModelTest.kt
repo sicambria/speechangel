@@ -38,9 +38,13 @@ class TryViewModelTest {
     private val vad = EnergyVad()
 
     // Generous threshold: VM/label-mapping logic under test, not threshold calibration.
-    private val recognizer = Recognizer(mfcc, vad, TemplateMatcher(MatcherConfig(defaultAcceptanceThreshold = 1_000f)))
+    private val matcher = TemplateMatcher(MatcherConfig(defaultAcceptanceThreshold = 1_000f))
+    private val recognizer = Recognizer(mfcc, vad, matcher)
+    private var vmIdCounter = 0
+    private val enroller = Enroller(mfcc, vad, idGenerator = { "vm-${vmIdCounter++}" })
 
-    private fun viewModel(recorder: AudioRecorder) = TryViewModel(recognizer, recorder, templates, commands)
+    private fun viewModel(recorder: AudioRecorder) =
+        TryViewModel(recognizer, recorder, templates, commands, enroller, matcher)
 
     private fun enroll(freq: Double, command: String, label: String) = runBlocking {
         commands.upsertCommand(VoiceCommand(CommandId(command), label, ActionId("HOME")))
@@ -80,5 +84,35 @@ class TryViewModelTest {
         val result = vm.state.value.result
         assertThat(result).isInstanceOf(TryResult.Heard::class.java)
         assertThat((result as TryResult.Heard).label).isEqualTo("Yes please")
+    }
+
+    @Test
+    fun `rememberThis adds a second template after a Match`() = runTest(mainRule.dispatcher) {
+        enroll(250.0, "yes", "Yes please")
+
+        val vm = viewModel(FakeAudioRecorder(250.0))
+        vm.listen()
+        advanceUntilIdle()
+        assertThat(vm.state.value.canAdapt).isTrue()
+
+        vm.rememberThis()
+        advanceUntilIdle()
+
+        assertThat(templates.countFor(CommandId("yes"))).isEqualTo(2)
+        assertThat(vm.state.value.adapted).isTrue()
+        assertThat(vm.state.value.canAdapt).isFalse()
+    }
+
+    @Test
+    fun `rememberThis is a no-op when no prior recognition`() = runTest(mainRule.dispatcher) {
+        enroll(250.0, "yes", "Yes please")
+        val vm = viewModel(FakeAudioRecorder(250.0))
+
+        vm.rememberThis()
+        advanceUntilIdle()
+
+        assertThat(templates.countFor(CommandId("yes"))).isEqualTo(1)
+        assertThat(vm.state.value.adapted).isFalse()
+        assertThat(vm.state.value.canAdapt).isFalse()
     }
 }
