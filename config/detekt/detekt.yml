@@ -1,0 +1,35 @@
+# Detekt config — builds upon the default rule set; formatting is owned by Spotless/ktlint.
+build:
+  maxIssues: 0
+  excludeCorrectable: false
+
+complexity:
+  TooManyFunctions:
+    thresholdInClasses: 20
+    thresholdInFiles: 25
+  LongParameterList:
+    functionThreshold: 8
+    constructorThreshold: 9
+  CyclomaticComplexMethod:
+    threshold: 18
+  LongMethod:
+    threshold: 80
+
+style:
+  MagicNumber:
+    active: false
+  ReturnCount:
+    max: 4
+  MaxLineLength:
+    maxLineLength: 140
+  UnusedPrivateMember:
+    active: true
+
+naming:
+  FunctionNaming:
+    # Compose @Composable functions are PascalCase by convention.
+    ignoreAnnotated: ['Composable']
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: false
