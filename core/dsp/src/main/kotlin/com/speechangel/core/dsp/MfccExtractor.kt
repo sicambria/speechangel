@@ -7,6 +7,15 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 
+/**
+ * How many temporal-derivative blocks the feature vector carries.
+ *
+ * The blocks are **concatenated**, never summed (LIVE BUG #1): static | Δ | ΔΔ. So for `numCoefficients`
+ * static coefficients the per-frame width is `numCoefficients * order` where order = 1 (NONE), 2 (DELTA),
+ * or 3 (DELTA_DELTA).
+ */
+enum class DeltaOrder { NONE, DELTA, DELTA_DELTA }
+
 /** Configuration for [MfccExtractor]. Defaults are standard 16 kHz speech settings. */
 data class MfccConfig(
     val sampleRateHz: Int = 16_000,
@@ -19,7 +28,7 @@ data class MfccConfig(
     val highFreqHz: Double = 0.0, // 0 => Nyquist (sampleRate / 2)
     val cepstralLifter: Int = 22,
     val applyCmvn: Boolean = true,
-    val includeDeltas: Boolean = false,
+    val deltaOrder: DeltaOrder = DeltaOrder.NONE,
 ) {
     val frameLength: Int get() = sampleRateHz * frameLengthMs / 1000
     val frameShift: Int get() = sampleRateHz * frameShiftMs / 1000
@@ -56,7 +65,11 @@ class MfccExtractor(private val config: MfccConfig = MfccConfig()) {
         }
         var sequence = frames
         if (config.applyCmvn) sequence = cmvn(sequence)
-        if (config.includeDeltas) sequence = withDeltas(sequence)
+        sequence = when (config.deltaOrder) {
+            DeltaOrder.NONE -> sequence
+            DeltaOrder.DELTA -> withDeltas(sequence, includeAcceleration = false)
+            DeltaOrder.DELTA_DELTA -> withDeltas(sequence, includeAcceleration = true)
+        }
         return FeatureSequence(sequence)
     }
 
@@ -74,7 +87,7 @@ class MfccExtractor(private val config: MfccConfig = MfccConfig()) {
         for (k in coeffs.indices) coeffs[k] *= lifter[k]
     }
 
-    private companion object {
+    internal companion object {
         fun hammingWindow(n: Int): FloatArray = FloatArray(n) { i -> (0.54 - 0.46 * cos(2.0 * PI * i / (n - 1))).toFloat() }
 
         fun cepstralLifter(numCoeffs: Int, lifter: Int): FloatArray = if (lifter <= 0) {
@@ -120,18 +133,36 @@ class MfccExtractor(private val config: MfccConfig = MfccConfig()) {
             return out
         }
 
-        fun withDeltas(frames: List<FloatArray>): ArrayList<FloatArray> {
+        /** First-order finite-difference derivative `(next - prev) / 2`, edge-clamped. */
+        fun derivative(frames: List<FloatArray>): List<FloatArray> {
+            val n = frames.size
+            if (n == 0) return emptyList()
+            val width = frames[0].size
+            return List(n) { t ->
+                val prev = frames[(t - 1).coerceAtLeast(0)]
+                val next = frames[(t + 1).coerceAtMost(n - 1)]
+                FloatArray(width) { i -> (next[i] - prev[i]) / 2f }
+            }
+        }
+
+        /**
+         * Concatenate static | Δ [| ΔΔ] per frame — never summed (LIVE BUG #1). Output width is
+         * `width * 2` for Δ only, `width * 3` with acceleration.
+         */
+        fun withDeltas(frames: List<FloatArray>, includeAcceleration: Boolean): ArrayList<FloatArray> {
             val n = frames.size
             if (n == 0) return ArrayList()
             val width = frames[0].size
+            val delta = derivative(frames)
+            val accel = if (includeAcceleration) derivative(delta) else null
+            val blocks = if (includeAcceleration) 3 else 2
             val out = ArrayList<FloatArray>(n)
             for (t in 0 until n) {
-                val prev = frames[(t - 1).coerceAtLeast(0)]
-                val next = frames[(t + 1).coerceAtMost(n - 1)]
-                val combined = FloatArray(width * 2)
+                val combined = FloatArray(width * blocks)
                 for (i in 0 until width) {
                     combined[i] = frames[t][i]
-                    combined[width + i] = (next[i] - prev[i]) / 2f
+                    combined[width + i] = delta[t][i]
+                    if (accel != null) combined[2 * width + i] = accel[t][i]
                 }
                 out.add(combined)
             }

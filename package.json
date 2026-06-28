@@ -14,6 +14,8 @@
     "audit:index": "node scripts/audits/verify-audit-loop.mjs --write-index",
     "audit:check": "node scripts/audits/verify-audit-loop.mjs",
     "audit:finding": "node scripts/ops/create-audit-finding.mjs",
+    "plan:new": "node scripts/ops/create-plan.mjs",
+    "plan:check": "node scripts/audits/verify-plan-workflow-guardrails.mjs",
     "guardrails:check": "node scripts/audits/run-all.mjs",
     "docs:check": "node scripts/audits/verify-docs-integrity.mjs",
     "classify": "node scripts/workflow/classify.mjs"

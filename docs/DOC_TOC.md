@@ -11,6 +11,10 @@ The index of standing documentation. Paths are backtick code-paths (resolve from
 - `docs/ai/AI_BEHAVIOR_GUARDRAILS.md` — the universal agent-neutral behavior rules.
 - `docs/ai/ACTIVE_DEV_RULES.md` — promoted technical rules (starts empty).
 
+## Build & environment
+
+- `docs/DEPENDENCIES.md` — full host/SDK/emulator/KVM dependency manifest (build tier + run tier).
+
 ## Standards
 
 - `docs/standards/documentation-governance.md` — temporal buckets + link-safety.
@@ -19,6 +23,7 @@ The index of standing documentation. Paths are backtick code-paths (resolve from
 ## Planning & roadmap
 
 - `docs/ROADMAP.md` — phased roadmap (Phase 0 spike → MVP → persistence/policy → delight).
+- `docs/plans/TEMPLATE.md` — canonical plan template (scaffold via `scripts/ops/create-plan.mjs`).
 - `docs/plans/2026-06/` — active plans.
 - `docs/plans/done/2026-06/` — completed plans.
 - `docs/plans/worktrees/` — per-worktree plan state.

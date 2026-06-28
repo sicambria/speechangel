@@ -6,4 +6,7 @@
     <string name="listening_channel_name">Always-on listening</string>
     <string name="listening_notification_title">SpeechAngel is listening</string>
     <string name="listening_notification_text">Say one of your commands.</string>
+    <string name="resume_channel_name">Resume after restart</string>
+    <string name="resume_title">Tap to resume listening</string>
+    <string name="resume_text">Your phone restarted. Tap to turn listening back on.</string>
 </resources>

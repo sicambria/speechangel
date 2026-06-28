@@ -10,13 +10,19 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.lifecycleScope
 import com.speechangel.app.service.ListeningService
 import com.speechangel.app.ui.SpeechAngelNavHost
 import com.speechangel.app.ui.theme.SpeechAngelTheme
+import com.speechangel.data.prefs.ListeningPreferences
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject lateinit var preferences: ListeningPreferences
 
     private var listening by mutableStateOf(false)
 
@@ -27,6 +33,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestRuntimePermissions()
+        // Restore the persisted toggle so the boot "tap to resume" matches the real last state.
+        lifecycleScope.launch { listening = preferences.isListeningEnabledNow() }
         setContent {
             SpeechAngelTheme {
                 SpeechAngelNavHost(
@@ -55,5 +63,7 @@ class MainActivity : ComponentActivity() {
             stopService(intent)
         }
         listening = enabled
+        // Persist so the state survives process death / reboot (read by BootReceiver).
+        lifecycleScope.launch { preferences.setListeningEnabled(enabled) }
     }
 }

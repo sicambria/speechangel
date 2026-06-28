@@ -38,6 +38,52 @@ fi
 [ -f ./gradlew ] || fail "gradlew not found — run from the repo root."
 ok "Gradle wrapper present"
 
+# --- Node (workflow/guardrail scripts; >= 24 per .nvmrc) ---
+if command -v node >/dev/null 2>&1; then
+  NODE_VER="$(node --version 2>/dev/null || echo '?')"
+  case "$NODE_VER" in
+    v2[4-9]*|v[3-9][0-9]*) ok "Node: ${NODE_VER}" ;;
+    *) warn "Node ${NODE_VER} < 24 (.nvmrc pins 24) — guardrail scripts may not run." ;;
+  esac
+else
+  warn "node not found — the scripts/ guardrail + workflow gates need Node >= 24."
+fi
+
+# --- Build-tools + platform-tools (adb) ---
+if [ -d "${ANDROID_HOME}/build-tools/35.0.0" ]; then
+  ok "build-tools 35.0.0 present"
+else
+  warn "build-tools 35.0.0 missing — install: sdkmanager 'build-tools;35.0.0'"
+fi
+if [ -x "${ANDROID_HOME}/platform-tools/adb" ]; then
+  ok "platform-tools (adb) present"
+else
+  warn "platform-tools (adb) missing — install: sdkmanager 'platform-tools'"
+fi
+
+# --- Run tier (emulator / on-device QA): advisory only; the build tier does not need these ---
+EMU="${ANDROID_HOME}/emulator/emulator"
+if [ -x "$EMU" ]; then
+  ok "emulator binary present"
+  if [ -d "${ANDROID_HOME}/system-images/android-35/google_apis/x86_64" ]; then
+    ok "system image android-35;google_apis;x86_64 present"
+  else
+    warn "system image missing — install: sdkmanager 'system-images;android-35;google_apis;x86_64'"
+  fi
+  if "$EMU" -accel-check >/dev/null 2>&1; then
+    ok "KVM acceleration usable"
+  else
+    warn "KVM acceleration unavailable — see docs/DEPENDENCIES.md 'KVM access'."
+  fi
+  if AVDS="$("$EMU" -list-avds 2>/dev/null)" && [ -n "$AVDS" ]; then
+    ok "AVD(s) available: $(echo "$AVDS" | tr '\n' ' ')"
+  else
+    warn "no AVD — create one: ./scripts/setup/install-deps.sh (or see docs/DEPENDENCIES.md)."
+  fi
+else
+  warn "emulator not installed — run tier (on-device QA) unavailable. See docs/DEPENDENCIES.md."
+fi
+
 # --- local.properties (AGP reads ANDROID_HOME if absent, but make it explicit & reproducible) ---
 if [ ! -f local.properties ]; then
   echo "sdk.dir=${ANDROID_HOME}" > local.properties

@@ -60,6 +60,7 @@ dependencies {
     kover(project(":core:dsp"))
     kover(project(":core:matching"))
     kover(project(":core:enrollment"))
+    kover(project(":core:eval"))
 }
 
 kover {

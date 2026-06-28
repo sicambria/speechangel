@@ -16,6 +16,7 @@ const VERIFIERS = [
   "verify-docs-integrity.mjs",
   "verify-learning-loop.mjs",
   "verify-audit-loop.mjs",
+  "verify-plan-workflow-guardrails.mjs",
   "verify-no-dynamic-versions.mjs",
   "verify-gradle-wrapper-pinned.mjs",
   "verify-version-catalog-usage.mjs",

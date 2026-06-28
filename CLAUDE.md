@@ -36,10 +36,16 @@ ANDROID_HOME=/home/arsvivendi/Android/Sdk \
 /home/arsvivendi/git/speechangel/gradlew -p /home/arsvivendi/git/speechangel <tasks>
 ```
 
-**Only the `core:*` modules build today** — `:app` and `:data` are being scaffolded in parallel and
-are commented out in `settings.gradle.kts`. **Do not run full builds.** The green gate is the four
-core test tasks: `:core:model:test :core:dsp:test :core:matching:test :core:enrollment:test`.
-You may run a single `:core:matching:test` to confirm something, but nothing heavier.
+`:app` and `:data` are now **enabled** in `settings.gradle.kts` (all six modules are included). The
+README claims `:app:assembleDebug` is green, but that has **not been re-verified on this host** — so
+treat full builds as heavy-and-unconfirmed, not proven. **Default to not running full builds**; the
+fast green gate remains the four core test tasks:
+`:core:model:test :core:dsp:test :core:matching:test :core:enrollment:test`. You may run a single
+`:core:matching:test` to confirm something. Run `:app:assembleDebug` / `:data` tasks only when the
+task genuinely needs them (it is the first thing to confirm before relying on the README's claim).
+
+See `docs/DEPENDENCIES.md` for the full host/SDK/emulator dependency manifest and
+`scripts/setup/install-deps.sh` to provision the run tier.
 
 > "Verified" honestly (meta §0.5): a change is verified only when the relevant `scripts/audits/*.mjs`
 > gate **and** the affected `:core:*` test task have actually run green — not "would pass".

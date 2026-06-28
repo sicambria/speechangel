@@ -39,6 +39,8 @@ fun HomeScreen(
     onListeningChange: (Boolean) -> Unit,
     onAddCommand: () -> Unit,
     onTryIt: () -> Unit,
+    onOpenAlwaysOn: () -> Unit = {},
+    onStartSetup: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -87,6 +89,12 @@ fun HomeScreen(
             ) {
                 Icon(Icons.Filled.Add, contentDescription = null)
                 Text("  Teach a new command", style = MaterialTheme.typography.labelLarge)
+            }
+            OutlinedButton(onClick = onStartSetup, modifier = Modifier.fillMaxWidth()) {
+                Text("Set up step by step", style = MaterialTheme.typography.labelLarge)
+            }
+            OutlinedButton(onClick = onOpenAlwaysOn, modifier = Modifier.fillMaxWidth()) {
+                Text("Always-on settings", style = MaterialTheme.typography.labelLarge)
             }
         }
     }

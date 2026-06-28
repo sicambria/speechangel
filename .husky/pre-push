@@ -24,14 +24,15 @@ ANDROID_HOME=/home/arsvivendi/Android/Sdk \
 "$REPO_ROOT/gradlew" -p "$REPO_ROOT" \
   detekt \
   spotlessCheck \
-  :core:model:test \
-  :core:dsp:test \
-  :core:matching:test \
-  :core:enrollment:test
+  :app:lintDebug \
+  test \
+  :app:assembleDebug
 
-# TODO (Wave 7 — "wire only what is green"): once :app and :data are scaffolded and re-enabled in
-# settings.gradle.kts, add their assemble + instrumentation tests here, e.g.:
-#   :app:assembleDebug :data:test :app:connectedDebugAndroidTest
-# Do NOT add them before those modules exist — a gate wired before its target is green bricks pushes.
+# `test` runs every module's JVM unit tests (core + :data + :app); :app:assembleDebug + :app:lintDebug
+# were verified green on this host 2026-06-28 ("wire only what is green"), so they are gated here.
+#
+# TODO (still deferred): instrumentation tests (:app:connectedDebugAndroidTest) require a running
+# emulator/device and are NOT added to pre-push — they belong in a manual/CI on-device job, not a
+# gate that would block every push when no emulator is attached.
 
 echo "[pre-push] OK"

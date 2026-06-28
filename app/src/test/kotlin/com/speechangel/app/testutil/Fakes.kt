@@ -54,9 +54,12 @@ class FakeAudioRecorder(private val freqHz: Double, private val toneMs: Int = 40
         }
         return AudioSamples(pad + tone + pad, sampleRateHz)
     }
+
+    override fun stream(frameMs: Int): kotlinx.coroutines.flow.Flow<AudioSamples> = kotlinx.coroutines.flow.flow { emit(record(frameMs)) }
 }
 
 /** A recorder that yields pure silence (for rejection paths). */
 class SilentAudioRecorder(override val sampleRateHz: Int = 16_000) : AudioRecorder {
     override suspend fun record(durationMs: Int) = AudioSamples(FloatArray(sampleRateHz * durationMs / 1000), sampleRateHz)
+    override fun stream(frameMs: Int): kotlinx.coroutines.flow.Flow<AudioSamples> = kotlinx.coroutines.flow.flow { emit(record(frameMs)) }
 }

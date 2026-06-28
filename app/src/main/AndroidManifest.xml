@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".SpeechAngelApp"
@@ -33,6 +34,16 @@
             android:name=".service.ListeningService"
             android:exported="false"
             android:foregroundServiceType="microphone" />
+
+        <!-- Re-arm prompt after reboot. exported=true because BOOT_COMPLETED is dispatched by the system
+             (it never starts the FGS itself — it posts a tap-to-resume notification; see BootReceiver). -->
+        <receiver
+            android:name=".service.BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
         <!-- Deterministic command -> action executor. Built as an accessibility TOOL for disability,
              NOT an autonomous agent (Play-policy line — see research/02_technological_findings.md §T2.7). -->
