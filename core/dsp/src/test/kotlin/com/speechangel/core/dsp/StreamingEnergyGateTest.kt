@@ -31,4 +31,27 @@ class StreamingEnergyGateTest {
         assertThat(gate.noiseFloor()).isLessThan(0.05f)
         assertThat(gate.isSpeech(tone(0.3f))).isTrue()
     }
+
+    @Test
+    fun `a brief command does not ratchet the floor up to reject speech`() {
+        // The speech-side leak is heavily damped: across a ~1.5 s command (15 frames) the floor stays
+        // far below the command's own level, so the gate keeps admitting speech and never latches
+        // closed on the speaker — preserving the original "speech can't drag the floor up to itself".
+        val gate = StreamingEnergyGate()
+        repeat(15) { gate.isSpeech(tone(0.3f)) }
+        // tone(0.3) RMS ≈ 0.212; after a brief command the floor is still a small fraction of it.
+        assertThat(gate.noiseFloor()).isLessThan(0.02f)
+        assertThat(gate.isSpeech(tone(0.3f))).isTrue()
+    }
+
+    @Test
+    fun `sustained loud ambient noise eventually re-baselines the floor`() {
+        // Regression for audit 2026-06-28_streaming-energy-gate-stuck-floor: without the speech-side
+        // leak the floor would latch and the gate would admit forever. With it, a long stretch of
+        // sustained loud input raises the floor toward that level.
+        val gate = StreamingEnergyGate()
+        repeat(2000) { gate.isSpeech(tone(0.3f)) }
+        // tone(0.3) RMS ≈ 0.212; the floor must have climbed well above its 1e-3 start.
+        assertThat(gate.noiseFloor()).isGreaterThan(0.1f)
+    }
 }
