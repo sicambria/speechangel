@@ -4,7 +4,7 @@
 - **Phase:** 3 (Delight & reach)
 - **Roadmap item:** Phase 3 "Shareable command packs"; Phase 3 "F-Droid + Play release"; Phase 3
   "whisper.cpp batch dictation (optional)"
-- **Status:** active (Bucket-A slices landing 2026-07-05; C submission/model walls remain external)
+- **Status:** active (all three Bucket-A slices implemented + tested 2026-07-05: command packs, F-Droid/Play scaffold + R8, DictationBackend; C walls — accounts, signing key, whisper.cpp model — remain external)
 - **Worktree:** n/a (docs-only plan; each item enters its own worktree when scheduled to build)
 - **Plan quality:** 93/100 — self-scored 2026-07-05 (see `docs/plans/INDEX.md` scoring row)
 

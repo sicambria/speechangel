@@ -109,6 +109,16 @@ in this batch (the request stopped at "record").
   interface / C model; a *new* `DictationBackend`, not the command-oriented `SpeechBackend`). None
   touches the matcher, so none changes FRR/FAR.
 
+**Bucket-A implemented 2026-07-05.** Every autonomously-implementable Phase 3 slice is now built, tested,
+and committed (all six items `[~]` in ROADMAP): `VocabularyDistinctness` (core:matching); the QbE
+seam+selector+`NoopQbeEncoder` and `DictationBackend` (core:enrollment, both dormant); the
+`MfccConfig.noiseReduction` far-field front-end + bake-off wiring (core:dsp/core:eval); per-command
+threshold persistence + pass-through (`ListeningPreferences`/`WakeGatedRecognizer`/`ListeningService`);
+`data/pack` command packs; and the F-Droid/Play release scaffold + R8 (`:app:assembleRelease` green).
+Each module's test task + detekt + spotless + 10/10 guardrails ran green per commit. **No B/C item is
+checked off** — no real FRR/FAR, no bake-off winner, no trained encoder, no whisper model, no store
+account is claimed.
+
 **Not planned (deliberate):** the Workflow-track "CI running green on a real GitHub Actions run" item is
 implemented (`.github/workflows/ci.yml`), only unobserved on an actual Actions run — a full plan is
 overkill; it is noted here, not planned.

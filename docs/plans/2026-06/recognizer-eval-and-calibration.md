@@ -4,7 +4,7 @@
 - **Phase:** 0 (with Phase 2 threshold tuning)
 - **Roadmap item:** Phase 0 "Measure FRR/FAR", Phase 0 "Feature front-end bake-off", Phase 0
   `core:dsp` ΔΔ gap, Phase 2 "FAR-budget threshold tuning per command"
-- **Status:** active (harness A-deliverables — `core:eval` — landed 2026-06-28; Phase-2 per-command threshold *app-persistence* into `ListeningService` still pending; real-corpus FRR/FAR numbers Bucket B)
+- **Status:** active (harness A-deliverables — `core:eval` — landed 2026-06-28; Phase-2 per-command threshold *app-persistence* into `ListeningService` landed 2026-07-05; real-corpus FRR/FAR numbers remain Bucket B)
 - **Worktree:** n/a (single-session, on `main`)
 - **Plan quality:** 95/100 — independently confirmed over two review rounds (66 → 93 → 95)
 

@@ -12,9 +12,12 @@ acceptance criteria honest (FRR + FAR/hour, never a bare "99 %").
 > produced) and an evidence-based source inventory. Checkboxes below reflect *verified code state*,
 > not aspiration. Per-item plans live under `docs/plans/2026-06/`.
 >
-> **Phase 3 planned 2026-07-05:** the six Phase 3 items below now each carry a plan (self-scored 93,
-> advisor-reviewed 2026-07-05) — see `docs/plans/INDEX.md` "Phase 3 planning batch". Docs-only; Phase 3
-> is mostly Bucket B/C, so the plans draw the autonomous/external boundary rather than claim numbers.
+> **Phase 3 planned + Bucket-A implemented 2026-07-05:** the six Phase 3 items each carry a plan
+> (self-scored 93, advisor-reviewed) — see `docs/plans/INDEX.md` "Phase 3 planning batch" — and every
+> autonomously-implementable (Bucket-A) slice is now built, tested, and committed (all six items are
+> `[~]`). The remainders are genuinely external (Bucket B/C: a real dysarthric-inclusive corpus, a
+> trained QbE encoder, the whisper.cpp native model, Play/F-Droid accounts + signing key) and are NOT
+> checked off. No FRR/FAR number or bake-off winner is claimed — those still need the corpus._
 
 ---
 
@@ -92,8 +95,10 @@ is wired and builds; the always-on/battery/wake-word robustness pieces remain._
       wiring the dialog into the first mic-permission flow; the Play Console form itself is external (Bucket C)._
 - [~] FAR-budget threshold tuning per command. _calibration logic DONE & tested — `core:eval`
       `ThresholdCalibrator` (aggregate FA budget, equal split, per-command thresholds bounding false
-      accepts) returns the `Map<CommandId, Float>` the matcher already accepts. PENDING (app): persisting
-      + passing the map into `ListeningService`._
+      accepts) returns the `Map<CommandId, Float>` the matcher already accepts. **App persistence + pass-through
+      LANDED 2026-07-05** — `ListeningPreferences.commandThresholds` (JSON pref via `CommandThresholdCodec`),
+      `WakeGatedRecognizer.onFrame` forwards the map, `ListeningService` collects + passes it. Remaining `[~]`:
+      the calibrated numbers themselves need a real labeled corpus (Bucket B)._
 - [~] Multi-template re-enrollment polish + confirmation-gated adaptation. _pure decision logic DONE &
       tested — `decideAdaptation` (condition-aware pruning that never evicts a sole-condition example,
       DTW-redundancy selection, deterministic tiebreak). PENDING (app): the "remember this" UI + repository
@@ -104,20 +109,29 @@ is wired and builds; the always-on/battery/wake-word robustness pieces remain._
 
 ---
 
-## Phase 3 — Delight & reach (ongoing) · status: `planned`
+## Phase 3 — Delight & reach (ongoing) · status: `active`
 
-- [ ] QbE embedding enhancement (few-shot, milder impairment). _planned 2026-07-05 —
-      `docs/plans/2026-06/phase3-matcher-enhancements.md` (Item C); A seam+selector / C trained encoder._
-- [ ] Vocabulary-distinctness helper (warn on acoustically-close commands). _planned 2026-07-05 —
-      `docs/plans/2026-06/phase3-matcher-enhancements.md` (Item A); Bucket A (pure `Dtw.distance`)._
-- [ ] Far-field / noise front-end. _planned 2026-07-05 —
-      `docs/plans/2026-06/phase3-matcher-enhancements.md` (Item B); A logic / B real-far-field gains._
-- [ ] whisper.cpp batch dictation (optional). _planned 2026-07-05 —
-      `docs/plans/2026-06/phase3-reach-and-release.md` (Item C); A `DictationBackend` interface / C model._
-- [ ] Shareable command packs. _planned 2026-07-05 —
-      `docs/plans/2026-06/phase3-reach-and-release.md` (Item A); Bucket A (re-enroll model, validated import)._
-- [ ] F-Droid + Play release. _planned 2026-07-05 —
-      `docs/plans/2026-06/phase3-reach-and-release.md` (Item B); A scaffold / C accounts+signing+RFP._
+- [~] QbE embedding enhancement (few-shot, milder impairment). _Bucket-A seam LANDED 2026-07-05 —
+      `QbeEncoder`/`QbeSpeechBackend` (few-shot cosine prototypes) + `SpeechBackendSelector` + dormant
+      `NoopQbeEncoder` DI binding; the template engine stays the default. Remaining: a real trained encoder
+      + its FRR+FAR-vs-baseline measurement (Bucket C). `docs/plans/2026-06/phase3-matcher-enhancements.md`._
+- [~] Vocabulary-distinctness helper (warn on acoustically-close commands). _logic LANDED 2026-07-05 —
+      `core:matching` `VocabularyDistinctness.analyze` (scale-relative DTW + shared-onset, advisory-only).
+      Remaining: the enrollment-UI nudge + confusion-correlation validation on real voices (Bucket B).
+      `docs/plans/2026-06/phase3-matcher-enhancements.md`._
+- [~] Far-field / noise front-end. _logic LANDED 2026-07-05 — `MfccConfig.noiseReduction`
+      (SPECTRAL_SUBTRACTION, default-off, byte-identical when off) + bake-off wiring. Remaining: the
+      FRR+FAR gain vs baseline on real far-field/noise audio (Bucket B).
+      `docs/plans/2026-06/phase3-matcher-enhancements.md`._
+- [~] whisper.cpp batch dictation (optional). _interface LANDED 2026-07-05 — `DictationBackend`
+      (transcript-returning, not `SpeechBackend`) + `NoopDictationBackend`. Remaining: the native model +
+      runtime + a text-entry surface (Bucket C). `docs/plans/2026-06/phase3-reach-and-release.md`._
+- [~] Shareable command packs. _format + export/import LANDED 2026-07-05 — `data/pack` `CommandPack`
+      (versioned JSON), `DeviceAction`-validated import, definitions-only re-enroll model. Remaining: the
+      share-sheet/SAF UI surface (Bucket B). `docs/plans/2026-06/phase3-reach-and-release.md`._
+- [~] F-Droid + Play release. _scaffold + R8 LANDED 2026-07-05 — conditional signing, release shrink
+      (`:app:assembleRelease` green), `fastlane` + F-Droid metadata, `docs/release/RELEASE.md`. Remaining:
+      the keystore, Play/F-Droid accounts + RFP (Bucket C). `docs/plans/2026-06/phase3-reach-and-release.md`._
 
 ---
 
