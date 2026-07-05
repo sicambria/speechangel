@@ -5,6 +5,8 @@ import com.speechangel.core.dsp.MfccConfig
 import com.speechangel.core.dsp.MfccExtractor
 import com.speechangel.core.dsp.Vad
 import com.speechangel.core.enrollment.Enroller
+import com.speechangel.core.enrollment.NoopQbeEncoder
+import com.speechangel.core.enrollment.QbeEncoder
 import com.speechangel.core.enrollment.Recognizer
 import com.speechangel.core.enrollment.WakeWordGate
 import com.speechangel.core.matching.MatcherConfig
@@ -48,6 +50,16 @@ internal object RecognitionModule {
     @Provides
     @Singleton
     fun provideWakeWordGate(mfcc: MfccExtractor, matcher: TemplateMatcher): WakeWordGate = WakeWordGate(mfcc, matcher, wakeThreshold = 8.0f)
+
+    /**
+     * Query-by-example encoder binding (Phase 3, dormant). The optional QbE matcher is off by default;
+     * with [NoopQbeEncoder] the [com.speechangel.core.enrollment.SpeechBackendSelector] never selects
+     * the QbE branch, so the live loop stays on the template [Recognizer]. Swap this provider for a real
+     * encoder to enable QbE — no other wiring changes.
+     */
+    @Provides
+    @Singleton
+    fun provideQbeEncoder(): QbeEncoder = NoopQbeEncoder()
 
     @Provides
     @Singleton
