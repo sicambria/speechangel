@@ -5,7 +5,7 @@
 - **Roadmap item:** Phase 3 "QbE embedding enhancement (few-shot, milder impairment)"; Phase 3
   "Vocabulary-distinctness helper (warn on acoustically-close commands)"; Phase 3 "Far-field / noise
   front-end"
-- **Status:** planned
+- **Status:** active (Bucket-A slices landing 2026-07-05: distinctness helper + QbE seam done; far-field front-end pending; B/C measurement blocked)
 - **Worktree:** n/a (docs-only plan; each item enters its own worktree when scheduled to build)
 - **Plan quality:** 93/100 — self-scored 2026-07-05 (see `docs/plans/INDEX.md` scoring row)
 
