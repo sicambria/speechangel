@@ -2,6 +2,7 @@ package com.speechangel.core.enrollment
 
 import com.speechangel.core.dsp.Vad
 import com.speechangel.core.model.AudioSamples
+import com.speechangel.core.model.CommandId
 import com.speechangel.core.model.RecognitionResult
 import com.speechangel.core.model.Template
 
@@ -58,7 +59,7 @@ class WakeGatedRecognizer(
      * the split is done here). Returns [Outcome.Recognized] only on the frame that completes a
      * command window. When a wake word is enrolled, Stage-2 is gated until [Outcome.Woke].
      */
-    fun onFrame(frame: AudioSamples, all: List<Template>): Outcome {
+    fun onFrame(frame: AudioSamples, all: List<Template>, thresholds: Map<CommandId, Float> = emptyMap()): Outcome {
         val wakeTemplates = all.filter { it.commandId == ReservedCommands.WAKE }
         val cmdTemplates = ReservedCommands.commandTemplates(all)
 
@@ -84,7 +85,7 @@ class WakeGatedRecognizer(
         cmdBuf.clear()
         wakeBuf.clear()
         wakeDetected = false
-        return Outcome.Recognized(recognizer.recognize(window, cmdTemplates))
+        return Outcome.Recognized(recognizer.recognize(window, cmdTemplates, thresholds))
     }
 
     companion object {

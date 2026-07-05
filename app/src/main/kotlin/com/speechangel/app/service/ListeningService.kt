@@ -54,7 +54,10 @@ class ListeningService : LifecycleService() {
 
     @Inject lateinit var vad: Vad
 
+    @Inject lateinit var preferences: com.speechangel.data.prefs.ListeningPreferences
+
     private lateinit var templateCache: StateFlow<List<com.speechangel.core.model.Template>>
+    private lateinit var thresholdCache: StateFlow<Map<com.speechangel.core.model.CommandId, Float>>
     private lateinit var pipeline: WakeGatedRecognizer
     private var loop: Job? = null
 
@@ -62,6 +65,8 @@ class ListeningService : LifecycleService() {
         super.onCreate()
         templateCache = templateRepository.observeTemplates()
             .stateIn(lifecycleScope, SharingStarted.Eagerly, emptyList())
+        thresholdCache = preferences.commandThresholds
+            .stateIn(lifecycleScope, SharingStarted.Eagerly, emptyMap())
         pipeline = WakeGatedRecognizer(recognizer, wakeWordGate, vad, recorder.sampleRateHz, WINDOW_MS, WAKE_WINDOW_MS)
     }
 
@@ -84,7 +89,7 @@ class ListeningService : LifecycleService() {
                 return@collect
             }
 
-            val outcome = withContext(Dispatchers.Default) { pipeline.onFrame(frame, all) }
+            val outcome = withContext(Dispatchers.Default) { pipeline.onFrame(frame, all, thresholdCache.value) }
             if (outcome is WakeGatedRecognizer.Outcome.Recognized) {
                 val result = outcome.result
                 if (result is RecognitionResult.Match) {

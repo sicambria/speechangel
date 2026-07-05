@@ -88,6 +88,26 @@ class WakeGatedRecognizerTest {
     }
 
     @Test
+    fun `a per-command threshold is forwarded to the recognizer`() {
+        val sm = WakeGatedRecognizer(recognizer, WakeWordGate(mfcc, matcher, BIG), vad, RATE)
+        val templates = listOf(enroll(250.0, yes))
+        val f = frames(longUtterance(250.0))
+
+        // Baseline: the generous default matcher threshold accepts the command.
+        val baseline = f.map { sm.onFrame(it, templates) }
+            .filterIsInstance<WakeGatedRecognizer.Outcome.Recognized>().map { it.result }
+        assertThat(baseline.any { it is RecognitionResult.Match && it.commandId == yes }).isTrue()
+
+        sm.reset()
+
+        // A zero threshold for `yes` (as calibration could set) rejects the very same window.
+        val gated = f.map { sm.onFrame(it, templates, mapOf(yes to 0f)) }
+            .filterIsInstance<WakeGatedRecognizer.Outcome.Recognized>().map { it.result }
+        assertThat(gated.none { it is RecognitionResult.Match }).isTrue()
+        assertThat(gated.any { it is RecognitionResult.NoMatch }).isTrue()
+    }
+
+    @Test
     fun `reset clears the partially-filled command buffer`() {
         val sm = WakeGatedRecognizer(recognizer, WakeWordGate(mfcc, matcher, BIG), vad, RATE)
         val templates = listOf(enroll(250.0, yes))

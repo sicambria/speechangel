@@ -5,7 +5,9 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.speechangel.core.model.CommandId
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -31,9 +33,18 @@ class ListeningPreferences @Inject constructor(@ApplicationContext private val c
     val micDisclosed: Flow<Boolean> = store.data.map { it[MIC_DISCLOSED] ?: false }
     val setupComplete: Flow<Boolean> = store.data.map { it[SETUP_COMPLETE] ?: false }
 
+    /** Per-command acceptance thresholds from the eval calibrator; empty until calibration runs. */
+    val commandThresholds: Flow<Map<CommandId, Float>> =
+        store.data.map { CommandThresholdCodec.decode(it[COMMAND_THRESHOLDS] ?: "") }
+
     suspend fun setListeningEnabled(value: Boolean) = put(LISTENING_ENABLED, value)
     suspend fun setMicDisclosed(value: Boolean) = put(MIC_DISCLOSED, value)
     suspend fun setSetupComplete(value: Boolean) = put(SETUP_COMPLETE, value)
+
+    /** Persist the whole calibrated threshold map (wholesale replace). */
+    suspend fun setCommandThresholds(thresholds: Map<CommandId, Float>) {
+        store.edit { it[COMMAND_THRESHOLDS] = CommandThresholdCodec.encode(thresholds) }
+    }
 
     /** One-shot read for non-reactive callers (e.g. the boot receiver inside `goAsync`). */
     suspend fun isListeningEnabledNow(): Boolean = listeningEnabled.first()
@@ -46,5 +57,6 @@ class ListeningPreferences @Inject constructor(@ApplicationContext private val c
         val LISTENING_ENABLED = booleanPreferencesKey("listening_enabled")
         val MIC_DISCLOSED = booleanPreferencesKey("mic_disclosed")
         val SETUP_COMPLETE = booleanPreferencesKey("setup_complete")
+        val COMMAND_THRESHOLDS = stringPreferencesKey("command_thresholds")
     }
 }
