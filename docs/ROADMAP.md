@@ -90,9 +90,10 @@ is wired and builds; the always-on/battery/wake-word robustness pieces remain._
 - [x] Per-OEM autostart handling (DontKillMyApp guidance). _built — `OemAutostart.resolve` (pure,
       unit-tested for Xiaomi/Huawei/Oppo/Vivo/Samsung/generic) + the Always-on guidance UI with fail-soft
       deep links. Actual OEM settings screens vary per device (Bucket B)._
-- [~] Play Permission Declaration Form + prominent mic disclosure. _in-app parts built —
-      `MicDisclosureDialog` + `LicensesScreen` (correct license wording incl. Silero-STT exclusion). GAP:
-      wiring the dialog into the first mic-permission flow; the Play Console form itself is external (Bucket C)._
+- [~] Play Permission Declaration Form + prominent mic disclosure. _in-app parts built + wired —
+      `MicDisclosureDialog` gated on `preferences.micDisclosed` before the first mic-permission flow
+      (`MainActivity`) + `LicensesScreen` (correct license wording incl. Silero-STT exclusion). Remaining:
+      the Play Console Permission Declaration form itself is external (Bucket C)._
 - [~] FAR-budget threshold tuning per command. _calibration logic DONE & tested — `core:eval`
       `ThresholdCalibrator` (aggregate FA budget, equal split, per-command thresholds bounding false
       accepts) returns the `Map<CommandId, Float>` the matcher already accepts. **App persistence + pass-through
@@ -101,8 +102,9 @@ is wired and builds; the always-on/battery/wake-word robustness pieces remain._
       the calibrated numbers themselves need a real labeled corpus (Bucket B)._
 - [~] Multi-template re-enrollment polish + confirmation-gated adaptation. _pure decision logic DONE &
       tested — `decideAdaptation` (condition-aware pruning that never evicts a sole-condition example,
-      DTW-redundancy selection, deterministic tiebreak). PENDING (app): the "remember this" UI + repository
-      orchestration._
+      DTW-redundancy selection, deterministic tiebreak); the "remember this" UI + repository orchestration
+      built (`TryViewModel.rememberThis()` → `decideAdaptation` → `TemplateRepository`). Remaining `[~]`:
+      the adaptation *benefit* (FRR reduction at fixed FAR on a voice-drift corpus) needs real audio (Bucket B)._
 - [~] Optional Path-A intact-speech mode (Vosk grammar / sherpa-onnx KWS). _interface + scaffold DONE &
       tested — backend-neutral `SpeechBackend` + `BackendResult`/`BackendRejection`, `TemplateSpeechBackend`
       adapter, `NoopPathABackend`. A real Vosk/sherpa backend remains BLOCKED (large external model — Bucket C)._
