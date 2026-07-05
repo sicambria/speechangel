@@ -35,12 +35,16 @@ internal class MelFilterBank(
         return points
     }
 
-    /** Returns [numFilters] log-compressed mel energies for the given [powerSpectrum]. */
-    fun logEnergies(powerSpectrum: FloatArray): FloatArray {
+    /**
+     * Returns [numFilters] linear (pre-log) mel-band energies, floored at [LOG_FLOOR] so they stay
+     * strictly positive. This is the raw magnitude a noise-robust front end operates on before the log
+     * (spectral subtraction must act here — a constant log-domain offset is nullified by CMN).
+     */
+    fun energies(powerSpectrum: FloatArray): DoubleArray {
         require(powerSpectrum.size == spectrumBins) {
             "power spectrum size ${powerSpectrum.size} != expected $spectrumBins"
         }
-        val out = FloatArray(numFilters)
+        val out = DoubleArray(numFilters)
         for (m in 1..numFilters) {
             val left = binPoints[m - 1]
             val center = binPoints[m]
@@ -57,9 +61,15 @@ internal class MelFilterBank(
             // (audit 2026-06-28_mel-filter-bank-degenerate-filters). No effect on the default config.
             if (left == center && center == right) energy += powerSpectrum[center].toDouble()
             // Floor before log to avoid -inf on silent bands.
-            out[m - 1] = ln(energy.coerceAtLeast(LOG_FLOOR)).toFloat()
+            out[m - 1] = energy.coerceAtLeast(LOG_FLOOR)
         }
         return out
+    }
+
+    /** Returns [numFilters] log-compressed mel energies for the given [powerSpectrum]. */
+    fun logEnergies(powerSpectrum: FloatArray): FloatArray {
+        val energies = energies(powerSpectrum)
+        return FloatArray(numFilters) { ln(energies[it]).toFloat() }
     }
 
     private companion object {

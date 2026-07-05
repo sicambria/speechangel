@@ -2,6 +2,7 @@ package com.speechangel.core.eval
 
 import com.speechangel.core.dsp.DeltaOrder
 import com.speechangel.core.dsp.MfccConfig
+import com.speechangel.core.dsp.NoiseReduction
 import com.speechangel.core.model.AudioSamples
 import com.speechangel.core.model.CommandId
 import com.speechangel.core.model.VoiceCondition
@@ -87,5 +88,15 @@ object SyntheticCorpus {
         FeatureFrontEnd("static", MfccConfig(deltaOrder = DeltaOrder.NONE)),
         FeatureFrontEnd("delta", MfccConfig(deltaOrder = DeltaOrder.DELTA)),
         FeatureFrontEnd("delta_delta", MfccConfig(deltaOrder = DeltaOrder.DELTA_DELTA)),
+    )
+
+    /**
+     * Baseline vs noise-robust (Phase 3, far-field) front-ends for the bake-off. Which one wins — and
+     * whether spectral subtraction helps at all — is decidable only on real far-field/noise audio
+     * (Bucket B); the bake-off just computes both columns' FRR + false-accepts.
+     */
+    fun noiseRobustFrontEnds(): List<FeatureFrontEnd> = listOf(
+        FeatureFrontEnd("baseline", MfccConfig(noiseReduction = NoiseReduction.NONE)),
+        FeatureFrontEnd("spectral_subtraction", MfccConfig(noiseReduction = NoiseReduction.SPECTRAL_SUBTRACTION)),
     )
 }

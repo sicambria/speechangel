@@ -4,6 +4,7 @@ import com.speechangel.core.model.AudioSamples
 import com.speechangel.core.model.FeatureSequence
 import kotlin.math.PI
 import kotlin.math.cos
+import kotlin.math.ln
 import kotlin.math.sin
 import kotlin.math.sqrt
 
@@ -15,6 +16,15 @@ import kotlin.math.sqrt
  * or 3 (DELTA_DELTA).
  */
 enum class DeltaOrder { NONE, DELTA, DELTA_DELTA }
+
+/**
+ * Noise-robust front-end mode (Phase 3, far-field/noise). [NONE] is the default and byte-identical to
+ * the original pipeline. [SPECTRAL_SUBTRACTION] estimates a per-mel-band stationary noise floor from
+ * the quietest frames and rectify-subtracts it in the *energy* domain (before the log) — a non-linear
+ * step, so unlike a constant offset it survives CMN. Its FRR+FAR benefit is only decidable on real
+ * far-field/noise audio (Bucket B); this is the front-end option that bake-off measures against baseline.
+ */
+enum class NoiseReduction { NONE, SPECTRAL_SUBTRACTION }
 
 /** Configuration for [MfccExtractor]. Defaults are standard 16 kHz speech settings. */
 data class MfccConfig(
@@ -34,6 +44,14 @@ data class MfccConfig(
      */
     val applyCmn: Boolean = true,
     val deltaOrder: DeltaOrder = DeltaOrder.NONE,
+    /** Noise-robust front-end mode. [NoiseReduction.NONE] keeps the pipeline byte-identical. */
+    val noiseReduction: NoiseReduction = NoiseReduction.NONE,
+    /** Spectral-subtraction over-subtraction factor α: how many noise-floors to remove. */
+    val noiseOverSubtraction: Double = 1.5,
+    /** Spectral floor β as a fraction of the band's own energy, so a band is never fully zeroed. */
+    val noiseSpectralFloor: Double = 0.05,
+    /** Percentile (0..1) of each band's energy across frames taken as its stationary noise floor. */
+    val noiseFloorPercentile: Double = 0.1,
 ) {
     val frameLength: Int get() = sampleRateHz * frameLengthMs / 1000
     val frameShift: Int get() = sampleRateHz * frameShiftMs / 1000
@@ -62,11 +80,9 @@ class MfccExtractor(private val config: MfccConfig = MfccConfig()) {
             return FeatureSequence(emptyList())
         }
         val signal = preEmphasize(audio.samples, config.preEmphasis)
-        val frames = ArrayList<FloatArray>()
-        var start = 0
-        while (start + config.frameLength <= signal.size) {
-            frames.add(mfccOfFrame(signal, start))
-            start += config.frameShift
+        val frames = when (config.noiseReduction) {
+            NoiseReduction.NONE -> mfccFrames(signal)
+            NoiseReduction.SPECTRAL_SUBTRACTION -> denoisedMfccFrames(signal)
         }
         var sequence = frames
         if (config.applyCmn) sequence = cmn(sequence)
@@ -78,14 +94,67 @@ class MfccExtractor(private val config: MfccConfig = MfccConfig()) {
         return FeatureSequence(sequence)
     }
 
+    /** Default (no noise reduction) per-frame MFCC extraction — byte-identical to the original path. */
+    private fun mfccFrames(signal: FloatArray): ArrayList<FloatArray> {
+        val frames = ArrayList<FloatArray>()
+        var start = 0
+        while (start + config.frameLength <= signal.size) {
+            frames.add(mfccOfFrame(signal, start))
+            start += config.frameShift
+        }
+        return frames
+    }
+
     private fun mfccOfFrame(signal: FloatArray, start: Int): FloatArray {
+        val power = powerOfFrame(signal, start)
+        val logMel = melBank.logEnergies(power)
+        return dct(logMel, config.numCoefficients).also { applyLifter(it) }
+    }
+
+    private fun powerOfFrame(signal: FloatArray, start: Int): FloatArray {
         val windowed = FloatArray(config.frameLength)
         for (i in 0 until config.frameLength) {
             windowed[i] = signal[start + i] * hamming[i]
         }
-        val power = Fft.powerSpectrum(windowed, fftSize)
-        val logMel = melBank.logEnergies(power)
-        return dct(logMel, config.numCoefficients).also { applyLifter(it) }
+        return Fft.powerSpectrum(windowed, fftSize)
+    }
+
+    /**
+     * Noise-robust per-frame MFCC: estimate a per-band stationary noise floor from the quietest frames,
+     * rectify-subtract it in the energy domain (`max(e - α·floor, β·e)`), then log → DCT → lifter.
+     */
+    private fun denoisedMfccFrames(signal: FloatArray): ArrayList<FloatArray> {
+        val energies = ArrayList<DoubleArray>()
+        var start = 0
+        while (start + config.frameLength <= signal.size) {
+            energies.add(melBank.energies(powerOfFrame(signal, start)))
+            start += config.frameShift
+        }
+        if (energies.isEmpty()) return ArrayList()
+
+        val floors = perBandFloor(energies, config.noiseFloorPercentile)
+        val out = ArrayList<FloatArray>(energies.size)
+        for (e in energies) {
+            val logMel = FloatArray(config.numMelFilters) { b ->
+                val subtracted = e[b] - config.noiseOverSubtraction * floors[b]
+                val floored = maxOf(subtracted, config.noiseSpectralFloor * e[b])
+                ln(floored.coerceAtLeast(ENERGY_FLOOR)).toFloat()
+            }
+            out.add(dct(logMel, config.numCoefficients).also { applyLifter(it) })
+        }
+        return out
+    }
+
+    /** Per-band noise floor = the [percentile] (0..1) of that band's energy across all frames. */
+    private fun perBandFloor(energies: List<DoubleArray>, percentile: Double): DoubleArray {
+        val bands = config.numMelFilters
+        val n = energies.size
+        val idx = (percentile.coerceIn(0.0, 1.0) * (n - 1)).toInt()
+        return DoubleArray(bands) { b ->
+            val column = DoubleArray(n) { t -> energies[t][b] }
+            column.sort()
+            column[idx]
+        }
     }
 
     private fun applyLifter(coeffs: FloatArray) {
@@ -93,6 +162,9 @@ class MfccExtractor(private val config: MfccConfig = MfccConfig()) {
     }
 
     internal companion object {
+        /** Positivity floor for mel-band energy before the log (matches MelFilterBank's own floor). */
+        const val ENERGY_FLOOR = 1e-10
+
         fun hammingWindow(n: Int): FloatArray = FloatArray(n) { i -> (0.54 - 0.46 * cos(2.0 * PI * i / (n - 1))).toFloat() }
 
         fun cepstralLifter(numCoeffs: Int, lifter: Int): FloatArray = if (lifter <= 0) {

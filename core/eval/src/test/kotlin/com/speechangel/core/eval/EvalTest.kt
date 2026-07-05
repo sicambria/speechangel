@@ -78,6 +78,14 @@ class SyntheticPipelineTest {
     }
 
     @Test
+    fun `noise-robust bake-off computes baseline vs spectral-subtraction (no winner asserted)`() {
+        val report = FrontEndBakeoff(SyntheticCorpus.noiseRobustFrontEnds()).run(corpus)
+        assertThat(report.rows.map { it.name }).containsExactly("baseline", "spectral_subtraction")
+        assertThat(report.rows.all { it.frr in 0.0..1.0 }).isTrue()
+        // Both columns are populated; which one wins is a Bucket-B, real-audio decision, not asserted.
+    }
+
+    @Test
     fun `calibration returns a threshold per command and never increases false accepts`() {
         val fe = SyntheticCorpus.frontEnds().first()
         val cal = ThresholdCalibrator(fe).calibrate(corpus)
