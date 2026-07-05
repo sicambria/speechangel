@@ -1,9 +1,22 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.speechangel.android.application)
     alias(libs.plugins.speechangel.android.compose)
     alias(libs.plugins.speechangel.android.hilt)
     alias(libs.plugins.ksp)
 }
+
+// Release signing is sourced from a git-ignored keystore.properties (never committed). When it is
+// absent — the default on CI and this host — the release build assembles UNSIGNED rather than failing
+// configuration, so R8/shrink can still be verified without the human's keystore (Bucket C).
+val keystorePropsFile = rootProject.file("keystore.properties")
+val hasKeystore = keystorePropsFile.exists()
+val keystoreProps =
+    Properties().apply {
+        if (hasKeystore) FileInputStream(keystorePropsFile).use { load(it) }
+    }
 
 android {
     namespace = "com.speechangel.app"
@@ -13,6 +26,17 @@ android {
         versionCode = 1
         versionName = "0.1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        if (hasKeystore) {
+            create("release") {
+                storeFile = file(keystoreProps.getProperty("storeFile"))
+                storePassword = keystoreProps.getProperty("storePassword")
+                keyAlias = keystoreProps.getProperty("keyAlias")
+                keyPassword = keystoreProps.getProperty("keyPassword")
+            }
+        }
     }
 
     lint {
@@ -28,9 +52,11 @@ android {
             isDebuggable = true
         }
         release {
-            // R8 is intentionally deferred until device QA (see docs/ROADMAP.md).
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            // Signed only when a keystore is supplied; otherwise an unsigned release APK is produced.
+            signingConfig = if (hasKeystore) signingConfigs.getByName("release") else null
         }
     }
 }

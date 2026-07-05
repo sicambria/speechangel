@@ -1,0 +1,3 @@
+First build: teach your own voice commands, try them, and run the hands-free
+command loop — fully on-device. Includes the always-on listening service, the
+enrollment/caregiver setup flow, and a deterministic command→action table.

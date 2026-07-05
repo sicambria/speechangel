@@ -1,0 +1,20 @@
+SpeechAngel turns your phone into a hands-free device you control with your own
+voice — commands you record yourself, in any language or speech pattern.
+
+Unlike ordinary voice assistants, SpeechAngel does not try to understand words. You
+teach it a handful of commands by example (a few recordings each), and it matches
+your future speech against those recordings entirely on-device. That makes it:
+
+• Language-independent — it works in any language, dialect, or mix.
+• Inclusive of atypical speech — dysarthria, post-stroke change, fatigue, illness.
+  Record extra examples under those conditions and it adapts to your own voice.
+• Private — recognition is 100% on-device. No cloud, no account, nothing uploaded.
+• Deterministic — each command maps to one fixed device action. No autonomous AI in
+  the loop.
+
+Teach → Try → hands-free: set up a few commands with a caregiver, try them, then turn
+on always-on listening. A foreground service keeps a microphone-only listener running
+so you can act without touching the screen.
+
+Built for people who find touchscreens hard to use and mainstream voice assistants
+hard to be understood by.

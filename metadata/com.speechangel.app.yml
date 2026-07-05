@@ -1,0 +1,27 @@
+Categories:
+  - System
+License: AGPL-3.0-only
+AuthorName: SpeechAngel
+# Fill these in when the public mirror exists (F-Droid RFP needs them):
+# SourceCode: https://…
+# IssueTracker: https://…
+
+AutoName: SpeechAngel
+
+RepoType: git
+# Repo: https://…
+
+Builds:
+  - versionName: 0.1.0
+    versionCode: 1
+    commit: v0.1.0
+    subdir: app
+    gradle:
+      - yes
+    # Reproducibility: no proprietary dependencies; pinned AGP/dependency versions
+    # (see gradle/libs.versions.toml); deterministic build. R8 + resource shrink on.
+
+AutoUpdateMode: Version v%v
+UpdateCheckMode: Tags
+CurrentVersion: 0.1.0
+CurrentVersionCode: 1
