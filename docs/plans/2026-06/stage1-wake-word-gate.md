@@ -8,7 +8,9 @@
 - **Worktree:** n/a (single-session, on `main`)
 - **Plan quality:** 95/100 — independently confirmed over two review rounds (67 → 93 → 95)
 - **Depends on:** `docs/plans/2026-06/recognizer-eval-and-calibration.md` (the `core:eval` harness is a
-  hard prerequisite for the wake FRR/FAR DoD; implement that plan first).
+  hard prerequisite for the wake FRR/FAR DoD). **That prerequisite has landed** — `core:eval` exists and
+  is wired in `settings.gradle.kts` — so the remaining wake-FRR/FAR block is a real corpus (Bucket B),
+  not a missing harness.
 
 ## Goal
 
@@ -31,7 +33,9 @@ wake word leaking into or suppressing Stage-2 command matching.
   a **streaming capture API** rather than pretending one exists.
 - **VAD reality:** `EnergyVad.detect` estimates the noise floor as the 10th percentile *of the buffer*
   (`core/dsp/src/main/kotlin/com/speechangel/core/dsp/Vad.kt`). On a short frame that is entirely
-  speech, that percentile is itself speech and nothing clears `floor*3` → the wake is missed. The gate
+  speech, that percentile is itself speech and nothing clears `floor * config.energyRatioOverNoise` (an
+  `EnergyVadConfig` field, default 3 — defined `Vad.kt:30`, applied `Vad.kt:57`) → the wake is missed.
+  The gate
   therefore needs a **running** noise-floor estimate (or a fixed absolute gate floor), not per-frame
   percentile VAD.
 - **Language-independent + on-device:** the wake word is an *enrolled* template matched by DTW — not an
@@ -89,9 +93,10 @@ dependency + language tension.
    passed templates' `commandId`).
 6. **Wake enrollment ops.** Enroll/fetch wake templates via the existing `Enroller`/`TemplateRepository`
    under the reserved id (UI lands in the enrollment-adaptation-ux plan's Always-on screen).
-7. **Eval integration (after the eval plan).** Extend the `core:eval` harness to score the gate: wake
-   FRR (missed enrolled-wake utterances) and wake FAR/hour over a *named* negative corpus (state its
-   duration/source).
+7. **Eval integration (the `core:eval` harness now exists).** Extend the landed `core:eval` module to
+   score the gate: wake FRR (missed enrolled-wake utterances) and wake FAR/hour over a *named* negative
+   corpus (state its duration/source). The harness is no longer a blocker; the remaining gap is a real
+   labeled corpus (Bucket B).
 8. **Optional backend note.** Document microWakeWord as an alternative `WakeWordGate` implementation
    (model + license + language-independence tension), unimplemented.
 
@@ -99,15 +104,17 @@ dependency + language tension.
 
 - `WakeWordGate` + the running-energy gate build and are unit-tested in `:core:enrollment:test` /
   `:core:dsp:test` (the reliable autonomous gate); a test asserts no mic restart occurs between Wake and
-  Stage-2 capture (the window is drained from the same stream). Whole-project `make verify` is green on
-  the current tree this session and re-run after implementation; this plan's code is not built yet.
+  Stage-2 capture (the window is drained from the same stream). **These A-deliverables landed
+  2026-06-28** (`WakeWordGate.kt`, `AudioRecorder.stream()`, `ReservedCommands`, the `ListeningService`
+  two-stage loop) with `make verify` + 9/9 guardrails green then (see `docs/plans/INDEX.md`); re-run
+  `make verify` after any further change.
 - Stage-2's candidate set provably **excludes** reserved ids (unit test: a stored `__wake__` template
   does not appear in the command-matching set and cannot be returned as a Match).
 - `AudioRecorder.stream` exists with a fake-driven unit test; real mic streaming is Bucket-B.
 - Fallback (no wake enrolled / gate disabled) reproduces today's behavior, covered by a test.
-- **Blocked-on-prereq:** wake **FRR** and wake **FAR/hour** are reported by the `core:eval` harness on
-  a named corpus — this DoD line is satisfied only once the eval plan has landed; until then it is
-  explicitly pending, not claimed.
+- **Blocked-on-corpus:** wake **FRR** and wake **FAR/hour** are reported by the `core:eval` harness
+  (now landed) on a named corpus — the harness is in place; this DoD line is satisfied only once a real
+  labeled negative/wake corpus exists (Bucket B). No wake FRR/FAR is claimed until measured.
 - **Bucket-B honesty:** the battery/CPU saving and real-world wake reliability need on-device
   measurement and are recorded as blocked.
 
@@ -123,6 +130,10 @@ dependency + language tension.
   unit tests on synthetic frames; device tuning is Bucket-B.
 - **Risk: added latency before commands.** Mitigation: gate runs off-main on the stream; Stage-2 opens
   on Wake; end-to-end latency measured on device (B).
+- **Rollback:** the gate is opt-in — set no wake word / disable the gate and `ListeningService` falls
+  back to today's all-templates windowed loop (Step 5). `WakeWordGate`/`stream()`/`ReservedCommands`
+  are additive; reverting the `ListeningService` wiring commit restores the prior single-stage loop
+  with no schema or template change.
 
 ## Test & Verification
 

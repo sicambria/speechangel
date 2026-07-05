@@ -1,8 +1,9 @@
 <!-- Plan index + feasibility triage. Exempt from the plan-workflow completeness gate (INDEX.md). -->
 # Plan index & feasibility triage
 
-Created 2026-06-28 as the backbone of the Phase 0/1/2 planning push. Every remaining Phase 0/1/2
-ROADMAP item is triaged by how far an *autonomous* coding session can take it:
+Created 2026-06-28 as the backbone of the Phase 0/1/2 planning push; **extended 2026-07-05 to cover
+Phase 3** (Delight & reach). Every remaining Phase 0/1/2/3 ROADMAP item is triaged by how far an
+*autonomous* coding session can take it:
 
 - **A — fully autonomous:** plan + implement + `make verify` green on this host.
 - **B — code-yes / DoD-needs-external-input:** the harness/feature is buildable here, but the
@@ -29,6 +30,12 @@ ROADMAP item is triaged by how far an *autonomous* coding session can take it:
 | Multi-template re-enrollment + confirmation-gated adaptation | 2 | A | `docs/plans/2026-06/enrollment-adaptation-ux.md` |
 | Prominent mic disclosure + Play Permission Declaration | 2 | A (in-app dialog) / C (Play form) | `docs/plans/2026-06/policy-and-path-a.md` |
 | Optional Path-A intact-speech mode (Vosk/sherpa-onnx) | 2 | C | `docs/plans/2026-06/policy-and-path-a.md` |
+| QbE embedding enhancement (few-shot, milder impairment) | 3 | A (seam+selector) / C (trained encoder) | `docs/plans/2026-06/phase3-matcher-enhancements.md` |
+| Vocabulary-distinctness helper (warn on close commands) | 3 | A (pure) / B (confusion correlation on real voices) | `docs/plans/2026-06/phase3-matcher-enhancements.md` |
+| Far-field / noise front-end | 3 | A (logic) / B (real far-field/noise gains) | `docs/plans/2026-06/phase3-matcher-enhancements.md` |
+| Shareable command packs | 3 | A | `docs/plans/2026-06/phase3-reach-and-release.md` |
+| F-Droid + Play release | 3 | A (scaffold) / C (accounts + signing key + RFP) | `docs/plans/2026-06/phase3-reach-and-release.md` |
+| whisper.cpp batch dictation (optional) | 3 | A (interface+Noop) / C (native model+runtime) | `docs/plans/2026-06/phase3-reach-and-release.md` |
 
 ## Plans
 
@@ -37,6 +44,10 @@ ROADMAP item is triaged by how far an *autonomous* coding session can take it:
 - `docs/plans/2026-06/always-on-survival.md` — battery exemption, reboot survival, OEM autostart.
 - `docs/plans/2026-06/enrollment-adaptation-ux.md` — always-on screen, caregiver wizard, adaptation.
 - `docs/plans/2026-06/policy-and-path-a.md` — mic disclosure/Play + optional Path-A scaffold.
+- `docs/plans/2026-06/phase3-matcher-enhancements.md` — QbE embedding, vocab-distinctness helper,
+  far-field/noise front-end (Phase 3; authored 2026-07-05).
+- `docs/plans/2026-06/phase3-reach-and-release.md` — shareable command packs, F-Droid/Play release
+  scaffold, whisper.cpp batch dictation (Phase 3; authored 2026-07-05).
 
 ## Definition of "done" for this push (honesty contract)
 
@@ -76,3 +87,37 @@ survival 95, ux 94, policy 95.
 survival (reboot/Doze/OEM), Play Permission Declaration Form (account), real Vosk/sherpa Path-A backend.
 
 **(4) Honesty:** synthetic eval output is banner-marked SYNTHETIC; no real numbers fabricated.
+
+## Phase 3 planning batch (2026-07-05)
+
+A separate, later batch — **do not fold into the 2026-06-28 push above** (whose ">94, two-round-
+reviewed, all 5" claim is about those five plans only and stays true as written).
+
+**Provenance (honest):** the two Phase 3 plans were **authored + self-scored 93/100 and advisor-
+reviewed once on 2026-07-05** — not the two-round, >94 process the Phase 0/1/2 plans went through. 93 is
+the honest ceiling here: Phase 3 is exploratory and mostly **Bucket B/C** (QbE needs an external trained
+encoder; far-field/dictation/release need real corpora, native models, or store accounts), so the plans
+draw those boundaries rather than invent precision. Both are docs-only; no Phase 3 code was implemented
+in this batch (the request stopped at "record").
+
+- `phase3-matcher-enhancements.md` (93) — QbE embedding (A seam / C encoder), vocab-distinctness helper
+  (A / B), far-field front-end (A / B). All three are opt-in; the MFCC-DTW core stays the default. Each
+  item's adoption gate is an **FRR + FAR delta vs the MFCC-DTW baseline** on the landed `core:eval`
+  harness — pending a real corpus.
+- `phase3-reach-and-release.md` (93) — command packs (A; re-enroll model, `DeviceAction.fromId`-
+  validated), F-Droid/Play scaffold (A up to the signing/account wall — C), whisper.cpp dictation (A
+  interface / C model; a *new* `DictationBackend`, not the command-oriented `SpeechBackend`). None
+  touches the matcher, so none changes FRR/FAR.
+
+**Not planned (deliberate):** the Workflow-track "CI running green on a real GitHub Actions run" item is
+implemented (`.github/workflows/ci.yml`), only unobserved on an actual Actions run — a full plan is
+overkill; it is noted here, not planned.
+
+## Reconciliation (2026-07-05)
+
+The five Phase 0/1/2 plans were **reconciled 2026-07-05** (not re-reviewed — their >94 provenance
+holds): stale "code is not built yet" DoD lines removed to match the code that landed 2026-06-28;
+`always-on-survival` moved `planned`→`done` and `recognizer-eval-and-calibration` `planned`→`active`
+(harness landed, threshold app-persistence still pending) to match reality; explicit **Rollback** lines
+added to each Risks section; the `EnergyVad` ratio citation corrected to `config.energyRatioOverNoise`
+(`Vad.kt:30`, applied `:57`).

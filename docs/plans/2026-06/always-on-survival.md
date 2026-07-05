@@ -5,7 +5,7 @@
 - **Roadmap item:** Phase 1 "Battery-optimization exemption flow"; Phase 2 "Assistant role
   (`RoleManager.ROLE_ASSISTANT`) for reboot survival"; Phase 2 "Per-OEM autostart handling
   (DontKillMyApp guidance)"
-- **Status:** planned
+- **Status:** done (A-deliverables implemented 2026-06-28; B-items — real reboot/Doze/OEM-killer survival — pending device)
 - **Worktree:** n/a (single-session, on `main`)
 - **Plan quality:** 95/100 — independently confirmed over two review rounds (61 → 93 → 95)
 
@@ -94,8 +94,9 @@ categories; disclosure does not cure eligibility); claiming the assistant role g
   fail soft.
 - `app/build.gradle.kts` has the Robolectric/androidx-test deps. Reliable autonomous gate after
   implementation: `:core:*:test` + the new `:app` unit/Robolectric tests; whole-project `make verify`
-  is the target full-build gate, re-run after each change (it is green on the *current* tree as of
-  2026-06-28; this plan's code is not built yet and makes no green claim).
+  is the target full-build gate, re-run after each change. **These A-deliverables landed 2026-06-28**
+  (`BootReceiver.kt`, `BatteryOptimization.kt`, `OemAutostart.kt`, `AssistantRole.kt` + manifest
+  registration) with `make verify` + 9/9 guardrails green then (see `docs/plans/INDEX.md`).
 - **Bucket-B honesty:** real reboot/Doze/OEM-killer survival is on-device verification; this plan
   delivers the legal flows + tests and is explicit that silent auto-restart is impossible here.
 
@@ -111,6 +112,10 @@ categories; disclosure does not cure eligibility); claiming the assistant role g
   (the system UID sends the broadcast); covered by review note.
 - **Risk: ROLE_ASSISTANT unavailable / pre-Q.** Mitigation: version guard + availability check;
   optional-only.
+- **Rollback:** every piece is additive and user-initiated. The persisted enable flag defaults off;
+  `BootReceiver` only posts a notification (never starts a service), so disabling/removing it cannot
+  leave a runaway FGS; the battery/role/OEM intents are one-shot user actions with no persistent state
+  to unwind. Reverting the wiring restores the pre-survival app with no data migration.
 
 ## Test & Verification
 

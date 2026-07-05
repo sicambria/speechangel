@@ -101,8 +101,9 @@ if submitted (account-bound — a checklist instead); unqualified "Silero is MIT
   as **FRR + FAR/hour** (recorded in the guide; the harness is a pending prerequisite).
 - Disclosure-gating + adapter logic unit-tested; the `SpeechBackend` adapter runs in the reliable
   autonomous gate (`:core:enrollment:test`); the disclosure ViewModel test runs under whole-project
-  `make verify` (the target gate; green on the current tree this session — this plan's code is not built
-  yet and makes no green claim).
+  `make verify`. **These A-deliverables landed 2026-06-28** (`MicDisclosureDialog.kt`, `LicensesScreen.kt`,
+  `SpeechBackend.kt`/`TemplateSpeechBackend`/`NoopPathABackend`) with `make verify` + 9/9 guardrails
+  green then (see `docs/plans/INDEX.md`); re-run `make verify` after any further change.
 - **Bucket-C honesty:** the Play form submission (account) and a working Vosk/sherpa backend (large
   external model + native runtime + license vetting) are out of autonomous scope, documented as the
   human's next step; nothing pretends they are done.
@@ -111,7 +112,10 @@ if submitted (account-bound — a checklist instead); unqualified "Silero is MIT
 
 - **Risk (the #1 finding): interface over-fits the template engine** (forces Vosk to fake template
   fields). Mitigation: neutral `BackendResult`; DTW fields confined to the template subtype; capability
-  flags; validate the shape against Vosk/sherpa APIs in the guide before locking it.
+  flags. **Closing action (owned by Step 6's guide):** the integration guide includes a concrete
+  Vosk/sherpa-onnx API mapping table (their streaming result → `BackendResult`) that must be filled in
+  and reviewed *before* any real backend is wired — the seam is not considered "locked" until that table
+  exists in the guide.
 - **Risk: stateful adapter regresses the pure recognizer.** Mitigation: the adapter wraps, it does not
   replace; `Recognizer` stays pure; only the adapter holds state.
 - **Risk: license drift / wrong claim.** Mitigation: single declared license source; explicit Silero
@@ -120,6 +124,10 @@ if submitted (account-bound — a checklist instead); unqualified "Silero is MIT
   guidance in the checklist; easy to update.
 - **Risk: scaffolding implies Path-A is done.** Mitigation: `Noop` naming + Bucket-C DoD + ROADMAP item
   stays `[ ]` "scaffold only".
+- **Rollback:** both pieces are additive. The disclosure dialog is gated on a `:data` flag — reverting
+  its wiring leaves the mic flow as it was; `SpeechBackend`/`NoopPathABackend` are a new interface with
+  no caller bound in DI yet (no backend selector exists — confirmed), so removing them touches nothing
+  in the live template path.
 
 ## Test & Verification
 

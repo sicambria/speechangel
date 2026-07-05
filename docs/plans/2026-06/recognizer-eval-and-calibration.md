@@ -4,7 +4,7 @@
 - **Phase:** 0 (with Phase 2 threshold tuning)
 - **Roadmap item:** Phase 0 "Measure FRR/FAR", Phase 0 "Feature front-end bake-off", Phase 0
   `core:dsp` ΔΔ gap, Phase 2 "FAR-budget threshold tuning per command"
-- **Status:** planned
+- **Status:** active (harness A-deliverables — `core:eval` — landed 2026-06-28; Phase-2 per-command threshold *app-persistence* into `ListeningService` still pending; real-corpus FRR/FAR numbers Bucket B)
 - **Worktree:** n/a (single-session, on `main`)
 - **Plan quality:** 95/100 — independently confirmed over two review rounds (66 → 93 → 95)
 
@@ -30,8 +30,8 @@ Steps); this plan consumes it.
   `FeatureFrontEnd` under test extracts *both* the enrolled templates and the query with the *same*
   config, guaranteeing equal widths.
 - **Real `EnergyVad` needs surrounding silence.** `Recognizer.recognize` runs `vad.trim` first;
-  `EnergyVad` thresholds at `percentile(energy,0.10)*3`
-  (`core/dsp/src/main/kotlin/com/speechangel/core/dsp/Vad.kt`). A bare steady tone has
+  `EnergyVad` thresholds at `percentile(energy,0.10) * config.energyRatioOverNoise` (the ratio is an
+  `EnergyVadConfig` field, default 3 — `core/dsp/src/main/kotlin/com/speechangel/core/dsp/Vad.kt:30`). A bare steady tone has
   uniform RMS → nothing clears the gate → empty → SILENCE for every positive (confirmed empirically by
   review). Synthetic utterances must therefore be **silence-padded bursts** with **time-varying**
   content (frequency sweeps / multi-tone with temporal structure) so VAD passes *and* Δ/ΔΔ carry
@@ -143,6 +143,11 @@ the experiment's *output*, not an invariant); editing `:app`'s `ListeningService
   aggregate budget defined + split policy; FAR reported as count + duration; min-duration stated.
 - **Risk: leaked-type compile error** from `FeatureFrontEnd` exposing `MfccConfig`. Mitigation:
   `core:dsp` declared as `api` in `core:eval`.
+- **Rollback:** `core:eval` is a new, leaf module — nothing in the runtime pipeline depends on it, so
+  dropping `include(":core:eval")` reverts cleanly. The one non-additive change is `MfccConfig`'s
+  `includeDeltas: Boolean` → `deltaOrder: DeltaOrder` (default `NONE` preserves prior behavior, no
+  external callers set the old field — confirmed); to back it out, restore the boolean and the
+  `withDeltas` concatenation. The per-command threshold map is consumed only if the app opts in.
 
 ## Test & Verification
 

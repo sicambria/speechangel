@@ -95,8 +95,10 @@ nested scaffolds); a second listening-state source of truth.
 - "Remember this" adds a confirmed, condition-tagged example via the orchestrator; "forget" removes the
   retained new id; captured audio + commandId are threaded through `TryUiState`.
 - `:core:enrollment:test` green — the reliable autonomous gate for the pure `decideAdaptation` logic.
-  App ViewModel tests run under whole-project `make verify` (the target full-build gate; green on the
-  *current* tree this session — this plan's code is not built yet and makes no green claim).
+  App ViewModel tests run under whole-project `make verify`. **These A-deliverables landed 2026-06-28**
+  (`AdaptationDecision.kt`, `AlwaysOnScreen.kt`, `CaregiverWizard`, the TryScreen "remember this" →
+  `decideAdaptation` → `TemplateRepository` path) with `make verify` + 9/9 guardrails green then (see
+  `docs/plans/INDEX.md`); re-run `make verify` after any further change.
 - **Accuracy honesty:** adaptation's *benefit* is defined as a measurable reduction in **FRR** at a
   fixed **FAR** operating point, scored via the `core:eval` harness on a voice-drift corpus (templates
   enrolled NORMAL, queried TIRED/ILL). This is a pending measurement — the harness is the prerequisite
@@ -115,6 +117,10 @@ nested scaffolds); a second listening-state source of truth.
   (explicit step).
 - **Risk: unbounded template growth.** Mitigation: hard `maxPerCommand` cap (default 5) + tested prune.
 - **Risk: wizard nests scaffolds.** Mitigation: extract content composables first (step 1).
+- **Rollback:** adaptation is confirmation-gated and append-then-prune — reverting the orchestrator
+  wiring stops new examples being added but never destroys stored templates (the pure `decideAdaptation`
+  never evicts a sole-condition example, so a bad prune cannot lose a rare voice condition). The
+  Always-on screen/wizard are additive routes; dropping them leaves Home/Teach/Try intact.
 
 ## Test & Verification
 

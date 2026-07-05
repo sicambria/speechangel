@@ -11,6 +11,10 @@ acceptance criteria honest (FRR + FAR/hour, never a bare "99 %").
 > host (`detekt spotlessCheck :app:lintDebug test :app:assembleDebug` → BUILD SUCCESSFUL, debug APK
 > produced) and an evidence-based source inventory. Checkboxes below reflect *verified code state*,
 > not aspiration. Per-item plans live under `docs/plans/2026-06/`.
+>
+> **Phase 3 planned 2026-07-05:** the six Phase 3 items below now each carry a plan (self-scored 93,
+> advisor-reviewed 2026-07-05) — see `docs/plans/INDEX.md` "Phase 3 planning batch". Docs-only; Phase 3
+> is mostly Bucket B/C, so the plans draw the autonomous/external boundary rather than claim numbers.
 
 ---
 
@@ -102,12 +106,18 @@ is wired and builds; the always-on/battery/wake-word robustness pieces remain._
 
 ## Phase 3 — Delight & reach (ongoing) · status: `planned`
 
-- [ ] QbE embedding enhancement (few-shot, milder impairment). _status: planned_
-- [ ] Vocabulary-distinctness helper (warn on acoustically-close commands). _status: planned_
-- [ ] Far-field / noise front-end. _status: planned_
-- [ ] whisper.cpp batch dictation (optional). _status: planned_
-- [ ] Shareable command packs. _status: planned_
-- [ ] F-Droid + Play release. _status: planned_
+- [ ] QbE embedding enhancement (few-shot, milder impairment). _planned 2026-07-05 —
+      `docs/plans/2026-06/phase3-matcher-enhancements.md` (Item C); A seam+selector / C trained encoder._
+- [ ] Vocabulary-distinctness helper (warn on acoustically-close commands). _planned 2026-07-05 —
+      `docs/plans/2026-06/phase3-matcher-enhancements.md` (Item A); Bucket A (pure `Dtw.distance`)._
+- [ ] Far-field / noise front-end. _planned 2026-07-05 —
+      `docs/plans/2026-06/phase3-matcher-enhancements.md` (Item B); A logic / B real-far-field gains._
+- [ ] whisper.cpp batch dictation (optional). _planned 2026-07-05 —
+      `docs/plans/2026-06/phase3-reach-and-release.md` (Item C); A `DictationBackend` interface / C model._
+- [ ] Shareable command packs. _planned 2026-07-05 —
+      `docs/plans/2026-06/phase3-reach-and-release.md` (Item A); Bucket A (re-enroll model, validated import)._
+- [ ] F-Droid + Play release. _planned 2026-07-05 —
+      `docs/plans/2026-06/phase3-reach-and-release.md` (Item B); A scaffold / C accounts+signing+RFP._
 
 ---
 
