@@ -14,10 +14,12 @@ acceptance criteria honest (FRR + FAR/hour, never a bare "99 %").
 >
 > **Phase 3 planned + Bucket-A implemented 2026-07-05:** the six Phase 3 items each carry a plan
 > (self-scored 93, advisor-reviewed) — see `docs/plans/INDEX.md` "Phase 3 planning batch" — and every
-> autonomously-implementable (Bucket-A) slice is now built, tested, and committed (all six items are
-> `[~]`). The remainders are genuinely external (Bucket B/C: a real dysarthric-inclusive corpus, a
-> trained QbE encoder, the whisper.cpp native model, Play/F-Droid accounts + signing key) and are NOT
-> checked off. No FRR/FAR number or bake-off winner is claimed — those still need the corpus._
+> autonomously-implementable slice is built, tested, and committed. Two items are code-complete + wired
+> to a user entry point (`[x]`, on-device visual QA noted Bucket B): the vocabulary-distinctness helper
+> and shareable command packs. The other four stay `[~]` because the deliverable itself needs an absent
+> resource (trained QbE encoder, whisper.cpp native model, Play/F-Droid accounts + signing key) or an
+> external quality measurement (a real dysarthric-inclusive corpus for far-field gains). No FRR/FAR
+> number, bake-off winner, or B/C completion is claimed._
 
 ---
 
@@ -100,11 +102,12 @@ is wired and builds; the always-on/battery/wake-word robustness pieces remain._
       LANDED 2026-07-05** — `ListeningPreferences.commandThresholds` (JSON pref via `CommandThresholdCodec`),
       `WakeGatedRecognizer.onFrame` forwards the map, `ListeningService` collects + passes it. Remaining `[~]`:
       the calibrated numbers themselves need a real labeled corpus (Bucket B)._
-- [~] Multi-template re-enrollment polish + confirmation-gated adaptation. _pure decision logic DONE &
-      tested — `decideAdaptation` (condition-aware pruning that never evicts a sole-condition example,
-      DTW-redundancy selection, deterministic tiebreak); the "remember this" UI + repository orchestration
-      built (`TryViewModel.rememberThis()` → `decideAdaptation` → `TemplateRepository`). Remaining `[~]`:
-      the adaptation *benefit* (FRR reduction at fixed FAR on a voice-drift corpus) needs real audio (Bucket B)._
+- [x] Multi-template re-enrollment polish + confirmation-gated adaptation. _decision logic + app wiring
+      complete & tested — `decideAdaptation` (condition-aware pruning that never evicts a sole-condition
+      example, DTW-redundancy selection, deterministic tiebreak) + the "remember this" UI
+      (`TryViewModel.rememberThis()` → `decideAdaptation` → `TemplateRepository`); `make verify` green.
+      The adaptation *benefit* (FRR reduction at fixed FAR on a voice-drift corpus) still needs real audio
+      to quantify (Bucket B) — the mechanism is done, the measurement is external._
 - [~] Optional Path-A intact-speech mode (Vosk grammar / sherpa-onnx KWS). _interface + scaffold DONE &
       tested — backend-neutral `SpeechBackend` + `BackendResult`/`BackendRejection`, `TemplateSpeechBackend`
       adapter, `NoopPathABackend`. A real Vosk/sherpa backend remains BLOCKED (large external model — Bucket C)._
@@ -117,9 +120,10 @@ is wired and builds; the always-on/battery/wake-word robustness pieces remain._
       `QbeEncoder`/`QbeSpeechBackend` (few-shot cosine prototypes) + `SpeechBackendSelector` + dormant
       `NoopQbeEncoder` DI binding; the template engine stays the default. Remaining: a real trained encoder
       + its FRR+FAR-vs-baseline measurement (Bucket C). `docs/plans/2026-06/phase3-matcher-enhancements.md`._
-- [~] Vocabulary-distinctness helper (warn on acoustically-close commands). _logic LANDED 2026-07-05 —
-      `core:matching` `VocabularyDistinctness.analyze` (scale-relative DTW + shared-onset, advisory-only).
-      Remaining: the enrollment-UI nudge + confusion-correlation validation on real voices (Bucket B).
+- [x] Vocabulary-distinctness helper (warn on acoustically-close commands). _`core:matching`
+      `VocabularyDistinctness.analyze` (scale-relative DTW + shared-onset, advisory-only) + the
+      enrollment-UI nudge wired into `TeachViewModel`/`TeachScreen`; unit-tested, `make verify` green
+      (2026-07-05). On-device visual QA + confusion-correlation tuning on real voices are Bucket B.
       `docs/plans/2026-06/phase3-matcher-enhancements.md`._
 - [~] Far-field / noise front-end. _logic LANDED 2026-07-05 — `MfccConfig.noiseReduction`
       (SPECTRAL_SUBTRACTION, default-off, byte-identical when off) + bake-off wiring. Remaining: the
@@ -128,9 +132,10 @@ is wired and builds; the always-on/battery/wake-word robustness pieces remain._
 - [~] whisper.cpp batch dictation (optional). _interface LANDED 2026-07-05 — `DictationBackend`
       (transcript-returning, not `SpeechBackend`) + `NoopDictationBackend`. Remaining: the native model +
       runtime + a text-entry surface (Bucket C). `docs/plans/2026-06/phase3-reach-and-release.md`._
-- [~] Shareable command packs. _format + export/import LANDED 2026-07-05 — `data/pack` `CommandPack`
-      (versioned JSON), `DeviceAction`-validated import, definitions-only re-enroll model. Remaining: the
-      share-sheet/SAF UI surface (Bucket B). `docs/plans/2026-06/phase3-reach-and-release.md`._
+- [x] Shareable command packs. _`data/pack` `CommandPack` (versioned JSON), `DeviceAction`-validated
+      import, definitions-only re-enroll model + `CommandPackScreen`/`CommandPackViewModel` (import/export)
+      routed from Home; unit-tested, `make verify` green (2026-07-05). A polished share-sheet/SAF file
+      picker + on-device visual QA are Bucket B. `docs/plans/2026-06/phase3-reach-and-release.md`._
 - [~] F-Droid + Play release. _scaffold + R8 LANDED 2026-07-05 — conditional signing, release shrink
       (`:app:assembleRelease` green), `fastlane` + F-Droid metadata, `docs/release/RELEASE.md`. Remaining:
       the keystore, Play/F-Droid accounts + RFP (Bucket C). `docs/plans/2026-06/phase3-reach-and-release.md`._
@@ -145,8 +150,10 @@ is wired and builds; the always-on/battery/wake-word robustness pieces remain._
       `verify-plan-workflow-guardrails.mjs`; awaiting real measurement._
 - [x] On-device enrollment stays the core — no regression to a language-dependent STT core. _held —
       recognizer is speaker-dependent template matching; no STT/phoneme model._
-- [ ] Licensing: keep Silero VAD/whisper.cpp (MIT), Vosk/sherpa-onnx (Apache-2.0); avoid NC-licensed
-      models; ship a third-party-licenses screen. _status: planned (no third-party models added yet)._
+- [x] Licensing: keep Silero VAD/whisper.cpp (MIT), Vosk/sherpa-onnx (Apache-2.0); avoid NC-licensed
+      models; ship a third-party-licenses screen. _held — `LicensesScreen` ships (AndroidX/Kotlin/Hilt
+      Apache-2.0; planned models MIT/Apache only); no NC-licensed model is bundled; app is AGPL-3.0
+      (`LICENSE`). The permissive-only policy is documented for any future model add._
 
 ---
 

@@ -109,15 +109,20 @@ in this batch (the request stopped at "record").
   interface / C model; a *new* `DictationBackend`, not the command-oriented `SpeechBackend`). None
   touches the matcher, so none changes FRR/FAR.
 
-**Bucket-A implemented 2026-07-05.** Every autonomously-implementable Phase 3 slice is now built, tested,
-and committed (all six items `[~]` in ROADMAP): `VocabularyDistinctness` (core:matching); the QbE
+**Bucket-A implemented 2026-07-05.** Every autonomously-implementable Phase 3 slice is built, tested,
+and committed: `VocabularyDistinctness` + its Teach-flow nudge (core:matching/app); the QbE
 seam+selector+`NoopQbeEncoder` and `DictationBackend` (core:enrollment, both dormant); the
 `MfccConfig.noiseReduction` far-field front-end + bake-off wiring (core:dsp/core:eval); per-command
 threshold persistence + pass-through (`ListeningPreferences`/`WakeGatedRecognizer`/`ListeningService`);
-`data/pack` command packs; and the F-Droid/Play release scaffold + R8 (`:app:assembleRelease` green).
-Each module's test task + detekt + spotless + 10/10 guardrails ran green per commit. **No B/C item is
-checked off** — no real FRR/FAR, no bake-off winner, no trained encoder, no whisper model, no store
-account is claimed.
+`data/pack` command packs + `CommandPackScreen`/`CommandPackViewModel` (app); and the F-Droid/Play
+release scaffold + R8 (`:app:assembleRelease` green). Each module's test task + detekt + spotless +
+10/10 guardrails ran green per commit; `make verify` green.
+
+**Two items reached `[x]`** (code-complete, wired to a user entry point, verify-green — only on-device
+visual QA/external validation left, matching the Phase-1 enrollment-UX precedent): the
+vocabulary-distinctness helper and shareable command packs. The other four stay `[~]` because the
+deliverable needs an absent resource. **No B/C item is checked off** — no real FRR/FAR, no bake-off
+winner, no trained encoder, no whisper model, no store account is claimed.
 
 **Not planned (deliberate):** the Workflow-track "CI running green on a real GitHub Actions run" item is
 implemented (`.github/workflows/ci.yml`), only unobserved on an actual Actions run — a full plan is
