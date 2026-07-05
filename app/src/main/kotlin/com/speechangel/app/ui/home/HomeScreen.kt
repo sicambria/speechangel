@@ -33,6 +33,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Suppress("LongParameterList") // Home is the hub screen: hoisted navigation callbacks, one per destination.
 @Composable
 fun HomeScreen(
     isListening: Boolean,
@@ -41,6 +42,7 @@ fun HomeScreen(
     onTryIt: () -> Unit,
     onOpenAlwaysOn: () -> Unit = {},
     onStartSetup: () -> Unit = {},
+    onOpenPacks: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -95,6 +97,9 @@ fun HomeScreen(
             }
             OutlinedButton(onClick = onOpenAlwaysOn, modifier = Modifier.fillMaxWidth()) {
                 Text("Always-on settings", style = MaterialTheme.typography.labelLarge)
+            }
+            OutlinedButton(onClick = onOpenPacks, modifier = Modifier.fillMaxWidth()) {
+                Text("Command packs", style = MaterialTheme.typography.labelLarge)
             }
         }
     }

@@ -10,7 +10,12 @@ import com.speechangel.app.testutil.SilentAudioRecorder
 import com.speechangel.core.dsp.EnergyVad
 import com.speechangel.core.dsp.MfccExtractor
 import com.speechangel.core.enrollment.Enroller
+import com.speechangel.core.enrollment.EnrollmentResult
 import com.speechangel.core.enrollment.QualityIssue
+import com.speechangel.core.matching.TemplateMatcher
+import com.speechangel.core.model.ActionId
+import com.speechangel.core.model.CommandId
+import com.speechangel.core.model.VoiceCommand
 import com.speechangel.data.audio.AudioRecorder
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -33,6 +38,7 @@ class TeachViewModelTest {
         recorder = recorder,
         commandRepository = commands,
         templateRepository = templates,
+        matcher = TemplateMatcher(),
     )
 
     @Test
@@ -64,6 +70,23 @@ class TeachViewModelTest {
         assertThat(vm.state.value.recordedCount).isEqualTo(0)
         assertThat(vm.state.value.lastIssue).isEqualTo(QualityIssue.SILENT)
         assertThat(templates.allTemplates()).isEmpty()
+    }
+
+    @Test
+    fun `enrolling a command close to an existing one raises an advisory nudge`() = runTest(mainRule.dispatcher) {
+        // Seed an existing command whose template is the same 250 Hz tone we're about to record.
+        val existing = CommandId("existing")
+        commands.upsertCommand(VoiceCommand(existing, "lights", ActionId("BACK")))
+        val seed = Enroller(MfccExtractor(), EnergyVad(), idGenerator = { UUID.randomUUID().toString() })
+            .enroll(FakeAudioRecorder(freqHz = 250.0).record(1_500), existing) as EnrollmentResult.Success
+        templates.addTemplate(seed.template)
+
+        val vm = viewModel(FakeAudioRecorder(freqHz = 250.0))
+        vm.onLabelChange("blinds")
+        vm.recordExample()
+        advanceUntilIdle()
+
+        assertThat(vm.state.value.closeToLabels).contains("lights")
     }
 
     @Test

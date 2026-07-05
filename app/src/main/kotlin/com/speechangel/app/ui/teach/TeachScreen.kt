@@ -69,6 +69,14 @@ fun TeachScreen(onDone: () -> Unit, viewModel: TeachViewModel = hiltViewModel())
                 style = androidx.compose.material3.MaterialTheme.typography.bodyLarge,
             )
             feedback(state.lastIssue, state.justSucceeded)
+            if (state.closeToLabels.isNotEmpty()) {
+                Text(
+                    "Heads up: this sounds close to ${state.closeToLabels.joinToString(", ") { "“$it”" }}. " +
+                        "A more distinct word may work better — but you can keep it.",
+                    modifier = Modifier.fillMaxWidth(),
+                    style = androidx.compose.material3.MaterialTheme.typography.bodyLarge,
+                )
+            }
 
             Button(
                 onClick = viewModel::recordExample,

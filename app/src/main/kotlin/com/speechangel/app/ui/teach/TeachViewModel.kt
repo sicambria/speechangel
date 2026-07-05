@@ -8,6 +8,8 @@ import com.speechangel.core.enrollment.Enroller
 import com.speechangel.core.enrollment.EnrollmentResult
 import com.speechangel.core.enrollment.QualityIssue
 import com.speechangel.core.enrollment.TemplateRepository
+import com.speechangel.core.matching.TemplateMatcher
+import com.speechangel.core.matching.VocabularyDistinctness
 import com.speechangel.core.model.ActionId
 import com.speechangel.core.model.CommandId
 import com.speechangel.core.model.VoiceCommand
@@ -29,6 +31,8 @@ data class TeachUiState(
     val isRecording: Boolean = false,
     val lastIssue: QualityIssue? = null,
     val justSucceeded: Boolean = false,
+    /** Labels of existing commands this one sounds acoustically close to (advisory nudge). */
+    val closeToLabels: List<String> = emptyList(),
 ) {
     val canRecord: Boolean get() = label.isNotBlank() && !isRecording
     val canFinish: Boolean get() = recordedCount > 0
@@ -40,6 +44,7 @@ class TeachViewModel @Inject constructor(
     private val recorder: AudioRecorder,
     private val commandRepository: CommandRepository,
     private val templateRepository: TemplateRepository,
+    private val matcher: TemplateMatcher,
 ) : ViewModel() {
 
     private val commandId = CommandId(UUID.randomUUID().toString())
@@ -63,12 +68,29 @@ class TeachViewModel @Inject constructor(
                     _state.update {
                         it.copy(isRecording = false, recordedCount = it.recordedCount + 1, justSucceeded = true)
                     }
+                    checkDistinctness()
                 }
                 is EnrollmentResult.Rejected -> {
                     _state.update { it.copy(isRecording = false, lastIssue = result.reason) }
                 }
             }
         }
+    }
+
+    /**
+     * After a template lands, warn (advisory only) if this command is acoustically close to another
+     * enrolled command — a caregiver can then pick a more distinct word. Never blocks enrollment.
+     */
+    private suspend fun checkDistinctness() {
+        val grouped = templateRepository.allTemplates().groupBy { it.commandId }
+        if (grouped.size < 2) return
+        val closePairs = VocabularyDistinctness.analyze(grouped, matcher)
+            .filter { it.a == commandId || it.b == commandId }
+        val labels = closePairs
+            .map { if (it.a == commandId) it.b else it.a }
+            .distinct()
+            .mapNotNull { commandRepository.getCommand(it)?.label }
+        _state.update { it.copy(closeToLabels = labels) }
     }
 
     private suspend fun persistCommand(state: TeachUiState) {
