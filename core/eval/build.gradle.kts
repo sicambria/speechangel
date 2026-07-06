@@ -38,6 +38,16 @@ tasks.withType<Test>().configureEach {
         "picovoice.enroll",
         "picovoice.held",
         "picovoice.dump",
+        // Experiment knobs (sweep surface). Unset ⇒ the ctor default that produced the committed report,
+        // so `make bench-picovoice` with no overrides is byte-reproducible. EVAL-003: any swept variant is
+        // an exploratory, **NOT-banked** family — the pinned default is the one banked baseline; never
+        // headline a mined variant without its own pre-registered, FAR-matched confirmation on fresh data.
+        "picovoice.windowMs",
+        "picovoice.hopMs",
+        "picovoice.snrDb",
+        "picovoice.frontend",
+        "picovoice.deltaOrder",
+        "picovoice.targetFaPerHour",
     ).forEach { key ->
         providers.systemProperty(key).orNull?.let { systemProperty(key, it) }
     }
