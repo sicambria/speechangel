@@ -29,6 +29,25 @@ not the 77-word tail). None of those has been applied here — this is the un-en
 risk) to "measured floor, with a quantified improvement path." It does **not** claim a deployable
 number.
 
+## Control contrast — dysarthria is a real degrader
+
+The same harness run over TORGO **control** speakers (typical speech, `FCX` set) isolates what
+dysarthria costs (run: `-Dtorgo.dir=<TORGO FC root>`; the auto-report labels every set "dysarthric" —
+that string is hard-coded in the renderer, so the control figures are transcribed here by hand):
+
+| Group | Speakers | Rank-1 (aggregate) | Matched small-vocabulary rank-1 |
+|---|---|---:|---|
+| **Dysarthric** (F) | F01 / F03 / F04 | **55.4%** | F01 (15 cmds): **68.8%** |
+| **Control** (FC) | FC01 / FC02 / FC03 | **74.6%** | FC01 (16 cmds): **91.2%** |
+
+Per control speaker: FC01 (16 cmds) 91.2%, FC02 (121) 78.9%, FC03 (136) 69.5% — the controls clear
+~70–91% rank-1 even at 5–8× the vocabulary size of the dysarthric speakers. At **matched** small
+vocabularies the gap is ~22 points (91.2% control vs 68.8% dysarthric). **Conclusion:** dysarthria
+specifically degrades the MFCC-DTW matcher, so the roadmap's dysarthria-focused enhancements (QbE,
+far-field front-end, adaptation) are aimed at a real effect — **and** even control speech at FRR ≈ 75%
+@ FAR ≤ 5% is not deployable on the un-tuned single-template baseline, so the calibration/multi-template
+work is needed regardless of impairment.
+
 ## Methodology
 - **Speaker-dependent:** enrollment + test are always the same speaker (the product's
   "teach it your voice" model). No cross-speaker matching.
