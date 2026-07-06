@@ -240,6 +240,19 @@ metric** — FA/hour is in-regime (headline), cross-speaker miss-rate is an out-
 - **Anchor:** same-host PocketSphinx (`scripts/eval/run-pocketsphinx.sh`, no key) on identical dumped
   streams. Report: `docs/testing/2026-07-06_picovoice-wake-word-benchmark.md`; scorecard factor-4 updated.
 
+`docs/plans/2026-07/cp1-ssl-frontend-ceiling-spike.md` — ✅ **DONE 2026-07-06** (advisor-gated design +
+analysis). The first **real measurement on CP-1**: a `[measure-only]` Python harness that reproduces the
+committed TORGO MFCC-DTW report **to the decimal** (fidelity gate), then A/Bs classic (MFCC/LPCC) vs
+frozen learned (WavLM/HuBERT/wav2vec2) front-ends under a matched matcher. **Verdict GO:** best-learned
+**WavLM-L12 pooled-cosine 71.9% rank-1** vs MFCC-DTW 55.4% (−37% rel error aggregate, **≥50% on the
+F01/F04 deployment slice**, McNemar **p=2×10⁻⁶**). **Key sharpening (advisor caught a confound):** the 2×2
+representation×matcher decomposition shows the lever is a **fixed-dim QbE embedding + cosine prototypes**
+(the dormant `QbeEncoder` seam) — *not* a front-end swap (WavLM-under-DTW ties MFCC; MFCC-under-pooling
+drops to 39.3%). Banked dead-ends: LPCC≈MFCC, wav2vec2 weak, model-scale (WavLM-large) not a lever, CP-2
+rejection wall still binding (FRR@FAR≤5% only 78.3%→66.3%). Report:
+`docs/testing/2026-07-06_cp1-ssl-frontend-ceiling.md`; harness `scripts/eval/ssl_frontend_spike/`. New
+rule **EVAL-004** (decompose confounded representation×matcher comparisons).
+
 `docs/plans/2026-07/picovoice-benchmark-operationalization.md` — ✅ **DONE 2026-07-06**. Follow-on: turns
 the one-shot harness into a repeatable **build / planning / experimentation** surface. `make bench-picovoice`
 (no overrides ⇒ byte-reproduces the committed report); six experiment knobs (`FRONTEND`/`DELTA`/`SNR`/

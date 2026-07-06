@@ -113,3 +113,22 @@ better in the family table rode a higher FAR on control and was therefore *not* 
 - **Gate:** advisory; `core/eval/src/main/kotlin/com/speechangel/core/eval/RejectionEval.kt` (`mcNemar` +
   the "NOT banked" family renderer) is the reference implementation; `RejectionScoreTest` pins the
   scorer/McNemar mechanics.
+
+### EVAL-004 — Reproduce the whole pipeline before trusting deltas; decompose confounded comparisons
+Two rules for any **off-device / cross-implementation** accuracy comparison:
+1. **Fidelity gate first.** When you re-implement an in-repo metric elsewhere (e.g. a Python harness vs
+   the JVM `TorgoEval`), reproduce the **committed number within a few points before trusting any delta**,
+   and reproduce the **whole** pipeline — not just the named stage. Silence handling is the trap: the
+   committed pipeline **VAD-trims** (`EnergyVad.trim`) before MFCC; a harness that runs MFCC on the full
+   wav scored **37.5% vs the committed 68.8%** with *inverted* separability (AUC<0.5). **AUC<0.5 is a
+   trimming/endpointing smell, not a weak-feature result.** DCT-scaling/delta fixes changed distance
+   *scale* but not ranking; only replicating the VAD trim reproduced the report to the decimal.
+2. **Change one variable per comparison; close the 2×2 before assigning cause.** A win that moves **both**
+   representation *and* matcher is confounded. The SSL spike's naive headline (MFCC-**DTW** vs WavLM-
+   **pooled-cosine**) mis-assigned the cause to the front-end; the representation×matcher **2×2** showed
+   the lever is the **embedding+cosine** interaction (WavLM-under-DTW *ties* MFCC; MFCC-under-pooling
+   *drops* to 39.3%) — a QbE-embedding finding, not a front-end swap. Run the missing factorial corner
+   before writing the causal claim.
+- **Why:** `docs/errors/2026-07/2026-07-06_ssl-spike-fidelity-and-confound.md`.
+- **Gate:** advisory; `scripts/eval/ssl_frontend_spike/harness.py` (`energy_vad_trim` + the decimal
+  fidelity reproduction) and `matcher2x2.py` (the decomposition) are the reference implementations.

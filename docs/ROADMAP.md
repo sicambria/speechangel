@@ -112,6 +112,16 @@ acceptance criteria honest (FRR + FAR/hour, never a bare "99 %").
       constraint-matched SOTA point is **ZP-KWS at ~29–33% FRR@1%FAR** — far better than 76%, nowhere near
       10%. Success = a significant FRR reduction at matched FAR, at shippable size, **with
       language-independence + 1-shot intact**. This is the promoted QbE work (Phase 3 → here).
+      **↳ First measurement (2026-07-06, `docs/testing/2026-07-06_cp1-ssl-frontend-ceiling.md`):** a
+      `[measure-only]` ceiling spike (harness reproduces the committed baseline to the decimal) gives a
+      **GO** — best-learned **WavLM-L12 pooled-cosine 71.9% rank-1** vs MFCC-DTW 55.4% (−37% rel error
+      agg, **≥50% on the F01/F04 deployment slice**, McNemar **p=2×10⁻⁶**). The 2×2 decomposition sharpens
+      the target: **the lever is a fixed-dim QbE embedding + cosine prototypes (`QbeEncoder` seam), not a
+      front-end swap** (WavLM-under-DTW ties MFCC; MFCC-under-pooling drops to 39.3%). Model scale is not a
+      lever (WavLM-large ≈ base-plus). **Next = the CP-1 build:** distill the deep-SSL pooled embedding
+      into a ~1–2M student, gated on language-independence (untested on English TORGO) + on-device
+      size/latency. NB **CP-2 stays independent + binding** — even the maximal encoder leaves FRR@FAR≤5%
+      at 66% (78.3%→66.3%), so a better encoder does not fix the always-on FAR wall.
 - [ ] **CP-2 — The deployability bet: a Stage-1 wake cascade to ≤0.5 FA/hr on real ambient.** The
       always-on false-fire rate (~82 FA/hr today, ~160× budget) is what kills always-on assistants and no
       Stage-2 accuracy matters until it's fixed. Use openWakeWord as a **benchmark reference** for the
