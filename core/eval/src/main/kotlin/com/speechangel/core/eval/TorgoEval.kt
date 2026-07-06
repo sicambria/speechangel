@@ -66,25 +66,43 @@ class TorgoEval(
         val speakerSet: String,
     )
 
-    private data class SpeakerRows(val id: String, val commandCount: Int, val rows: List<DistanceRow>, val failures: Int)
+    data class SpeakerRows(val id: String, val commandCount: Int, val rows: List<DistanceRow>, val failures: Int)
 
-    fun run(root: File): Result {
+    /**
+     * Enroll + score every speaker k-fold and return the fold-tagged [DistanceRow]s per speaker — the raw
+     * material both [run] (FRR/FAR report) and [RejectionEval] (rejection-score adjudication) consume, and
+     * the seam a condition-grid ([ConditionEval]) degrades queries through. Exposed so the expensive
+     * enroll+DTW pass is shared, not repeated per consumer.
+     */
+    fun collectSpeakerRows(
+        root: File,
+        queryTransform: (com.speechangel.core.model.AudioSamples) -> com.speechangel.core.model.AudioSamples = { it },
+        maxCommands: Int = Int.MAX_VALUE,
+    ): List<SpeakerRows> {
         val evaluator = Evaluator(frontEnd, matcherConfig)
         val speakers = TorgoCorpus.scan(root, mic, minReps)
         val perSpeakerData = ArrayList<SpeakerRows>()
         for (spk in speakers) {
-            if (spk.commands.isEmpty()) continue
+            if (spk.commands.isEmpty() || spk.commandCount > maxCommands) continue // bound cost for the condition grid.
             val spkRows = ArrayList<DistanceRow>()
             var spkFailures = 0
             for (fold in TorgoCorpus.folds(spk, k)) {
                 if (fold.positives.isEmpty() && fold.negatives.isEmpty()) continue
                 val corpus = TorgoCorpus.toCorpus(fold)
-                val outcome = evaluator.enroll(corpus)
+                val outcome = evaluator.enroll(corpus) // enrollment stays CLEAN; only queries are degraded.
                 spkFailures += outcome.failures.size
-                spkRows += evaluator.distanceTable(corpus, outcome.templates).map { it.copy(fold = fold.index) }
+                spkRows += evaluator.distanceTable(corpus, outcome.templates, queryTransform).map { it.copy(fold = fold.index) }
             }
             perSpeakerData += SpeakerRows(spk.id, spk.commandCount, spkRows, spkFailures)
         }
+        return perSpeakerData
+    }
+
+    /** Per-speaker fold-tagged rows as (id, rows) — the shape [RejectionEval] consumes. */
+    fun rowsBySpeaker(root: File): List<Pair<String, List<DistanceRow>>> = collectSpeakerRows(root).map { it.id to it.rows }
+
+    fun run(root: File): Result {
+        val perSpeakerData = collectSpeakerRows(root)
 
         val perSpeaker = perSpeakerData.map { analyze(it.id, it.commandCount, it.rows, it.failures, perCommandHeldOut = true) }
         val allRows = perSpeakerData.flatMap { it.rows }

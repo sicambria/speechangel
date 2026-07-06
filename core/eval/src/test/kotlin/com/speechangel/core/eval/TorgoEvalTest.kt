@@ -22,7 +22,17 @@ class TorgoEvalTest {
         val root = File(dir)
         assertThat(root.isDirectory).isTrue()
 
-        val eval = TorgoEval()
+        // Optional front-end override so the trusted path can be read on the SHIPPED static front-end
+        // (`-Dtorgo.frontend=none`) — a cross-check against the per-speaker rejection machinery.
+        val eval = when (System.getProperty("torgo.frontend")) {
+            "none" -> TorgoEval(
+                FeatureFrontEnd("none", com.speechangel.core.dsp.MfccConfig(deltaOrder = com.speechangel.core.dsp.DeltaOrder.NONE)),
+            )
+            "delta" -> TorgoEval(
+                FeatureFrontEnd("delta", com.speechangel.core.dsp.MfccConfig(deltaOrder = com.speechangel.core.dsp.DeltaOrder.DELTA)),
+            )
+            else -> TorgoEval()
+        }
         val result = eval.run(root)
         assertThat(result.perSpeaker).isNotEmpty()
         assertThat(result.aggregate.positives).isGreaterThan(0)
@@ -47,6 +57,35 @@ class TorgoEvalTest {
         out.parentFile?.mkdirs()
         out.writeText(report)
         println("TORGO report written to ${out.absolutePath}")
+        println(report)
+    }
+
+    /**
+     * Realistic-condition simulation + the pre-registered common-mode rejection adjudication, on the
+     * SHIPPED front-end (`deltaOrder=NONE`). Opt-in via `-Dtorgo.reject=true`. `-Dtorgo.conditions=true`
+     * additionally runs the (expensive) noise/reverb grid; `-Dambient.wav=<file>` swaps the synthetic
+     * ambient proxy for a real recording. Writes to `-Dtorgo.sim.report` (default `build/sim-report.md`).
+     */
+    @Test
+    fun `rejection-score and condition simulation on real TORGO`() {
+        val dir = System.getProperty("torgo.dir")
+        assumeTrue("set -Dtorgo.dir to run", dir != null && dir.isNotBlank())
+        assumeTrue(
+            "set -Dtorgo.reject=true to run the simulation + rejection adjudication",
+            System.getProperty("torgo.reject")?.toBoolean() == true,
+        )
+
+        val root = File(dir)
+        val runConditions = System.getProperty("torgo.conditions")?.toBoolean() == true
+        val ambientWav = System.getProperty("ambient.wav")?.let { File(it) }
+
+        val report = SimReport().render(root, runConditions = runConditions, ambientWav = ambientWav)
+        assertThat(report).contains("McNemar")
+
+        val out = File(System.getProperty("torgo.sim.report").orEmpty().ifBlank { "build/sim-report.md" })
+        out.parentFile?.mkdirs()
+        out.writeText(report)
+        println("Sim report written to ${out.absolutePath}")
         println(report)
     }
 }

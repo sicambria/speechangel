@@ -68,11 +68,22 @@ class Evaluator(
         return EnrollmentOutcome(templates, failures)
     }
 
-    /** Best DTW distance per command for each utterance (VAD-trim → MFCC → min DTW over templates). */
-    fun distanceTable(corpus: Corpus, templates: List<Template>): List<DistanceRow> {
+    /**
+     * Best DTW distance per command for each utterance (VAD-trim → MFCC → min DTW over templates).
+     *
+     * [queryTransform] degrades each query's raw audio *before* VAD/MFCC (default identity → byte-identical
+     * to the untransformed path). This is the seam the realistic-condition harness ([ConditionEval]) uses to
+     * apply simulated noise/reverb/band-limiting to test queries while enrollment templates stay clean —
+     * the real enrol-clean / test-degraded deployment asymmetry.
+     */
+    fun distanceTable(
+        corpus: Corpus,
+        templates: List<Template>,
+        queryTransform: (com.speechangel.core.model.AudioSamples) -> com.speechangel.core.model.AudioSamples = { it },
+    ): List<DistanceRow> {
         val byCommand = templates.groupBy { it.commandId }
         return corpus.utterances.map { u ->
-            val speech = vad.trim(u.audio)
+            val speech = vad.trim(queryTransform(u.audio))
             val q = if (speech.isEmpty) null else mfcc.extract(speech).takeIf { !it.isEmpty }
             val best = HashMap<CommandId, Float>()
             if (q != null) {
