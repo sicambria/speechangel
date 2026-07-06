@@ -135,6 +135,10 @@ CP-1 (accuracy) proceed in parallel once data lands — CP-2 has the nearer, che
 higher ceiling · CP-3 gates the pre-alpha→alpha crossing. The R-SOTA-1..6 items below are the detailed
 backing for CP-1/CP-2.
 
+> **Exactly what each CP needs** — corpora, audio formats, model params, target ranges, error margins, and
+> the honest "unknown, needs measurement" register — is specified in
+> `docs/product/2026-07-06_cp-requirements-spec.md`.
+
 ---
 
 ## ⭐ SOTA competitive bar — derived items · status: `planned`
