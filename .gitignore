@@ -35,3 +35,9 @@ node_modules/
 **/test-results/
 **/reports/jacoco/
 **/kover/
+
+# TORGO / real-audio corpora — [measure-only], never committed (multi-GB, license-restricted).
+# The eval harness reads a corpus path via -Dtorgo.dir; the corpus itself stays out of the repo.
+**/torgo/**
+*.tar.bz2
+core/eval/build/torgo-report.md
