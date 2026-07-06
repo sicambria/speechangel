@@ -75,3 +75,23 @@ matcher result.
 - **Why:** `docs/errors/2026-07/2026-07-06_synthetic-threshold-meaningless-on-real-audio.md`
 - **Gate:** advisory; `core/eval/src/main/kotlin/com/speechangel/core/eval/TorgoEval.kt` is the
   reference implementation (rank-1 + self-ranged EER + `emptyQueries`/`enrollmentFailures`).
+
+### EVAL-002 — Select thresholds held-out; compare methods only at matched FAR
+An FRR/FAR "improvement" is real only if (a) the threshold was chosen on data **disjoint** from the
+trial it is scored on, and (b) competing methods are read at the **same** FAR. Fitting a threshold on
+the very rows you report — `ThresholdCalibrator.calibrate(corpus)` sets each per-command threshold just
+below that corpus's own negatives (`ThresholdCalibrator.kt:59`) — makes FAR at-budget *by construction*
+and FRR optimistic; it is EVAL-001 pointed the other way (a rosy number instead of a pessimistic one).
+Do threshold selection **leave-one-fold-out** (calibrate on the train folds, score the held-out fold),
+and when comparing a per-command method to a global one, sweep each method's own knob to a common FAR
+target and read every FRR at the **realized held-out FAR** — never compare FRRs at different FAR.
+On real TORGO this exposed per-command calibration as a **non-improvement**: train-fit to FAR≤5%, its
+held-out FAR ballooned to 24–34% (accept-all fallback commands), so its lower FRR was just a looser
+operating point, not a gain.
+- **Runtime clause:** the shipped `ThresholdCalibrator.calibrate(corpus)` has this same in-sample
+  property — it calibrates on the user's own enrollment set, so its FAR budget will be **optimistic in
+  the field**. Treat its budget as a training-set bound, not a deployment guarantee.
+- **Why:** `docs/errors/2026-07/2026-07-06_recognizer-voting-claim-vs-code.md`,
+  `docs/testing/2026-07-06_frr-far-torgo.md` (held-out vs in-sample columns).
+- **Gate:** advisory; `core/eval/src/main/kotlin/com/speechangel/core/eval/TorgoEval.kt` `heldOut`/`fitGlobal`/`fitPerCmd` are the reference
+  implementation; `TorgoEvalHeldOutTest` pins the no-self-calibration + accept-all-fallback properties.

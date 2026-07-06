@@ -47,11 +47,20 @@ acceptance criteria honest (FRR + FAR/hour, never a bare "99 %").
 >    harness, **speaker-dependent**, via a new `WavFile`/`TorgoCorpus`/`TorgoEval` seam. `SYNTHETIC`
 >    banner gone. **Verdict: GO** — rank-1 (nearest-template) accuracy **55.4%** dysarthric / **74.6%**
 >    control, **10–40× chance**, so the MFCC-DTW hypothesis holds; but the single-template un-calibrated
->    baseline is **60–79% FRR at FAR ≤ 5%** — real signal, not yet deployable. The gap is exactly the
->    enhancement roadmap (multi-template voting, `ThresholdCalibrator`, QbE, realistic ~10–20-cmd
->    vocab). Full numbers + methodology: `docs/testing/2026-07-06_frr-far-torgo.md`. *Only the FRR half
->    of Phase-0's "Measure FRR/FAR" is retired; the always-on ambient FAR/hour budget is not measured
->    (TORGO has no continuous ambient stream).*
+>    baseline is **60–79% FRR at FAR ≤ 5%** — real signal, not yet deployable. Full numbers +
+>    methodology: `docs/testing/2026-07-06_frr-far-torgo.md`. *Only the FRR half of Phase-0's "Measure
+>    FRR/FAR" is retired; the always-on ambient FAR/hour budget is not measured (TORGO has no continuous
+>    ambient stream).*
+>
+>    **Follow-through (`docs/plans/2026-07/torgo-eval-honest-improvements.md`, DONE 2026-07-06):** the
+>    eval was made **held-out** (leave-one-fold-out threshold selection, rule EVAL-002) and a docs-vs-code
+>    error corrected — the matcher is **1-NN min-distance, not a "vote"** (that claimed lever was a no-op;
+>    incident `2026-07-06_recognizer-voting-claim-vs-code.md`). Held-out results: global-threshold FRR
+>    **78.3%** @ FAR 5.1% (≈ in-sample, so the baseline held); **per-command calibration is a
+>    non-improvement** (held-out FAR balloons to 24–34%); the deployment slice (≤25 cmds) is **70.7%**;
+>    and the front-end bake-off found **static MFCC beats delta-delta** (rank-1 59.2% vs 55.4%) — a
+>    candidate default change, gated on control + on-device confirmation. The real improvement path is
+>    more enrolled templates + QbE, **not** per-command threshold tuning.
 > 2. **On-device e2e — DONE at the emulator ceiling.** Build/install/launch (no crash), full UI +
 >    navigation, `SpeechAngelAccessibilityService` **bound & running**, `Try`→`Recognizer` reactive.
 >    Real audio→action fire, latency, false-fire, CPU need a **physical device** (silent emulator mic).

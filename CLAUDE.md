@@ -117,7 +117,7 @@ AudioRecord (16 kHz PCM)
   └─ StreamingEnergyGate  (core:dsp)   — coarse VAD; gates the MFCC stage
        └─ MfccExtractor   (core:dsp)   — 13 MFCC + delta
             └─ TemplateMatcher (core:matching) — length-normalised DTW vs enrolled templates
-                 └─ Recognizer (core:enrollment) — multi-template vote + OOV reject
+                 └─ Recognizer (core:enrollment) — 1-NN min-distance across a command's templates + OOV reject
                       └─ CommandActionBus (app:action) — in-process event bus
                            └─ SpeechAngelAccessibilityService (app:service)
                                 — ONE deterministic action per command (Play-policy line)

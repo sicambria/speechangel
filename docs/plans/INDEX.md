@@ -201,3 +201,18 @@ holds): stale "code is not built yet" DoD lines removed to match the code that l
 (harness landed, threshold app-persistence still pending) to match reality; explicit **Rollback** lines
 added to each Risks section; the `EnergyVad` ratio citation corrected to `config.energyRatioOverNoise`
 (`Vad.kt:30`, applied `:57`).
+
+## Honest TORGO improvements (2026-07-06)
+
+`docs/plans/2026-07/torgo-eval-honest-improvements.md` — **self-scored 98/100, advisor-gated, DONE
+2026-07-06**. planmax follow-through on the TORGO baseline: it does **not** invent a rosy number — it
+fixes the eval's in-sample threshold-selection bias and reports the honest held-out result.
+- **Correctness finding:** the report/`CLAUDE.md` "multi-template **vote**" claim was a no-op — the
+  matcher is 1-NN min-distance (`TemplateMatcher.kt:42`), which the eval already models. Incident:
+  `docs/errors/2026-07/2026-07-06_recognizer-voting-claim-vs-code.md`; new rule **EVAL-002**.
+- **D1 (held-out per-command calibration):** honest **non-improvement** — train-fit to FAR≤5%, held-out
+  FAR balloons to 24–34%; global threshold wins at matched FAR (held-out FRR 78.3% ≈ in-sample 77.9%).
+- **D3 (front-end bake-off, real voices):** static MFCC (`none`) wins at 59.2% held-out rank-1 vs
+  `delta_delta` 55.4%; noise reduction hurts. A candidate default change, gated on control + on-device.
+- **D2 (deployment slice ≤25 cmds):** held-out FRR 70.7% (F01+F04) vs 78.3% tail-blended.
+- Report regenerated: `docs/testing/2026-07-06_frr-far-torgo.md`. Items 2 & 3 (device) unchanged.
