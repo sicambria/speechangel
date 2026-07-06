@@ -70,6 +70,19 @@ The `Makefile` pins `JAVA_HOME` and `ANDROID_HOME` so you don't need to prefix e
 | `make guardrails` | All AI-workflow audit scripts |
 | `make ci` | `verify` + `guardrails` |
 | `make emulator` | Boot the dev AVD (`changemappers-test`, Pixel 6 API 35) |
+| `make bench-picovoice-fetch` | Provision the Picovoice benchmark corpus into `PV_DIR` (open downloads, no key) |
+| `make bench-picovoice` | Run the wake-word benchmark; **no overrides ⇒ reproduces the committed report** |
+| `make bench-picovoice-smoke` | Fast run (`bgSeconds=120`) — **does NOT match the committed report** |
+| `make bench-picovoice-anchor` | Same-host PocketSphinx anchor on the dumped streams |
+
+**Experimentation (`bench-picovoice`).** Sweep knobs are env overrides mapped to `-D` props:
+`FRONTEND=` (`none`/`delta`), `DELTA=` (`NONE`/`DELTA`/`DELTA_DELTA`), `SNR=`, `WINDOW=`, `HOP=`,
+`TARGETFA=`, plus `BG=`/`ENROLL=`/`HELD=`. Each **unset knob falls back to the ctor default that produced
+the committed report**, so the no-override run is byte-reproducible — that is the pinned baseline. Per
+**EVAL-003** any swept variant is an exploratory, **NOT-banked** family; never headline a mined variant as
+an FRR/FAR win without a fresh, pre-registered, FAR-matched confirmation. **CI boundary:** the corpus is
+`[measure-only]` (uncommitted), so this is never a CI gate — `make test` stays green via the `assumeTrue`
+skip when `-Dpicovoice.dir` is unset.
 
 Run a single module's tests directly when you only touched one area:
 

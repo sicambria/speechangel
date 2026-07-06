@@ -239,3 +239,10 @@ metric** — FA/hour is in-regime (headline), cross-speaker miss-rate is an out-
   (0.1 FA/hr ⇒ 87.5% miss) — rejection/gating is the wall, confirming the scorecard on a standard stream.
 - **Anchor:** same-host PocketSphinx (`scripts/eval/run-pocketsphinx.sh`, no key) on identical dumped
   streams. Report: `docs/testing/2026-07-06_picovoice-wake-word-benchmark.md`; scorecard factor-4 updated.
+
+`docs/plans/2026-07/picovoice-benchmark-operationalization.md` — ✅ **DONE 2026-07-06**. Follow-on: turns
+the one-shot harness into a repeatable **build / planning / experimentation** surface. `make bench-picovoice`
+(no overrides ⇒ byte-reproduces the committed report); six experiment knobs (`FRONTEND`/`DELTA`/`SNR`/
+`WINDOW`/`HOP`/`TARGETFA`) wired to `-D` for CLI sweeps; advisory benchmark-impact bullet in the plan
+`TEMPLATE.md` + START_HERE rows. No results ledger (declined); no CI gate (corpus is `[measure-only]`).
+EVAL-003 framing throughout: pinned default is the banked baseline, sweeps are a NOT-banked family.

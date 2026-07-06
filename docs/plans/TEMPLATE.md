@@ -48,3 +48,10 @@ observable behavior + the gate that proves it.>
 <TODO: the exact commands/gates that verify this plan's output (e.g. `make verify`, a new
 `:core:*:test`, an instrumentation test, a guardrail). State what is verifiable on this host vs what
 needs a device/real audio, and say so honestly.>
+
+- **Benchmark impact (recognizer/DSP/threshold work):** if this touches the matcher, DSP front-end, or
+  acceptance threshold, re-run `make bench-picovoice` and report the **FRR @ 0.1 FA/hour** delta vs the
+  committed baseline (`docs/testing/2026-07-06_picovoice-wake-word-benchmark.md`). Per **EVAL-003**,
+  pre-register the one hypothesis you are testing; any other swept variants (`FRONTEND=`/`SNR=`/`WINDOW=`)
+  are an exploratory, **NOT-banked** family — never adopt a mined variant without its own fresh,
+  FAR-matched confirmation. (Advisory — the corpus is `[measure-only]`, so this is not a CI gate.)

@@ -46,6 +46,8 @@ At the start of a session **and after every context compaction**:
 | Check docs integrity | `node scripts/audits/verify-docs-integrity.mjs` (`docs:check`) |
 | See which boundary a change touches | `node scripts/workflow/classify.mjs <changed-paths…>` (`classify`) |
 | Run the core test gate | `JAVA_HOME=…21 ANDROID_HOME=… ./gradlew :core:model:test :core:dsp:test :core:matching:test :core:enrollment:test` (see `CLAUDE.md`) |
+| Run the wake-word benchmark | `make bench-picovoice` (provision once with `make bench-picovoice-fetch`; no overrides ⇒ reproduces the committed report) |
+| Sweep a front-end / threshold variant | `make bench-picovoice FRONTEND=… SNR=… WINDOW=…` — EVAL-003: exploratory, **NOT banked**; the pinned default is the baseline |
 | Start substantive work | Open a plan under `docs/plans/2026-06/`, work in a worktree (`docs/plans/worktrees/`) |
 
 ---

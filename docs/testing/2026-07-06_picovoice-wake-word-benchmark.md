@@ -9,11 +9,19 @@ named ("directional references… not head-to-head benchmarks on identical data"
 > **Provenance:** generated 2026-07-06. Data provisioned by
 > `scripts/eval/fetch-picovoice-benchmark.sh` (Picovoice repo keyword takes + LibriSpeech test-clean from
 > OpenSLR + DEMAND 16 kHz from Zenodo — all **open downloads, no access key, no Kaggle**), transcoded to
-> 16 kHz mono via `ffmpeg`. Run with
-> `./gradlew :core:eval:test --tests "*PicovoiceBenchmarkTest*" -Dpicovoice.dir=<root>
-> -Dpicovoice.bgSeconds=900 -Dpicovoice.enroll=10 -Dpicovoice.held=40`. The dataset is `[measure-only]`
-> (never committed); the harness (`PicovoiceCorpus`/`PicovoiceMixer`/`PicovoiceBenchmark`) is committed and
-> `:core:eval:test` stays green with the corpus absent.
+> 16 kHz mono via `ffmpeg`. **Run it:** `make bench-picovoice-fetch` (once) then `make bench-picovoice` —
+> the no-override target is pinned to the exact config below
+> (`-Dpicovoice.bgSeconds=900 -Dpicovoice.enroll=10 -Dpicovoice.held=40` + ctor defaults), so it
+> regenerates these numbers byte-for-byte. The dataset is `[measure-only]` (never committed); the harness
+> (`PicovoiceCorpus`/`PicovoiceMixer`/`PicovoiceBenchmark`) is committed and `:core:eval:test` stays green
+> with the corpus absent.
+
+> **Sweep knobs (experimentation).** `make bench-picovoice` accepts env overrides mapped to `-D` props —
+> `FRONTEND=` (`none`/`delta`), `DELTA=` (`NONE`/`DELTA`/`DELTA_DELTA`), `SNR=`, `WINDOW=`, `HOP=`,
+> `TARGETFA=` (+ `BG=`/`ENROLL=`/`HELD=`). Every **unset** knob falls back to the ctor default that produced
+> this report — the **pinned baseline**. Per **EVAL-003**, a swept variant is an exploratory, **NOT-banked**
+> family: report it in full (losing cells included) but never adopt or headline a mined variant as an
+> FRR/FAR win without its own fresh, pre-registered, FAR-matched confirmation.
 
 ## The one thing to understand first: decompose the benchmark by metric
 
