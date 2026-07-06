@@ -58,9 +58,10 @@ acceptance criteria honest (FRR + FAR/hour, never a bare "99 %").
 >    incident `2026-07-06_recognizer-voting-claim-vs-code.md`). Held-out results: global-threshold FRR
 >    **78.3%** @ FAR 5.1% (≈ in-sample, so the baseline held); **per-command calibration is a
 >    non-improvement** (held-out FAR balloons to 24–34%); the deployment slice (≤25 cmds) is **70.7%**;
->    and the front-end bake-off found **static MFCC beats delta-delta** (rank-1 59.2% vs 55.4%) — a
->    candidate default change, gated on control + on-device confirmation. The real improvement path is
->    more enrolled templates + QbE, **not** per-command threshold tuning.
+>    and the front-end bake-off surfaced a **directional** hypothesis — static MFCC is best/tied in all
+>    3 speakers and noise reduction is consistently worse — but the aggregate margin (59.2% vs 55.4%) is
+>    within sampling error, so it needs a **paired test** before adoption, not a best-of-grid pick. The
+>    real improvement path is more enrolled templates + QbE, **not** per-command threshold tuning.
 > 2. **On-device e2e — DONE at the emulator ceiling.** Build/install/launch (no crash), full UI +
 >    navigation, `SpeechAngelAccessibilityService` **bound & running**, `Try`→`Recognizer` reactive.
 >    Real audio→action fire, latency, false-fire, CPU need a **physical device** (silent emulator mic).

@@ -212,7 +212,8 @@ fixes the eval's in-sample threshold-selection bias and reports the honest held-
   `docs/errors/2026-07/2026-07-06_recognizer-voting-claim-vs-code.md`; new rule **EVAL-002**.
 - **D1 (held-out per-command calibration):** honest **non-improvement** — train-fit to FAR≤5%, held-out
   FAR balloons to 24–34%; global threshold wins at matched FAR (held-out FRR 78.3% ≈ in-sample 77.9%).
-- **D3 (front-end bake-off, real voices):** static MFCC (`none`) wins at 59.2% held-out rank-1 vs
-  `delta_delta` 55.4%; noise reduction hurts. A candidate default change, gated on control + on-device.
+- **D3 (front-end bake-off, real voices):** static MFCC (`none`) is the best held-out rank-1 cell
+  (59.2% vs `delta_delta` 55.4%), but the margin is within sampling error — a **directional** hypothesis
+  (static best/tied and NR worse in all 3 speakers) needing a paired test, not an established gain.
 - **D2 (deployment slice ≤25 cmds):** held-out FRR 70.7% (F01+F04) vs 78.3% tail-blended.
 - Report regenerated: `docs/testing/2026-07-06_frr-far-torgo.md`. Items 2 & 3 (device) unchanged.

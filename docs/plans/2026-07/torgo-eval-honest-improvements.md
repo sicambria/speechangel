@@ -22,11 +22,12 @@
   out: its realized held-out FAR balloons to **24–34%** (accept-all fallback commands), so its lower FRR
   (40–58%) is a looser operating point, not a gain. This confirms the advisor's overfitting prediction
   and is the empirical basis for rule **EVAL-002**.
-- **D3 — a real front-end finding.** On dysarthric TORGO head-mic, plain **static MFCC (`none`) wins at
-  59.2% held-out rank-1**, beating the currently-hardcoded `delta_delta` (55.4%); noise reduction hurts
-  every cell. Marked optimistically-selected (single corpus); recommended as a **candidate default
-  change** pending control-set + on-device confirmation — NOT applied to the runtime matcher in this
-  plan (out of `core:eval` scope).
+- **D3 — a directional front-end hypothesis (not an established gain).** Static MFCC (`none`) is the
+  best held-out rank-1 cell (59.2% vs `delta_delta` 55.4%), but that is the max of 6 correlated cells and
+  the margin is within sampling error (≈1.3 SE; per-speaker deltas all inside noise). What's robust is
+  the *direction*: static is best/tied in all 3 speakers and noise reduction is worse in all 3 dry/NR
+  pairs. So it's a hypothesis worth a **paired (McNemar) test**, not a 4-point win — NOT applied to the
+  runtime matcher (out of `core:eval` scope); gated on that test + a control-grid + on-device.
 - **D2 — deployment slice (F01+F04, ≤25 cmds): held-out FRR 70.7%** at FAR 6.3% (rank-1 59.8%), better
   than the 77-word-tail-blended 78.3% — the honest "realistic vocabulary" operating point.
 - **Items 2 & 3 (on-device e2e, always-on soak): no change** — device-gated, already at the documented

@@ -22,8 +22,9 @@ points are honest held-out numbers, not fit on the rows they are reported at (ru
    essentially equal to the old in-sample 77.9% (held-out ≈ in-sample here, so the baseline was not an
    artifact of in-sample optimism).
 3. **Per-command threshold calibration does NOT improve this** — an important negative result (below).
-4. **The front-end bake-off found a real lever:** plain **static MFCC out-discriminates delta-delta**
-   on this corpus (rank-1 59.2% vs 55.4%). A candidate default change, not yet adopted.
+4. **The front-end bake-off surfaced a directional hypothesis:** static MFCC is best (or tied-best) in
+   all three speakers and noise reduction is consistently worse — but the aggregate margin (59.2% vs
+   55.4%) is within sampling error, so this is a hypothesis to power-test, not an established gain (D3).
 
 ## D1 — Held-out per-command calibration is a non-improvement (EVAL-002)
 
@@ -46,6 +47,11 @@ negatives fall back to "accept everything" (`ThresholdCalibrator.kt:63`) and acc
 on the held-out fold. At **matched** FAR the global threshold wins. So per-command calibration, as
 built, is not a deployable improvement — and the shipped `calibrate(corpus)` will likewise over-promise
 its FA budget in the field (it calibrates on the user's own enrollment set). This is rule EVAL-002.
+
+*Future work:* the held-out FAR blows up specifically through commands with **no** training negative,
+which fall back to accept-all (`maxObserved+1`). Falling those back to the **global** held-out threshold
+instead of accept-all is the natural next lever that might make per-command competitive — deferred here
+(rescuing it invites its own selection bias and needs its own held-out check).
 
 ## D2 — Deployment-relevant slice (≤ 25 commands)
 
@@ -74,12 +80,18 @@ operating-point fitting). Full grid shown — losing cells included:
 | `delta_delta+nr` | 52.4% | 65.6% | 49.7% | 54.0% |
 
 **Winner by stated prior** (highest aggregate held-out rank-1; ties → simpler front-end): **`none`
-(static MFCC) at 59.2%**, ~4 points above the currently-hardcoded `delta_delta`. Every noise-reduction
-cell is *worse* than its dry counterpart — spectral subtraction hurts on this clean head-mic corpus.
-This cell is **optimistically selected on a single corpus** (not an independent test set), so it is a
-**candidate default change**, not an adopted one: it is not applied to the runtime matcher here (out of
-`core:eval` scope) — adoption is gated on a control-set replication of the grid (not run — see the
-control section) plus an on-device check.
+(static MFCC) at 59.2%**, nominally ~4 points above the hardcoded `delta_delta` (55.4%).
+
+**Read this as a direction, not an established gain.** `none` is the max of 6 correlated cells, and the
+margins are within what this sample resolves: 55.4→59.2 aggregate is ≈1.3 SE (n=267, and the aggregate
+blends speakers this report otherwise warns against); per-speaker the static-vs-delta_delta deltas are
+F01 68.8→71.9 (n=32), F03 53.5→56.8 (n=185), F04 54.0→60.0 (n=50) — all inside sampling error. What *is*
+robust is the **direction**: static is best (or tied-best) in all three speakers, and noise reduction is
+worse in all three dry/NR pairs. So the honest claim is "static-MFCC-and-no-NR is a real hypothesis
+worth a powered test," not "a 4-point win." Establishing it needs a paired test (McNemar on per-utterance
+static-vs-delta_delta outcomes), not a best-of-grid max. Accordingly this is **not** applied to the
+runtime matcher (out of `core:eval` scope); adoption is gated on that paired test + a control-grid
+replication (not run — ~6× DTW cost) + an on-device check.
 
 ## Control contrast — dysarthria is a real degrader, and the front-end lever generalizes
 
