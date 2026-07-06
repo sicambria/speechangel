@@ -73,6 +73,42 @@ acceptance criteria honest (FRR + FAR/hour, never a bare "99 %").
 
 ---
 
+## ⭐ SOTA competitive bar — derived items · status: `planned`
+
+> Added 2026-07-06 from a competitive-landscape sweep of on-device wake-word / command spotting
+> (`docs/product/2026-07-06_sota-competitive-bar.md`). That doc pins the external SOTA as concrete
+> sourced numbers and places SpeechAngel in the same 7-axis ranking (**overall 59** — best-in-field on
+> language-independence + trainability + transparency, worst on maturity + noise). **Acceptance targets
+> adopted from the bar:** always-on **≤0.5 FA/hr** (openWakeWord) → stretch **≤0.1 FA/hr** (Porcupine);
+> **FRR <5%** at that FAR, production-real **10% FRR @ 4 FA/hr** (Howl); **~97% @ 10 dB SNR** noise
+> (Porcupine); atypical **FRR ~0.5%/FAR ~0.3%** is *achievable* closed-vocab (LRDWWS'24).
+>
+> **Caveat (governs all targets):** no system is verified across noisy + atypical + language-independent
+> + user-trainable *simultaneously*; the bars come from non-comparable protocols (EVAL-002/003 discipline).
+
+- [ ] **R-SOTA-1 — Zero-shot phoneme-matching encoder (ZP-KWS / PhonMatchNet-class).** Evaluate as an
+      alternative/augmentation to MFCC-DTW in the dormant `QbeEncoder` seam — the SOTA that *shares* our
+      language-independent + user-trainable constraints; its strict FRR@1%FAR (29–33%) already beats our
+      76%. `planned` — research + `core:eval` A/B, gated on a corpus + license clearance.
+- [ ] **R-SOTA-2 — Stage-1 wake cascade to fix the ~82 FA/hr blocker.** Benchmark openWakeWord + a
+      personalized wake template as the always-on gate; target **≤0.5 FA/hr at the wake stage alone** on a
+      real ambient recording (`-Dambient.wav` seam is built). **The deployability gate — highest priority.**
+- [ ] **R-SOTA-3 — Adopt the Picovoice `wake-word-benchmark` protocol** (detection @ fixed FA/hr @ SNR)
+      as SpeechAngel's reporting standard, folded into the `core:eval` condition grid, so our numbers are
+      externally comparable. Cheap; unblocks comparable reporting now.
+- [ ] **R-SOTA-4 — Study the SLT-2024 LRDWWS dysarthric-challenge winner** (FAR 0.32%/FRR 0.5%); extract
+      technique candidates (SSL front-end + fine-tuning) for the QbE encoder + dysarthric-corpus tuning.
+- [ ] **R-SOTA-5 — Common Voice (multilingual, CC0) as a language-independence eval corpus**; set
+      **10% FRR @ 4 FA/hr** (Howl production) as the realistic milestone before the <5% stretch.
+- [ ] **R-SOTA-6 — Attack the noise axis directly** (we score 25/100 vs mature-shipped 45–85): multi-condition
+      enrollment/augmentation (RIR + MUSAN) + SNR-adaptive accept threshold, measured on the existing
+      condition grid. The sim harness already proves noise is the dominant degrader.
+
+**Sequencing:** R-SOTA-2 (FAR/deployability) first · R-SOTA-1 (accuracy ceiling) highest-ceiling · both
+gated on R-SOTA-5's corpus + the SAP acquisition already listed below · R-SOTA-3 is cheap and immediate.
+
+---
+
 ## Phase 0 — Matcher spike (2–3 wks) · status: `active`
 
 Prove the core no OSS app has: record N commands on-device → MFCC + VAD + DTW match → multi-template
