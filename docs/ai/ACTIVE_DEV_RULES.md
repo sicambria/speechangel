@@ -95,3 +95,21 @@ operating point, not a gain.
   `docs/testing/2026-07-06_frr-far-torgo.md` (held-out vs in-sample columns).
 - **Gate:** advisory; `core/eval/src/main/kotlin/com/speechangel/core/eval/TorgoEval.kt` `heldOut`/`fitGlobal`/`fitPerCmd` are the reference
   implementation; `TorgoEvalHeldOutTest` pins the no-self-calibration + accept-all-fallback properties.
+
+### EVAL-003 — Pre-register one accuracy hypothesis; report the rest as a not-banked family
+When testing accuracy levers (feature front-ends, matchers, rejection rules), **pre-register a single
+a-priori hypothesis** and adjudicate it with a paired test vs the baseline at **matched FAR** (McNemar on
+the per-utterance outcomes). Any other variants you try are an **exploratory family**: report them in
+full (losing cells included) with a "**NOT banked**" label, and never adopt a lever *mined* from that
+family without its own pre-registered, FAR-matched confirmation on **fresh** data. Reporting the best of
+N variants is selection-on-test — the same best-of-grid optimism EVAL-002 and the D3 caveat exist to
+prevent, one meta-level up. A hypothesis that *loses* is a valid, valuable result (it stops you building
+the wrong thing), and the process is validated by producing a **trustworthy negative**, not by winning.
+On real TORGO this refuted **common-mode rejection normalization** (H1): significant *regression* on
+control (χ²=39.7, p<0.001), directionally worse on dysarthric — while a `margin` variant that looked
+better in the family table rode a higher FAR on control and was therefore *not* banked.
+- **Why:** `docs/errors/2026-07/2026-07-06_common-mode-rejection-refuted.md`,
+  `docs/testing/2026-07-06_realistic-conditions-and-rejection-scoring.md`.
+- **Gate:** advisory; `core/eval/src/main/kotlin/com/speechangel/core/eval/RejectionEval.kt` (`mcNemar` +
+  the "NOT banked" family renderer) is the reference implementation; `RejectionScoreTest` pins the
+  scorer/McNemar mechanics.

@@ -56,6 +56,14 @@ Phase 3** (Delight & reach). Every remaining Phase 0/1/2/3 ROADMAP item is triag
   emulated on-device e2e run + a Doze/reboot soak (both at the emulator ceiling; physical-device
   metrics documented as such). Score: evidence 29/30, structure 15/15, concreteness 20/20, risk 15/15,
   test 10/10, scope 10/10. Reports under `docs/testing/2026-07-06_*.md`.
+- `docs/plans/2026-07/realistic-conditions-sim-and-rejection-scoring.md` — ✅ **DONE 2026-07-06**
+  (self-scored 96/100, advisor-gated): a realistic-condition **simulation harness** (`core:eval`:
+  `AudioAugment`/`Conditions`/`ConditionEval`/`AmbientFar`) + a first-principles **rejection-scoring**
+  experiment. Part 1 measured the noise/reverb/band-limit degradation grid and the first **ambient
+  FA/hour proxy** (~82 FA/hr, ~160× budget) on real TORGO. Part 2 pre-registered common-mode rejection
+  normalization (H1) and **refuted** it (control χ²=39.7, p<0.001 — honest negative, no runtime change);
+  codified EVAL-003. Reports: `docs/testing/2026-07-06_realistic-conditions-and-rejection-scoring.md`,
+  `docs/errors/2026-07/2026-07-06_common-mode-rejection-refuted.md`.
 - `docs/plans/2026-06/external-asset-acquisition.md` — the cross-phase acquisition/integration runbook
   for the ROADMAP "External-asset shortlist": QbE encoder + CC-BY training data, whisper.cpp/sherpa-onnx
   dictation + Path-A models, dysarthric-inclusive corpora (TORGO/SAP/UASpeech/EasyCall), far-field
