@@ -4,7 +4,9 @@ import com.speechangel.core.dsp.EnergyVad
 import com.speechangel.core.dsp.MfccConfig
 import com.speechangel.core.dsp.MfccExtractor
 import com.speechangel.core.dsp.Vad
+import com.speechangel.core.enrollment.DictationBackend
 import com.speechangel.core.enrollment.Enroller
+import com.speechangel.core.enrollment.NoopDictationBackend
 import com.speechangel.core.enrollment.NoopQbeEncoder
 import com.speechangel.core.enrollment.QbeEncoder
 import com.speechangel.core.enrollment.Recognizer
@@ -60,6 +62,16 @@ internal object RecognitionModule {
     @Provides
     @Singleton
     fun provideQbeEncoder(): QbeEncoder = NoopQbeEncoder()
+
+    /**
+     * Optional, opt-in batch-dictation backend (Phase 3, dormant). Bound to [NoopDictationBackend] so
+     * the seam is live and the dictation stub screen renders "unavailable" until a real whisper.cpp
+     * backend is supplied — swap this provider to enable it. Deliberately **not** on the always-on
+     * command path: nothing in the [Recognizer]/action loop injects [DictationBackend].
+     */
+    @Provides
+    @Singleton
+    fun provideDictationBackend(): DictationBackend = NoopDictationBackend()
 
     @Provides
     @Singleton
