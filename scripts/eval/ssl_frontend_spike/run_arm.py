@@ -27,7 +27,7 @@ else:
     raise SystemExit("unknown arm " + arm)
 
 t0 = time.time()
-corpus = H.scan()
+corpus = H.scan(os.environ.get("TORGO_ROOT", H.TORGO_ROOT))
 if spk_filter:
     corpus = {k: v for k, v in corpus.items() if k in spk_filter}
 print(f"[{arm}] speakers: {list(corpus.keys())}", flush=True)

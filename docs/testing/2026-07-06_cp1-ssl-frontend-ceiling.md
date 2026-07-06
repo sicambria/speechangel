@@ -108,6 +108,37 @@ domination (14 fixes, 0 regressions). vs LPC the win is even stronger (aggregate
   *overlap*, not a per-query offset — so **CP-2 needs a substantive approach (OOV/background modeling, a
   verification stage, or a rejection-trained encoder), not a scoring tweak.** (`reject_probe.py`.)
 
+## Robustness checks (advisor-directed) — the finding is not 3-speaker noise, and it survives shrinking
+
+Three cheap checks run before committing to any build, to separate fact from inference:
+
+**(a) Generalizes to typical speech (FCX control, n=740) — NOT dysarthric-specific.** Same harness
+(reproduces committed MFCC control to the decimal: FC01 91.2%, FRR 50.0%):
+
+| Control | MFCC-DTW rank-1 | WavLM rank-1 | MFCC FRR@FAR5% | WavLM FRR | WavLM AUC |
+|---|---:|---:|---:|---:|---:|
+| FC01 (16) | 91.2% | **94.1%** | 50.0% | **29.4%** | 0.930 |
+| FC02 (121) | 78.9% | **89.8%** | ~ | **40.9%** | 0.921 |
+| FC03 (136) | 69.5% | **81.5%** | ~ | **46.0%** | 0.815 |
+| **ALL** | **74.6%** | **85.7%** | **75.1%** | **44.5%** | **0.870** |
+
++11 pts rank-1 on typical speech, and the **deployability (FRR@FAR) gain is *larger* on control**
+(75.1%→44.5%, −41% rel) than on dysarthric — the embedding separates typical speech better (AUC 0.87 vs
+0.72). So "learned embeddings are the CP-1 lever" is a general effect, not a dysarthric-corpus artifact.
+
+**(b) Survives shrinking the encoder 4× (DistilHuBERT ~23M) — distillation de-risked.** Full dysarthric,
+same arm: rank-1 **65.9%** (vs WavLM-base 71.9%, MFCC 55.4%), AUC 0.629 — retains ~65% of the
+rank-1-error gain at ¼ the params. **Caveat:** DistilHuBERT is only 2 transformer layers and the win came
+from *deep* layers, so this conflates depth and size — a purpose-distilled deep-pooled-embedding student
+should do better. But even this off-the-shelf small model clears MFCC decisively, so the ~1–2M target is
+plausible, not speculative. (This also honors "integrate OSS before reinventing" — a small pretrained
+encoder may suffice without training our own.)
+
+**(c) CP-2 must be measured on ambient FA/hr, not per-utterance OOV FAR — deferred.** TORGO's FAR is
+per-utterance OOV, not the binding always-on **FA/hour** (~82 FA/hr today, ~160× budget). Whether the
+embedding's better separability moves the *FA/hr* operating point must be measured by bringing it into the
+built Picovoice/ambient harness (`PicovoiceBenchmark`) — the honest CP-2 next step, not done here.
+
 ## What this does NOT establish (constraints & caveats)
 
 - **Language-independence is untested here.** TORGO is English; the pooled-cosine architecture is
@@ -128,7 +159,9 @@ domination (14 fixes, 0 regressions). vs LPC the win is even stronger (aggregate
 
 1. **Distill the deep-SSL pooled embedding into a small (~1–2M-param) student encoder** (ZP-KWS /
    PhonMatchNet-class or a WavLM-L12→pooled-cosine distillation), evaluated in this harness for
-   retained rank-1 + separability at shippable size. This is the CP-1 build.
+   retained rank-1 + separability at shippable size. This is the CP-1 build — **de-risked** by the
+   DistilHuBERT (~23M) retention check (robustness (b)); first try off-the-shelf small encoders before
+   training our own.
 2. **Wire it through the existing `QbeEncoder`/`QbeSpeechBackend` seam** (cosine prototypes) — the
    architecture the data points at — behind the FRR+FAR-vs-MFCC-DTW adoption gate.
 3. **CP-2 is still independent and binding:** even the maximal encoder leaves FRR@FAR≤5% at 56–71%; the

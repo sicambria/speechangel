@@ -19,6 +19,7 @@ _MODELS = {
     "wav2vec2xlsr": "facebook/wav2vec2-large-xlsr-53",
     "wavlm": "microsoft/wavlm-base-plus",
     "hubert": "facebook/hubert-base-ls960",
+    "distilhubert": "ntu-spml/distilhubert",  # ~23M, 2 transformer layers — small-encoder retention probe
 }
 
 

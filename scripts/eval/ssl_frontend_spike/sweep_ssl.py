@@ -17,7 +17,8 @@ layers = [int(x) for x in sys.argv[4].split(",")] if len(sys.argv) > 4 else None
 from transformers import AutoModel
 MODELS = {"wav2vec2": "facebook/wav2vec2-base", "wavlm": "microsoft/wavlm-base-plus",
           "hubert": "facebook/hubert-base-ls960", "xlsr": "facebook/wav2vec2-large-xlsr-53",
-          "wavlmlarge": "microsoft/wavlm-large", "xlsr128": "facebook/mms-1b-all"}
+          "wavlmlarge": "microsoft/wavlm-large", "xlsr128": "facebook/mms-1b-all",
+          "distilhubert": "ntu-spml/distilhubert"}
 mid = MODELS.get(model, model)
 print(f"loading {mid} ...", flush=True)
 net = AutoModel.from_pretrained(mid, output_hidden_states=True).eval()
