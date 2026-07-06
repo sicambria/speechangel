@@ -36,6 +36,7 @@ Phase 3** (Delight & reach). Every remaining Phase 0/1/2/3 ROADMAP item is triag
 | Shareable command packs | 3 | A | `docs/plans/2026-06/phase3-reach-and-release.md` |
 | F-Droid + Play release | 3 | A (scaffold) / C (accounts + signing key + RFP) | `docs/plans/2026-06/phase3-reach-and-release.md` |
 | whisper.cpp batch dictation (optional) | 3 | A (interface+Noop) / C (native model+runtime) | `docs/plans/2026-06/phase3-reach-and-release.md` |
+| External-asset shortlist (corpora, encoder, dictation/Path-A/far-field models) | 0/1/2/3 | B/C (all seams built; assets absent) | `docs/plans/2026-06/external-asset-acquisition.md` |
 
 ## Plans
 
@@ -48,6 +49,11 @@ Phase 3** (Delight & reach). Every remaining Phase 0/1/2/3 ROADMAP item is triag
   far-field/noise front-end (Phase 3; authored 2026-07-05).
 - `docs/plans/2026-06/phase3-reach-and-release.md` — shareable command packs, F-Droid/Play release
   scaffold, whisper.cpp batch dictation (Phase 3; authored 2026-07-05).
+- `docs/plans/2026-06/external-asset-acquisition.md` — the cross-phase acquisition/integration runbook
+  for the ROADMAP "External-asset shortlist": QbE encoder + CC-BY training data, whisper.cpp/sherpa-onnx
+  dictation + Path-A models, dysarthric-inclusive corpora (TORGO/SAP/UASpeech/EasyCall), far-field
+  RIR/noise augmentation. Each row = license tag + acquisition action + dormant seam (`path:line`) +
+  integration check (authored 2026-07-06).
 
 ## Definition of "done" for this push (honesty contract)
 
@@ -127,6 +133,19 @@ winner, no trained encoder, no whisper model, no store account is claimed.
 **Not planned (deliberate):** the Workflow-track "CI running green on a real GitHub Actions run" item is
 implemented (`.github/workflows/ci.yml`), only unobserved on an actual Actions run — a full plan is
 overkill; it is noted here, not planned.
+
+## External-asset acquisition plan (2026-07-06)
+
+`external-asset-acquisition.md` — **self-scored 96/100, advisor-cleared 2026-07-06** (planmax loop:
+draft → resolve every seam `path:line` against the working tree → score → advisor gate). It fills the
+one previously-unplanned ROADMAP section (the "External-asset shortlist", `ROADMAP.md:145`); the other
+17 items already carry the seven plans above, so re-planning them is deliberately out of scope.
+
+Score breakdown: evidence grounding 29/30 (every seam citation resolves; corpus size figures carried
+from the roadmap sweep, not independently re-verified — the −1), structure 15/15, concreteness 18/20
+(several checks are inherently deferred to when the external asset lands), risk/reversibility 15/15,
+test/shift-left 10/10, scope discipline 10/10. **Docs-only + acquisition:** no ROADMAP checkbox flips —
+no corpus, encoder, or model was acquired; the plan documents *how*, honoring INDEX point 4.
 
 ## Reconciliation (2026-07-05)
 

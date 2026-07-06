@@ -142,6 +142,81 @@ is wired and builds; the always-on/battery/wake-word robustness pieces remain._
 
 ---
 
+## External-asset shortlist (unblocks the `[~]` Bucket-B/C items) · status: `planned`
+
+> Added 2026-07-06 from a license-vetted internet sweep. The four remaining `[~]` items are each blocked
+> on an **absent external asset, not on code** — the seams (`QbeEncoder`, `DictationBackend`,
+> `SpeechBackend`/Path-A, `MfccConfig.noiseReduction`, `core:eval`) are built and dormant. This section
+> pins concrete candidates so acquisition is a lookup, not a research task.
+>
+> **Carrying plan:** `docs/plans/2026-06/external-asset-acquisition.md` (self-scored 96, advisor-cleared
+> 2026-07-06) — the acquisition/integration runbook for every row below: license tag + acquisition
+> action + the dormant seam (`path:line`) each plugs into + the check that proves integration.
+
+**License filter (non-negotiable §Licensing): permissive only — MIT / Apache-2.0 for code+models,
+CC-BY-4.0 / CC0 for training data. NC-licensed *or unlicensed* models are never bundled.** Tags below:
+**[bundleable]** = license permits shipping inside the AGPL-3.0 app · **[measure-only]** = usable
+off-device to compute FRR/FAR or as a training-data source, never redistributed in the APK.
+
+### QbE encoder — `[~]` Phase 3 "QbE embedding enhancement"
+
+Target profile (`Qbe.kt`, `docs/plans/2026-06/phase3-matcher-enhancements.md`): ~24k params, <4 kB,
+MFCC-fed, few-shot cosine prototypes, trained on *normal* speech (stays a milder-impairment enhancement,
+never the default matcher).
+
+- [ ] **Train the 24k encoder** — reimplement arXiv 2403.07802 ("Boosting keyword spotting through
+      on-device learnable user speech characteristics"; ~23.7k params, 1 MFLOP/epoch, TinyML) against the
+      existing `MfccExtractor` front-end. **[bundleable]** — a paper is architecture-only, no code-license
+      entanglement.
+- [ ] **Training data** — MSWC (Multilingual Spoken Word Corpus, 50 langs, ~6000 h) **CC-BY-4.0,
+      commercial-OK** + Google Speech Commands v2 **CC-BY-4.0**. **[bundleable]** with attribution.
+- [ ] **Research baseline only** — `harvard-edge/multilingual_kws` pretrained embedding (5-shot F1 ≈ 0.75).
+      **Repo has NO LICENSE file ⇒ all-rights-reserved ⇒ [measure-only], never bundle.** Use it once to
+      sanity-check the seam + bake-off, then ship the self-trained encoder.
+
+### Dictation + Path-A models — `[~]` Phase 3 whisper.cpp · `[~]` Phase 2 Path-A
+
+- [ ] **Dictation** — whisper.cpp (MIT) Android AAR + OpenAI `tiny`/`base` GGML weights (MIT), q5_1
+      quantized, JNI, batch (not streaming). **[bundleable].** → `DictationBackend`.
+- [ ] **Path-A word-list** — sherpa-onnx (Apache-2.0) keyword-spotter + its pretrained KWS models
+      (Apache-2.0); Android KWS demo exists. Cleaner interface fit than Vosk grammar (no
+      `templateId`/`distance` mismatch flagged as the Path-A #1 risk). **[bundleable].** → `SpeechBackend`.
+- [ ] **Path-A fallback** — Vosk small models (Apache-2.0, ~40 MB, official Android demo). **[bundleable].**
+
+### Dysarthric-inclusive corpora — the non-code items (unblocks far-field gain, thresholds, bake-off winner, real FRR/FAR)
+
+`core:eval` (`Evaluator`/`ThresholdCalibrator`/`FrontEndBakeoff`) is built + tested; only real labeled
+audio is missing. These are research corpora used **off-device to produce numbers — never shipped**, so
+their research DUAs don't touch the app license; noted per-corpus regardless.
+
+- [ ] **Speech Accessibility Project (SAP)** — UIUC. Largest (959 speakers, 5 etiologies, 400+ h, ~190k
+      utterances) **with a "digital-assistant commands" category** → best fit for command FRR/FAR. Access:
+      sign UIUC Data Use Agreement + application review (**start now — DUA lead time is the real cost**).
+      **[measure-only]**; check the DUA's commercial clause.
+- [ ] **UASpeech** — 16 dysarthric speakers, isolated words + intelligibility labels (VL/L/M/H) → the
+      per-severity FRR table. Register with H. Kim, UIUC. **[measure-only].**
+- [ ] **TORGO** — 15 speakers, ~21 h, freely downloadable → immediate harness validation on real voices,
+      kills the `SYNTHETIC` banner. **[measure-only]; lowest barrier — do first.**
+- [ ] **EasyCall** — 55 speakers, 37 commands + 30 non-commands (mirrors the `truth=null` OOV/FAR split);
+      Italian. Contact authors. **[measure-only].**
+- [ ] **Voice-drift gap** — none of the above carry `VoiceCondition` (NORMAL/TIRED/ILL) labels; map severity
+      → condition or collect a small in-house drift set to exercise the adaptation-benefit measurement.
+
+### Far-field / noise augmentation — `[~]` Phase 3 far-field front-end
+
+Real far-field *dysarthric* audio barely exists → synthesize the far-field/home-noise conditions the
+harness expects by convolving the corpora above.
+
+- [ ] **RIRs** — OpenSLR "RIR and Noise" (Apache-2.0). **[bundleable]**/measure.
+- [ ] **Noise** — MUSAN (OpenSLR) for home-noise mixing. **[measure-only]** — verify the exact license
+      before any redistribution.
+
+**Acquisition ordering:** TORGO + the self-trained encoder (both obtainable within ~a day) → the first
+*real* MFCC-DTW-vs-QbE bake-off on real dysarthric voices (highest-value unblock). whisper.cpp /
+sherpa-onnx and the SAP application run in parallel on longer lead times.
+
+---
+
 ## Cross-cutting non-negotiables (carry into every phase)
 
 - [x] Deterministic action layer — **never** an autonomous LLM agent. _held — `DeviceAction` fixed
@@ -153,7 +228,10 @@ is wired and builds; the always-on/battery/wake-word robustness pieces remain._
 - [x] Licensing: keep Silero VAD/whisper.cpp (MIT), Vosk/sherpa-onnx (Apache-2.0); avoid NC-licensed
       models; ship a third-party-licenses screen. _held — `LicensesScreen` ships (AndroidX/Kotlin/Hilt
       Apache-2.0; planned models MIT/Apache only); no NC-licensed model is bundled; app is AGPL-3.0
-      (`LICENSE`). The permissive-only policy is documented for any future model add._
+      (`LICENSE`). The permissive-only policy is documented for any future model add. **Training data for
+      any bundled model must be CC-BY-4.0/CC0 (approved: MSWC, Google Speech Commands v2); an unlicensed
+      pretrained model (e.g. `multilingual_kws`) is measure-only, never bundled** — see the External-asset
+      shortlist._
 
 ---
 
