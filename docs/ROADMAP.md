@@ -88,16 +88,22 @@ acceptance criteria honest (FRR + FAR/hour, never a bare "99 %").
 
 - [ ] **R-SOTA-1 — Zero-shot phoneme-matching encoder (ZP-KWS / PhonMatchNet-class).** Evaluate as an
       alternative/augmentation to MFCC-DTW in the dormant `QbeEncoder` seam — the SOTA that *shares* our
-      language-independent + user-trainable constraints; its strict FRR@1%FAR (29–33%) already beats our
-      76%. `planned` — research + `core:eval` A/B, gated on a corpus + license clearance.
+      language-independent + user-trainable constraints, at an **edge-deployable 1.55M params**
+      (ZP-KWS, arXiv 2606.20106; FRR@1%FAR cut ~60% rel). Optional text-independent speaker-verifier veto
+      branch. `planned` — research + `core:eval` A/B, gated on a corpus + license clearance.
 - [ ] **R-SOTA-2 — Stage-1 wake cascade to fix the ~82 FA/hr blocker.** Benchmark openWakeWord + a
       personalized wake template as the always-on gate; target **≤0.5 FA/hr at the wake stage alone** on a
       real ambient recording (`-Dambient.wav` seam is built). **The deployability gate — highest priority.**
 - [ ] **R-SOTA-3 — Adopt the Picovoice `wake-word-benchmark` protocol** (detection @ fixed FA/hr @ SNR)
       as SpeechAngel's reporting standard, folded into the `core:eval` condition grid, so our numbers are
       externally comparable. Cheap; unblocks comparable reporting now.
-- [ ] **R-SOTA-4 — Study the SLT-2024 LRDWWS dysarthric-challenge winner** (FAR 0.32%/FRR 0.5%); extract
-      technique candidates (SSL front-end + fine-tuning) for the QbE encoder + dysarthric-corpus tuning.
+- [ ] **R-SOTA-4 — Adopt the LRDWWS'24 winner (PD-DWS) constraint-respecting techniques**
+      (`research/word-spotting2409.10076v1.pdf`, FAR 0.32%/FRR 0.5%): (a) small SSL front-end for the QbE
+      encoder [→ R-SOTA-1], (b) a **dual-filter cascade** — a length/second-opinion cross-verify at the
+      decision layer as an FAR-cutting rejection stage (the honest `margin` lever), (c) TTS-dysarthric +
+      MUSAN augmentation [→ R-SOTA-6]. Skip the ASR-branch default (breaks language-independence →
+      Path-A only). NB: even PD-DWS's *baseline* DS-TCN KWS hits ~10% FRR on dysarthric — most of our 76%
+      gap is a model gap, not a population ceiling (Euphonia's 13.9% WER personalization confirms).
 - [ ] **R-SOTA-5 — Common Voice (multilingual, CC0) as a language-independence eval corpus**; set
       **10% FRR @ 4 FA/hr** (Howl production) as the realistic milestone before the <5% stretch.
 - [ ] **R-SOTA-6 — Attack the noise axis directly** (we score 25/100 vs mature-shipped 45–85): multi-condition
