@@ -13,13 +13,16 @@
 - **IN-REGIME PRELIMINARY (2026-07-06, `in_regime.py`) — a potential reframe.** Enrolling F01's own 15
   words (open-set wake **gate**: fire = min-dist to ANY enrolled template < thr; both arms VAD-trim
   template/positive/window identically — no confound), leave-one-out detection vs FA/hour on real
-  LibriSpeech background: **MFCC F01 = 93.8% detection (FRR 6.2%) at ~0 FA/hour** (on 5 min background —
-  too short to resolve low FA/hour; a 60-min-background run is finishing, embedding arm to
-  follow). **If this holds with more background, it
-  reframes CP-2:** the ~82 FA/hr / "no viable point" was largely a **cross-speaker-benchmark artifact** —
-  in the speaker-dependent regime a dysarthric speaker's templates rarely match other-speaker background,
-  so gate-FA is low **even for MFCC**, and the binding problem is **discrimination (CP-1), not gate FA**.
-  NOT yet banked (needs the fuller-background confirmation + the embedding arm + a control speaker).
+  LibriSpeech background (**1.01 h, 6067 windows**): **MFCC F01 = 68.8% detection (FRR 31.2%) at ~0
+  FA/hour**, 87.5% at ~5 FA/hour, 95% needs ~24 FA/hour. (An earlier 5-min-background run read a rosy
+  93.8% — under-resolved: too little background to see low-FA false fires; the 1 h number supersedes it.)
+  **The reframe, tempered:** in-regime is **far better than cross-speaker (68.8% vs 40% detection at ~0
+  FA/hr)** — so the "~82 FA/hr / no viable point" was substantially a **cross-speaker-benchmark
+  artifact** — but a real wall remains, and it is **discrimination-bound**: detection at ~0 FA/hr (68.8%)
+  ≈ F01 rank-1 (68.8%), i.e. the gate's low-FA operating point tracks **discrimination (CP-1)**, not
+  gate-FA. **This is exactly where the embedding should lift the curve** (F01 rank-1 84.4%). NOT yet
+  banked — the embedding arm (`in_regime.py ssl:wavlm:12 F01 60`) + a control speaker are the key
+  remaining measurements.
 - **Bucket:** measure-only (off-device Python; touches no app code, ships nothing).
 - **Serves:** ROADMAP **CP-2 / R-SOTA-2** (the deployability wall — ~82 FA/hr today, ~160× budget) using
   the CP-1 embedding win ([[speechangel-cp1-ssl-ceiling]]).
