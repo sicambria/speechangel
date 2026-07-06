@@ -130,8 +130,11 @@ is wired and builds; the always-on/battery/wake-word robustness pieces remain._
       FRR+FAR gain vs baseline on real far-field/noise audio (Bucket B).
       `docs/plans/2026-06/phase3-matcher-enhancements.md`._
 - [~] whisper.cpp batch dictation (optional). _interface LANDED 2026-07-05 — `DictationBackend`
-      (transcript-returning, not `SpeechBackend`) + `NoopDictationBackend`. Remaining: the native model +
-      runtime + a text-entry surface (Bucket C). `docs/plans/2026-06/phase3-reach-and-release.md`._
+      (transcript-returning, not `SpeechBackend`) + `NoopDictationBackend`; the text-entry **stub screen**
+      LANDED 2026-07-06 — `app/src/main/kotlin/com/speechangel/app/ui/dictation/DictationScreen.kt` +
+      `DictationViewModel`, routed from Home,
+      off the command path. Remaining: the native model + runtime + real audio capture (Bucket C).
+      `docs/plans/2026-06/phase3-reach-and-release.md`._
 - [x] Shareable command packs. _`data/pack` `CommandPack` (versioned JSON), `DeviceAction`-validated
       import, definitions-only re-enroll model + `CommandPackScreen`/`CommandPackViewModel` (import/export)
       routed from Home; unit-tested, `make verify` green (2026-07-05). A polished share-sheet/SAF file

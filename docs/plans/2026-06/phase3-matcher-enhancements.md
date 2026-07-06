@@ -6,6 +6,20 @@
   "Vocabulary-distinctness helper (warn on acoustically-close commands)"; Phase 3 "Far-field / noise
   front-end"
 - **Status:** active (all three Bucket-A slices implemented + tested 2026-07-05: distinctness helper, QbE seam+selector, far-field front-end + bake-off wiring; B/C measurement — real corpus, trained encoder — remains blocked)
+- **Implementation note (2026-07-06):** a plan-body re-audit found the Item-C DoD's testable clause
+  ("the DI selector, default = template backend, build and unit-tested in `:core:enrollment:test`") is
+  **met** — `SpeechBackendSelector` + `BackendChoice` exist and are covered by `QbeTest`. Step 8's
+  further "add the missing DI binding in `RecognitionModule` that selects the backend from a persisted
+  preference" is, however, **structurally not constructible as written**: both `TemplateSpeechBackend`
+  (needs runtime-loaded `templates`) and `QbeSpeechBackend` (needs runtime-loaded `prototypes`) require
+  data that does not exist at Hilt graph-construction time, and nothing injects `SpeechBackend` today —
+  so a `@Provides SpeechBackend` would be dead code that changes zero runtime behavior while the encoder
+  is `NoopQbeEncoder` (the selector, by design, always returns the template backend). Making the binding
+  *live* means routing the always-on `ListeningService` loop through `SpeechBackend.recognizeDetailed()`
+  — beyond step 8's scope, touching a delicate subsystem, for no behavior change while QbE is dormant.
+  It is therefore **left dormant by design** (the plan's own "QbE is never the default / stays behind
+  its flag until a real encoder exists" constraint), recorded here as a documented boundary rather than
+  built as ceremony. Wiring it live is an optional future refactor, gated on a real encoder landing.
 - **Worktree:** n/a (docs-only plan; each item enters its own worktree when scheduled to build)
 - **Plan quality:** 93/100 — self-scored 2026-07-05 (see `docs/plans/INDEX.md` scoring row)
 

@@ -147,6 +147,30 @@ from the roadmap sweep, not independently re-verified — the −1), structure 1
 test/shift-left 10/10, scope discipline 10/10. **Docs-only + acquisition:** no ROADMAP checkbox flips —
 no corpus, encoder, or model was acquired; the plan documents *how*, honoring INDEX point 4.
 
+## Plan-body re-audit (2026-07-06)
+
+An "implement all open plans" pass re-audited the four open plans (3 active + 1 planned)
+**against the working tree, not the status lines** (a general-purpose agent cross-checked every
+Bucket-A deliverable to a `path:line`). Result: all four "done"-status Phase-0/1/2 plans are accurate,
+and Bucket-A across the active plans was ~complete — with **two genuine gaps** the 2026-07-05 status
+lines over-implied:
+
+1. **`phase3-reach-and-release` step 13 — dictation stub screen (was MISSING → now BUILT).** Only the
+   `DictationBackend` seam + Noop + tests had landed; the "dictate to a text field" stub screen had not.
+   Implemented 2026-07-06: `app/src/main/kotlin/com/speechangel/app/ui/dictation/DictationScreen.kt` +
+   `DictationViewModel` (injects the
+   neutral backend, `NoopDictationBackend`-bound in `RecognitionModule`), routed from Home, off the
+   command path. `:core:enrollment:test` + `:app:assembleDebug` + `make static` + guardrails green.
+2. **`phase3-matcher-enhancements` step 8 — QbE live DI binding (documented boundary, NOT built).** The
+   DoD's testable clause (selector builds + unit-tested) is already met by `SpeechBackendSelector`. The
+   further "DI binding selecting the backend from a persisted preference" is **structurally not
+   constructible as written** (both backends need runtime-loaded data absent at Hilt graph time; nothing
+   injects `SpeechBackend`) and would be dead code while the encoder is Noop. Left dormant by design;
+   recorded as a boundary in that plan's Implementation note. Wiring it live = an optional future
+   `ListeningService` refactor, gated on a real encoder.
+
+No Bucket-B/C item was touched; no FRR/FAR number, corpus, encoder, model, or store account was claimed.
+
 ## Reconciliation (2026-07-05)
 
 The five Phase 0/1/2 plans were **reconciled 2026-07-05** (not re-reviewed — their >94 provenance

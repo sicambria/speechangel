@@ -5,6 +5,13 @@
 - **Roadmap item:** Phase 3 "Shareable command packs"; Phase 3 "F-Droid + Play release"; Phase 3
   "whisper.cpp batch dictation (optional)"
 - **Status:** active (all three Bucket-A slices implemented + tested 2026-07-05: command packs, F-Droid/Play scaffold + R8, DictationBackend; C walls — accounts, signing key, whisper.cpp model — remain external)
+- **Follow-up (2026-07-06):** step 13's Item-C deliverable — the "dictate to a text field" **stub screen**
+  — had not landed with the 2026-07-05 batch (only the `DictationBackend` seam + Noop + tests did). It is
+  now implemented: `app/src/main/kotlin/com/speechangel/app/ui/dictation/DictationScreen.kt` +
+  `DictationViewModel` (injects the neutral
+  `DictationBackend`, bound to `NoopDictationBackend` in `RecognitionModule`), reachable from Home, kept
+  entirely off the deterministic command path. `:app:assembleDebug` + `make static` green. The Bucket-C
+  wall (real whisper.cpp model + native runtime + audio capture) is unchanged.
 - **Worktree:** n/a (docs-only plan; each item enters its own worktree when scheduled to build)
 - **Plan quality:** 93/100 — self-scored 2026-07-05 (see `docs/plans/INDEX.md` scoring row)
 
