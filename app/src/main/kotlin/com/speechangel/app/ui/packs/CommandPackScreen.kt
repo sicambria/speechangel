@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.speechangel.app.ui.components.announce
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -85,9 +86,12 @@ fun CommandPackScreen(onBack: () -> Unit, viewModel: CommandPackViewModel = hilt
                 Text("Import pack")
             }
 
-            state.error?.let { Text("Couldn't import: $it") }
+            state.error?.let { Text("Couldn't import: $it", modifier = Modifier.announce()) }
             if (state.lastImportRan && state.error == null) {
-                Text("Imported ${state.importedCount} command(s). Teach each one in your own voice.")
+                Text(
+                    "Imported ${state.importedCount} command(s). Teach each one in your own voice.",
+                    modifier = Modifier.announce(),
+                )
                 if (state.rejected.isNotEmpty()) {
                     Text("Skipped ${state.rejected.size} (unknown action or blank name):")
                     for (r in state.rejected) {

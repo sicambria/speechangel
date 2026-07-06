@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.speechangel.app.ui.components.heading
 
 /**
  * The "Always-on" screen. Binds to the EXISTING hoisted listening state (no second source of truth) and
@@ -60,7 +61,7 @@ fun AlwaysOnScreen(isListening: Boolean, onListeningChange: (Boolean) -> Unit, o
         ) {
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Listen hands-free", style = MaterialTheme.typography.titleLarge)
+                    Text("Listen hands-free", style = MaterialTheme.typography.titleLarge, modifier = Modifier.heading())
                     Switch(checked = isListening, onCheckedChange = onListeningChange)
                 }
             }
@@ -79,7 +80,11 @@ fun AlwaysOnScreen(isListening: Boolean, onListeningChange: (Boolean) -> Unit, o
 
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Stop ${oem.manufacturer} from closing the app", style = MaterialTheme.typography.titleLarge)
+                    Text(
+                        "Stop ${oem.manufacturer} from closing the app",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.heading(),
+                    )
                     oem.steps.forEach { Text("• $it", style = MaterialTheme.typography.bodyLarge) }
                     bigButton("Open settings") { openOemSettings(context, oem) }
                 }

@@ -3,24 +3,27 @@ package com.speechangel.app.ui.home
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,6 +34,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.speechangel.app.ui.components.heading
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongParameterList") // Home is the hub screen: hoisted navigation callbacks, one per destination.
@@ -60,7 +64,7 @@ fun HomeScreen(
         ) {
             ListeningCard(isListening = isListening, onListeningChange = onListeningChange)
 
-            Text("Your commands", style = MaterialTheme.typography.titleLarge)
+            Text("Your commands", style = MaterialTheme.typography.titleLarge, modifier = Modifier.heading())
 
             if (state.commands.isEmpty()) {
                 Text(
@@ -78,32 +82,39 @@ fun HomeScreen(
                 }
             }
 
-            OutlinedButton(
-                onClick = onTryIt,
-                modifier = Modifier.fillMaxWidth().height(64.dp),
-            ) {
-                Icon(Icons.Filled.Mic, contentDescription = null)
-                Spacer(Modifier.height(0.dp))
-                Text("  Try it", style = MaterialTheme.typography.labelLarge)
-            }
-            androidx.compose.material3.Button(
+            // Tier 1 — the two everyday actions, visually primary.
+            Button(
                 onClick = onAddCommand,
-                modifier = Modifier.fillMaxWidth().height(64.dp),
+                modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp),
             ) {
                 Icon(Icons.Filled.Add, contentDescription = null)
                 Text("  Teach a new command", style = MaterialTheme.typography.labelLarge)
             }
+            FilledTonalButton(
+                onClick = onTryIt,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp),
+            ) {
+                Icon(Icons.Filled.Mic, contentDescription = null)
+                Text("  Try it", style = MaterialTheme.typography.labelLarge)
+            }
+
+            // Tier 2 — setup + settings, grouped and lower-emphasis so they don't compete with the above.
+            HorizontalDivider(modifier = Modifier.padding(top = 4.dp))
+            Text("More", style = MaterialTheme.typography.titleMedium, modifier = Modifier.heading())
             OutlinedButton(onClick = onStartSetup, modifier = Modifier.fillMaxWidth()) {
                 Text("Set up step by step", style = MaterialTheme.typography.labelLarge)
             }
-            OutlinedButton(onClick = onOpenAlwaysOn, modifier = Modifier.fillMaxWidth()) {
+            // Full-width so labels never wrap at large font scales; text emphasis keeps them tertiary.
+            TextButton(onClick = onOpenAlwaysOn, modifier = Modifier.fillMaxWidth()) {
                 Text("Always-on settings", style = MaterialTheme.typography.labelLarge)
             }
-            OutlinedButton(onClick = onOpenPacks, modifier = Modifier.fillMaxWidth()) {
-                Text("Command packs", style = MaterialTheme.typography.labelLarge)
-            }
-            OutlinedButton(onClick = onOpenDictation, modifier = Modifier.fillMaxWidth()) {
-                Text("Dictation", style = MaterialTheme.typography.labelLarge)
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+                TextButton(onClick = onOpenPacks, modifier = Modifier.weight(1f)) {
+                    Text("Packs", style = MaterialTheme.typography.labelLarge)
+                }
+                TextButton(onClick = onOpenDictation, modifier = Modifier.weight(1f)) {
+                    Text("Dictation", style = MaterialTheme.typography.labelLarge)
+                }
             }
         }
     }

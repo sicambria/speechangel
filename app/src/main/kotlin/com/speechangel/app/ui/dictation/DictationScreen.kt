@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.speechangel.app.ui.components.announce
 
 /**
  * Minimal "dictate to a text field" surface (Phase 3, opt-in, dormant). Wired to the neutral
@@ -68,7 +69,7 @@ fun DictationScreen(onBack: () -> Unit, viewModel: DictationViewModel = hiltView
                 Text("  Dictate")
             }
 
-            state.message?.let { Text(it) }
+            state.message?.let { Text(it, modifier = Modifier.announce()) }
         }
     }
 }

@@ -21,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.speechangel.app.ui.components.heading
 
 /**
  * Guided caregiver setup: Welcome → Teach a command → Try it → Turn on always-on → Done. It sequences
@@ -50,7 +51,7 @@ fun CaregiverWizard(onTeach: () -> Unit, onTry: () -> Unit, onAlwaysOn: () -> Un
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             LinearProgressIndicator(progress = { (index + 1f) / STEPS.size }, modifier = Modifier.fillMaxWidth())
-            Text(step.title, style = MaterialTheme.typography.headlineSmall)
+            Text(step.title, style = MaterialTheme.typography.headlineSmall, modifier = Modifier.heading())
             Text(step.body, style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Start)
 
             step.actionLabel?.let { label ->
