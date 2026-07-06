@@ -132,3 +132,19 @@ Two rules for any **off-device / cross-implementation** accuracy comparison:
 - **Why:** `docs/errors/2026-07/2026-07-06_ssl-spike-fidelity-and-confound.md`.
 - **Gate:** advisory; `scripts/eval/ssl_frontend_spike/harness.py` (`energy_vad_trim` + the decimal
   fidelity reproduction) and `matcher2x2.py` (the decomposition) are the reference implementations.
+
+### EVAL-005 — Operating-point metrics at a curve extreme are high-variance; replicate before headlining
+A metric read at a **single threshold at the extreme of a detection/FA curve** — detection at ~0 FA/hr, or
+the FA/hr required to reach a high target detection — is pinned by the **1–2 hardest positives** and the
+**single nearest background window**, so it is **high-variance, not low-variance** (the intuition that "a
+tail metric averages over many events" is wrong — the *tail* is exactly where one sample moves it). A
+one-speaker read, even a significant one, is **not** sufficient to headline such a point: require **≥2
+speakers/folds that agree in direction**, and prefer a **curve-area / partial-AUC** summary as the primary
+number, reporting extreme single-threshold points only *with* their replication status. Non-significant at
+small n means **underpowered / not demonstrated**, never "no effect." This caught a phantom win: the CP-2
+in-regime spike's F01 "≈5× tail compression" (FA/hr for 95% det 24→5) looked robust on one speaker but the
+control (FC01) showed a **tail regression** (3.0→6.0; det@5FA/hr 100%→70.6%) — retracted before banking;
+the ~0-FA/hr lift was likewise underpowered (F01 b=1/c=3, p=0.62).
+- **Why:** `docs/errors/2026-07/2026-07-06_cp2-tail-metric-knife-edge.md`.
+- **Gate:** advisory; `scripts/eval/ssl_frontend_spike/in_regime.py` (extreme operating points) and
+  `inregime_paired.py` (paired McNemar + exact-binomial that quantified the fragility) are the references.

@@ -1,6 +1,20 @@
 # CP-2 spike — Does the learned embedding cut FA/hour on real ambient? (the binding always-on axis)
 
-- **Status:** active (spike; 2026-07-06). **Interim (banked):** the fair single-keyword A/B (VAD-trimmed
+- **Status:** done (A-deliverables implemented 2026-07-06; in-regime embedding arm + control + paired
+  significance measured and banked). **VERDICT — the encoder does NOT close the CP-2 wall.** Full result:
+  `docs/testing/2026-07-06_cp2-inregime-ambient-fahr.md`.
+  Headline (n-robust, independent of the small delta): **no arm clears the deployable bar** — best case
+  WavLM F01 = **FRR 25% at FAR = 0.5 FA/hr** (product needs FRR < 5%), and that is *conservative* (clean
+  LibriSpeech background, no DEMAND noise). The ~0-FA/hr lift is a **consistent direction but underpowered**
+  (both speakers identical: b=1/c=3, McNemar p=0.617 / exact-binom p=0.625; F01 68.8%→75.0%, FC01
+  64.7%→70.6%) — not a demonstrated
+  win, and *not* evidence of no effect. The dramatic F01 tail compression (24→5 FA/hr for 95% det) is
+  **retracted** — FC01 shows a tail regression (3.0→6.0 FA/hr; det@5FA/hr 100%→70.6%). **Next lever
+  (hypothesis to spike): per-template/per-word threshold calibration or a dedicated rejection model — NOT a
+  better encoder, NOT more speakers** — only WavLM carries recoverable headroom (rank-1 84.4% vs gate 75.0%,
+  a 9-pt gap; MFCC has zero slack: rank-1 68.8% = gate 68.8%). CP-1 (rank-1 55.4→71.9, p=2×10⁻⁶) stands
+  untouched — CP-1's gain simply does not auto-translate to the ambient gate.
+- **Interim (superseded by the banked verdict above):** the fair single-keyword A/B (VAD-trimmed
   windows, both arms) gives a sound *directional* result — at ~0 FA/hour, MFCC detects 40% (FRR 0.60) vs
   **WavLM 80% (FRR 0.20)**: the embedding moves the binding FA/hour axis. **Caveat (governs authority):**
   Picovoice is **cross-speaker** (no speaker labels) → out-of-regime for a speaker-dependent matcher, so

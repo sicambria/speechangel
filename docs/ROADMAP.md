@@ -129,6 +129,14 @@ acceptance criteria honest (FRR + FAR/hour, never a bare "99 %").
       adopted gate**); the **constraint-preserving Stage-1 option is the enrolled-DTW / personalized wake
       template** already built (`WakeWordGate`). Target **≤0.5 FA/hr at the wake stage alone** on a real
       recording (R-SOTA-2; `-Dambient.wav` seam is built).
+      - **Measured 2026-07-06 (in-regime spike, banked — `docs/testing/2026-07-06_cp2-inregime-ambient-fahr.md`):**
+        the "~82 FA/hr" figure was substantially a **cross-speaker-benchmark artifact**; in the product
+        regime (a speaker's own words as the gate) MFCC already reaches ~65–69% detection at ~0 FA/hr.
+        **But no arm clears the deployable bar** — best case WavLM = **FRR 25% at FAR = 0.5 FA/hr** (need
+        FRR < 5%), and the CP-1 embedding does **not** close it (the ~0-FA/hr lift is underpowered, n.s.;
+        the F01 tail win did not replicate on the control). **⇒ the CP-2 lever is threshold calibration /
+        a dedicated rejection model, not a better encoder** — only the embedding carries recoverable
+        headroom (rank-1 84.4% vs gate 75.0%). Confirms "a better encoder does not fix the always-on wall."
 - [ ] **CP-3 — Real-device audio metrics (the alpha gate).** Latency, CPU, battery drain, and real
       false-fire rate on a **physical device** — the numbers the emulator's silent mic cannot produce
       (unblocks the frozen Phase-1/Phase-2 exits). A debug `AudioRecorder` WAV-injection binding makes

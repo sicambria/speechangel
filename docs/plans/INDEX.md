@@ -253,6 +253,18 @@ rejection wall still binding (FRR@FAR≤5% only 78.3%→66.3%). Report:
 `docs/testing/2026-07-06_cp1-ssl-frontend-ceiling.md`; harness `scripts/eval/ssl_frontend_spike/`. New
 rule **EVAL-004** (decompose confounded representation×matcher comparisons).
 
+`docs/plans/2026-07/cp2-embedding-ambient-fahr-spike.md` — ✅ **DONE 2026-07-06** (advisor-gated). Tests
+whether the CP-1 embedding closes the binding always-on axis (**FA/hour**, not per-utterance OOV FAR), in
+the product regime (a speaker enrolls their own words as an open-set wake gate; leave-one-out detection;
+FA/hr from 1.01 h of real LibriSpeech background; both arms identical VAD). **Verdict: the encoder does
+NOT close the CP-2 wall.** N-robust headline: **no arm clears the deployable bar** — best case WavLM F01
+= **FRR 25% at FAR = 0.5 FA/hr** (need FRR < 5%), *conservative* (clean background, no DEMAND). The
+~0-FA/hr lift is consistent-direction but **underpowered** (F01 68.8%→75.0%, McNemar p=0.617; FC01
+64.7%→70.6%); the F01 tail win is **retracted** (FC01 regresses). **Next lever (to spike):
+per-template/per-word threshold calibration or a dedicated rejection model — not a better encoder, not
+more speakers** (only WavLM carries recoverable headroom: rank-1 84.4% vs gate 75.0%). CP-1 stands
+untouched. Report: `docs/testing/2026-07-06_cp2-inregime-ambient-fahr.md`.
+
 `docs/plans/2026-07/picovoice-benchmark-operationalization.md` — ✅ **DONE 2026-07-06**. Follow-on: turns
 the one-shot harness into a repeatable **build / planning / experimentation** surface. `make bench-picovoice`
 (no overrides ⇒ byte-reproduces the committed report); six experiment knobs (`FRONTEND`/`DELTA`/`SNR`/
