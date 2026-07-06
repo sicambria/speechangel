@@ -95,8 +95,10 @@ domination (14 fixes, 0 regressions). vs LPC the win is even stronger (aggregate
 
 ## Dead-ends / negative results banked
 
-- **LPC/LPCC ≈ MFCC** (53.2% vs 55.4% agg, tied within noise) — the classic front-end *family* (mel vs
-  all-pole) is not a lever. Not worth further classic-DSP front-end work.
+- **LPC/LPCC ≈ MFCC — a *statistical* tie** (53.2% vs 55.4% agg; **paired McNemar ns on every speaker**:
+  F01 p=1.0, F03 p=0.18, F04 p=1.0, aggregate p=0.26; discordant 13 vs 7 of 267). F01's apparent LPC edge
+  (71.9% vs 68.8%) was 2 utterances vs 1 — noise. The classic front-end *family* (mel-cepstral vs
+  all-pole) is **not** a lever; no further classic-DSP front-end work is warranted.
 - **wav2vec2-base is a weak encoder here** despite being the most-cited — model choice matters more than
   "use SSL"; WavLM/HuBERT (deep layers) are the ones that transfer to dysarthric 1-shot.
 - **frames+DTW on SSL ≈ MFCC+DTW** — DTW over SSL frames does *not* capture the win; pooling+cosine does.
