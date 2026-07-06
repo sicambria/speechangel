@@ -193,7 +193,7 @@ class TorgoEval(
         val negS = String.format(Locale.US, "%.1f", agg.negativeAudioSeconds)
         val med = String.format(Locale.US, "%.1f", agg.distToTruthMedian)
         val p90 = String.format(Locale.US, "%.1f", agg.distToTruthP90)
-        appendLine("## Aggregate (${result.perSpeaker.size} dysarthric speakers)")
+        appendLine("## Aggregate (${result.perSpeaker.size} speakers)")
         appendLine(
             "- Positives: ${agg.positives} · OOV negatives: ${agg.negatives} · " +
                 "Enrollment failures: ${agg.enrollmentFailures} · Empty-query (VAD-eaten): ${agg.emptyQueries}",
@@ -234,7 +234,7 @@ class TorgoEval(
 
     private fun renderCaveats(sb: StringBuilder) = with(sb) {
         appendLine("## What this does and does not measure")
-        appendLine("- **Measures:** speaker-dependent discrimination (rank-1) on real dysarthric speech, and")
+        appendLine("- **Measures:** speaker-dependent discrimination (rank-1) on real speech, and")
         appendLine("  the FRR/OOV-FAR trade-off at a calibrated operating point.")
         appendLine("- **Rank-1 is the hypothesis test.** It ignores the acceptance threshold entirely, so it")
         appendLine("  is not confounded by the un-tuned synthetic default. A near-chance rank-1")
