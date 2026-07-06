@@ -101,6 +101,12 @@ domination (14 fixes, 0 regressions). vs LPC the win is even stronger (aggregate
   "use SSL"; WavLM/HuBERT (deep layers) are the ones that transfer to dysarthric 1-shot.
 - **frames+DTW on SSL ≈ MFCC+DTW** — DTW over SSL frames does *not* capture the win; pooling+cosine does.
 - **stats-pool on MFCC is worse than DTW** — pooling is not a free lunch; it only pays on deep-SSL reps.
+- **Score-normalization does NOT close the rank-1→FRR gap (H1 refuted, pre-registered).** The WavLM
+  embedding ranks 71.9% but accepts-correct only 33.7% at FAR≤5% (FRR 66.3%). Tested whether adaptive
+  rejection scoring recovers it, held-out at matched FAR: per-query cohort **z-norm → FRR 76.0%
+  (worse)**; top-2 **margin → 70.0% (worse, NOT-banked family)**. The gap is genuine genuine/impostor
+  *overlap*, not a per-query offset — so **CP-2 needs a substantive approach (OOV/background modeling, a
+  verification stage, or a rejection-trained encoder), not a scoring tweak.** (`reject_probe.py`.)
 
 ## What this does NOT establish (constraints & caveats)
 
