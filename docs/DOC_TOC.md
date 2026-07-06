@@ -46,6 +46,9 @@ The index of standing documentation. Paths are backtick code-paths (resolve from
 ## Testing
 
 - `docs/testing/strategy.md` — layered test strategy.
+- `docs/testing/2026-07-06_picovoice-wake-word-benchmark.md` — SpeechAngel placed on the Picovoice
+  wake-word-benchmark (first standard-benchmark head-to-head; in-regime FA/hr headline + out-of-regime
+  cross-speaker lower bound + same-host PocketSphinx anchor).
 
 ## Workflow / contracts
 

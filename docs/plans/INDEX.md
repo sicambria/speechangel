@@ -225,3 +225,17 @@ fixes the eval's in-sample threshold-selection bias and reports the honest held-
   (static best/tied and NR worse in all 3 speakers) needing a paired test, not an established gain.
 - **D2 (deployment slice ≤25 cmds):** held-out FRR 70.7% (F01+F04) vs 78.3% tail-blended.
 - Report regenerated: `docs/testing/2026-07-06_frr-far-torgo.md`. Items 2 & 3 (device) unchanged.
+
+## Picovoice wake-word-benchmark placement (2026-07-06)
+
+`docs/plans/2026-07/picovoice-wake-word-benchmark.md` — ✅ **DONE 2026-07-06**. First head-to-head
+placement on a **standard, public** benchmark (the scorecard's named gap). Key call: **decompose by
+metric** — FA/hour is in-regime (headline), cross-speaker miss-rate is an out-of-regime lower bound.
+- **Harness (`core:eval`):** `PicovoiceCorpus` + `PicovoiceMixer` (JVM `mixer.py` reimpl) +
+  `PicovoiceBenchmark` (per-window min-DTW swept analytically; reuses `AmbientFar`/`Enroller`/`Evaluator`);
+  gated `PicovoiceBenchmarkTest` (`-Dpicovoice.dir`). Data via `scripts/eval/fetch-picovoice-benchmark.sh`
+  (open downloads: Picovoice repo + LibriSpeech/OpenSLR + DEMAND/Zenodo; **no key, no Kaggle**).
+- **Result:** discrimination strong (closed-set **rank-1 89.2%**) but **no viable always-on point**
+  (0.1 FA/hr ⇒ 87.5% miss) — rejection/gating is the wall, confirming the scorecard on a standard stream.
+- **Anchor:** same-host PocketSphinx (`scripts/eval/run-pocketsphinx.sh`, no key) on identical dumped
+  streams. Report: `docs/testing/2026-07-06_picovoice-wake-word-benchmark.md`; scorecard factor-4 updated.
