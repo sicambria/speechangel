@@ -1,6 +1,25 @@
 # CP-2 spike — Does the learned embedding cut FA/hour on real ambient? (the binding always-on axis)
 
-- **Status:** active (spike; 2026-07-06 — single-keyword read strongly positive; full 6-keyword run pending).
+- **Status:** active (spike; 2026-07-06). **Interim (banked):** the fair single-keyword A/B (VAD-trimmed
+  windows, both arms) gives a sound *directional* result — at ~0 FA/hour, MFCC detects 40% (FRR 0.60) vs
+  **WavLM 80% (FRR 0.20)**: the embedding moves the binding FA/hour axis. **Caveat (governs authority):**
+  Picovoice is **cross-speaker** (no speaker labels) → out-of-regime for a speaker-dependent matcher, so
+  detection here is a **lower bound**; the number is directional, never a bankable operating point.
+  **Confound caught (advisor, EVAL-004):** the stream-once *optimized* scanner (`ambient_scan2.py`) skips
+  per-window VAD on the SSL arm while MFCC still VAD-trims → two variables; its aggregate is **NOT banked**.
+  **Redirect:** the higher-value measurement is **in-regime** — enroll a TORGO speaker's own repeated word
+  as the wake word, test their held-out reps (speaker-dependent detection), FA/hour from real
+  LibriSpeech/DEMAND background. That is the product regime a cross-speaker lower bound cannot give.
+- **IN-REGIME PRELIMINARY (2026-07-06, `in_regime.py`) — a potential reframe.** Enrolling F01's own 15
+  words (open-set wake **gate**: fire = min-dist to ANY enrolled template < thr; both arms VAD-trim
+  template/positive/window identically — no confound), leave-one-out detection vs FA/hour on real
+  LibriSpeech background: **MFCC F01 = 93.8% detection (FRR 6.2%) at ~0 FA/hour** (on 5 min background —
+  too short to resolve low FA/hour; a 60-min-background run is finishing, embedding arm to
+  follow). **If this holds with more background, it
+  reframes CP-2:** the ~82 FA/hr / "no viable point" was largely a **cross-speaker-benchmark artifact** —
+  in the speaker-dependent regime a dysarthric speaker's templates rarely match other-speaker background,
+  so gate-FA is low **even for MFCC**, and the binding problem is **discrimination (CP-1), not gate FA**.
+  NOT yet banked (needs the fuller-background confirmation + the embedding arm + a control speaker).
 - **Bucket:** measure-only (off-device Python; touches no app code, ships nothing).
 - **Serves:** ROADMAP **CP-2 / R-SOTA-2** (the deployability wall — ~82 FA/hr today, ~160× budget) using
   the CP-1 embedding win ([[speechangel-cp1-ssl-ceiling]]).
