@@ -29,7 +29,18 @@ class TorgoEvalTest {
         assertThat(result.aggregate.rank1).isAtLeast(0.0)
         assertThat(result.aggregate.rank1).isAtMost(1.0)
 
-        val report = eval.render(result)
+        // Held-out realism check (EVAL-002): held-out FRR must not be optimistically BELOW the in-sample
+        // reference by more than sampling noise (a large negative gap signals a leaked split).
+        assertThat(result.aggregate.frrLowFarGlobalHeldOut)
+            .isAtLeast(result.aggregate.frrAtLowFarInSample - 0.15)
+
+        var report = eval.render(result)
+
+        // D3 — front-end bake-off grid (opt-in: expensive, one full k-fold run per cell).
+        if (System.getProperty("torgo.grid")?.toBoolean() == true) {
+            report += "\n" + eval.renderFrontEndGrid(eval.frontEndGrid(root))
+        }
+
         assertThat(report).doesNotContain("SYNTHETIC")
 
         val out = File(System.getProperty("torgo.report").orEmpty().ifBlank { "build/torgo-report.md" })

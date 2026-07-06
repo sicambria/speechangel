@@ -37,16 +37,38 @@ class ThresholdCalibrator(
         val negSeconds = negatives.sumOf { it.durationMs / 1000.0 }
         val budgetFA = maxOf(1, Math.round(negSeconds / budgetSecondsPerFalseAccept).toInt())
 
-        // Equal split with cumulative rounding: allowances sum exactly to budgetFA.
+        val thresholds = calibrateFromRows(rows, commands, budgetFA)
+        val report = EvalReport.from(frontEnd.name, rows, thresholds, matcherConfig.defaultAcceptanceThreshold, outcome.failures.size)
+        return Calibration(
+            thresholds = thresholds,
+            budgetFalseAccepts = budgetFA,
+            report = report,
+            minMeaningfulNegativeSeconds = budgetSecondsPerFalseAccept,
+        )
+    }
+
+    /**
+     * The same budget-split threshold rule as [calibrate], but over **precomputed [DistanceRow]s** and
+     * an explicit [budgetFa] false-accept allowance — so a caller can calibrate on *held-out* training
+     * rows (a k-fold train split) and score a disjoint test fold, instead of the in-sample
+     * `calibrate(corpus)` path (which fits thresholds on the very rows it reports — EVAL-002).
+     *
+     * Note (disclosed, not hidden): commands whose winning-negative count within budget is exhausted
+     * fall back to `maxObserved + 1` — "accept everything". On held-out folds those commands can accept
+     * arbitrary OOV audio, so per-command FAR is **not** bounded out-of-sample; the caller must measure
+     * realized held-out FAR, never assume the budget holds.
+     */
+    fun calibrateFromRows(rows: List<DistanceRow>, commands: List<CommandId>, budgetFa: Int): Map<CommandId, Float> {
+        // Equal split with cumulative rounding: allowances sum exactly to budgetFa.
         val n = commands.size.coerceAtLeast(1)
         val allowance = HashMap<CommandId, Int>()
         commands.forEachIndexed { i, c ->
-            allowance[c] = Math.floorDiv((i + 1) * budgetFA, n) - Math.floorDiv(i * budgetFA, n)
+            allowance[c] = Math.floorDiv((i + 1) * budgetFa, n) - Math.floorDiv(i * budgetFa, n)
         }
 
         // Group each negative by the command that would win it (argmin), collect those distances.
         val negDistByWinner = HashMap<CommandId, MutableList<Float>>()
-        for (row in negatives) {
+        for (row in rows.filter { it.truth == null }) {
             val winner = row.bestByCommand.minByOrNull { it.value } ?: continue
             negDistByWinner.getOrPut(winner.key) { ArrayList() }.add(winner.value)
         }
@@ -64,14 +86,7 @@ class ThresholdCalibrator(
                 maxObserved + 1f
             }
         }
-
-        val report = EvalReport.from(frontEnd.name, rows, thresholds, matcherConfig.defaultAcceptanceThreshold, outcome.failures.size)
-        return Calibration(
-            thresholds = thresholds,
-            budgetFalseAccepts = budgetFA,
-            report = report,
-            minMeaningfulNegativeSeconds = budgetSecondsPerFalseAccept,
-        )
+        return thresholds
     }
 
     private companion object {

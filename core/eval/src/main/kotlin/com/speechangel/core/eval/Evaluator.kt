@@ -17,6 +17,9 @@ data class DistanceRow(
     val condition: VoiceCondition,
     val durationMs: Long,
     val bestByCommand: Map<CommandId, Float>,
+    /** Cross-validation fold this row was a **test** query in (-1 = untagged). Set by [TorgoEval] so
+     *  held-out threshold selection can calibrate on the other folds and score this one. */
+    val fold: Int = -1,
 ) {
     /** Replicates the matcher: the argmin command is accepted iff its distance ≤ its threshold. */
     fun decide(thresholds: Map<CommandId, Float>, default: Float): CommandId? {
