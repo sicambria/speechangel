@@ -5,6 +5,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.speechangel.app.ui.alwayson.AlwaysOnScreen
+import com.speechangel.app.ui.dictation.DictationScreen
 import com.speechangel.app.ui.home.HomeScreen
 import com.speechangel.app.ui.packs.CommandPackScreen
 import com.speechangel.app.ui.policy.LicensesScreen
@@ -20,6 +21,7 @@ private object Routes {
     const val WIZARD = "wizard"
     const val LICENSES = "licenses"
     const val PACKS = "packs"
+    const val DICTATION = "dictation"
 }
 
 @Composable
@@ -35,10 +37,14 @@ fun SpeechAngelNavHost(isListening: Boolean, onListeningChange: (Boolean) -> Uni
                 onOpenAlwaysOn = { navController.navigate(Routes.ALWAYS_ON) },
                 onStartSetup = { navController.navigate(Routes.WIZARD) },
                 onOpenPacks = { navController.navigate(Routes.PACKS) },
+                onOpenDictation = { navController.navigate(Routes.DICTATION) },
             )
         }
         composable(Routes.PACKS) {
             CommandPackScreen(onBack = { navController.popBackStack() })
+        }
+        composable(Routes.DICTATION) {
+            DictationScreen(onBack = { navController.popBackStack() })
         }
         composable(Routes.TEACH) {
             TeachScreen(onDone = { navController.popBackStack() })

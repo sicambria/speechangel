@@ -43,6 +43,7 @@ fun HomeScreen(
     onOpenAlwaysOn: () -> Unit = {},
     onStartSetup: () -> Unit = {},
     onOpenPacks: () -> Unit = {},
+    onOpenDictation: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -100,6 +101,9 @@ fun HomeScreen(
             }
             OutlinedButton(onClick = onOpenPacks, modifier = Modifier.fillMaxWidth()) {
                 Text("Command packs", style = MaterialTheme.typography.labelLarge)
+            }
+            OutlinedButton(onClick = onOpenDictation, modifier = Modifier.fillMaxWidth()) {
+                Text("Dictation", style = MaterialTheme.typography.labelLarge)
             }
         }
     }
