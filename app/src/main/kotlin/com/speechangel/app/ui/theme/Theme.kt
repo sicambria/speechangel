@@ -29,6 +29,10 @@ private val LightColors = lightColorScheme(
     onPrimaryContainer = Color(0xFF00201F),
     secondary = Color(0xFF35494A), // on background = 9.33:1 (AAA)
     onSecondary = Color.White,
+    // Tonal surfaces (FilledTonalButton "Try it", selected FilterChip): keep them teal-family, not
+    // Material's default purple. onSecondaryContainer on secondaryContainer = 13.25:1 (AAA).
+    secondaryContainer = Color(0xFFCCE8E7),
+    onSecondaryContainer = Color(0xFF002020),
     background = Color(0xFFFBFDFC),
     onBackground = Color(0xFF191C1C), // 16.79:1 (AAA)
     surface = Color(0xFFFBFDFC),
@@ -47,6 +51,8 @@ private val DarkColors = darkColorScheme(
     onPrimaryContainer = Color(0xFF6FF6FE),
     secondary = Color(0xFFB1CBCD),
     onSecondary = Color(0xFF1C3437),
+    secondaryContainer = Color(0xFF234A4B), // onSecondaryContainer on this = 7.42:1 (AAA)
+    onSecondaryContainer = Color(0xFFC2E8E6),
     background = Color(0xFF191C1C),
     onBackground = Color(0xFFE0E3E2), // 13.28:1 (AAA)
     surface = Color(0xFF191C1C),
