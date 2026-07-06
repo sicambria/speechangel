@@ -94,4 +94,16 @@ class SyntheticPipelineTest {
         val default = Evaluator(fe).evaluate(corpus)
         assertThat(cal.report.falseAccepts).isAtMost(default.falseAccepts)
     }
+
+    @Test
+    fun `synthetic run renders the SYNTHETIC banner, a real run does not`() {
+        val fe = SyntheticCorpus.frontEnds().first()
+        val synthetic = Evaluator(fe).evaluate(corpus) // default synthetic = true
+        assertThat(synthetic.synthetic).isTrue()
+        assertThat(synthetic.render()).contains("SYNTHETIC")
+
+        val real = Evaluator(fe).evaluate(corpus, synthetic = false)
+        assertThat(real.synthetic).isFalse()
+        assertThat(real.render()).doesNotContain("SYNTHETIC")
+    }
 }

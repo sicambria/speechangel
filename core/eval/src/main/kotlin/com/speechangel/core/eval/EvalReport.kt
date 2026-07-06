@@ -63,6 +63,7 @@ data class EvalReport(
             thresholds: Map<CommandId, Float>,
             defaultThreshold: Float,
             enrollmentFailures: Int,
+            synthetic: Boolean = true,
         ): EvalReport {
             val positives = rows.filter { it.truth != null }
             val negatives = rows.filter { it.truth == null }
@@ -109,6 +110,7 @@ data class EvalReport(
                 perConditionFrr = perConditionFrr,
                 confusion = confusion.mapValues { it.value.toMap() },
                 enrollmentFailures = enrollmentFailures,
+                synthetic = synthetic,
             )
         }
 

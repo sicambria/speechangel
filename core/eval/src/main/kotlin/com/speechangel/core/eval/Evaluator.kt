@@ -88,7 +88,7 @@ class Evaluator(
     }
 
     /** Full pass: enroll → distance table → [EvalReport] under the given per-command thresholds. */
-    fun evaluate(corpus: Corpus, thresholds: Map<CommandId, Float> = emptyMap()): EvalReport {
+    fun evaluate(corpus: Corpus, thresholds: Map<CommandId, Float> = emptyMap(), synthetic: Boolean = true): EvalReport {
         val outcome = enroll(corpus)
         val rows = distanceTable(corpus, outcome.templates)
         return EvalReport.from(
@@ -97,6 +97,7 @@ class Evaluator(
             thresholds = thresholds,
             defaultThreshold = matcherConfig.defaultAcceptanceThreshold,
             enrollmentFailures = outcome.failures.size,
+            synthetic = synthetic,
         )
     }
 }
