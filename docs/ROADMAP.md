@@ -20,10 +20,21 @@ acceptance criteria honest (FRR + FAR/hour, never a bare "99 %").
 > resource (trained QbE encoder, whisper.cpp native model, Play/F-Droid accounts + signing key) or an
 > external quality measurement (a real dysarthric-inclusive corpus for far-field gains). No FRR/FAR
 > number, bake-off winner, or B/C completion is claimed._
+>
+> **Strategic rethink 2026-07-06 (this revision):** the first real numbers + the SOTA sweep inverted the
+> risk model. The phase ladder below is now a **capability inventory ("what is built")**, not the forward
+> plan — Phases 0–2 are code-complete to the emulator ceiling, so the remaining risk is no longer "can we
+> build it" but **"does the core hit deployable numbers, and can it stay always-on without false-firing."**
+> The forward plan is **Critical Path v2** (next section). Two items were re-classified: **QbE / a learned
+> encoder is promoted from "Phase-3 delight" to the core accuracy bet (CP-1)**, and the **always-on FAR
+> blocker is elevated to CP-2**. Nothing built was discarded; the *sequencing* changed.
 
 ---
 
-## ⭐ Critical path (2026-07-06 product scorecard)
+## ⭐ Critical path v1 (2026-07-06 product scorecard) — EXECUTED
+
+> _Superseded by Critical Path v2 below. Retained because all three items executed and are re-score
+> triggers; v2 picks up where these left off._
 
 > The product was scored **442/1000 — pre-alpha** (`docs/product/2026-07-06_product-maturity-scorecard.md`).
 > The gating risk is **not** any single feature: it is that the core hypothesis — MFCC-DTW template
@@ -73,6 +84,59 @@ acceptance criteria honest (FRR + FAR/hour, never a bare "99 %").
 
 ---
 
+## ⭐⭐ Critical path v2 — the two bets that decide the product (2026-07-06 rethink)
+
+> **The reframe.** v1 retired "is the hypothesis alive" (yes — 10–40× chance) and "is it wired" (yes — to
+> the emulator ceiling). What it *revealed* is that the shipped MFCC-DTW core is **~1–3 orders of
+> magnitude from deployable** (76%/62% FRR @ ~5% FAR; **~82 FA/hr** ambient), while modest neural KWS
+> baselines get ~10% FRR on dysarthric — *but* those baselines are closed-vocabulary, trained on that
+> vocabulary, and not language-independent, so 10-vs-76 **bounds the opportunity, not a proven model gap**
+> (the "non-comparable protocols" caveat of `…sota-competitive-bar.md`). What *is* supported is that the
+> **population is tractable** — Euphonia's 13.9% WER *personalized* dysarthric ASR, and personalization is
+> exactly what SpeechAngel does. So the product now lives or dies on **two bets**, both gated on **real
+> data** — not on building more features. Everything in Phases 0–3 is a means to
+> these; nothing below Phase-3 "reach" should jump ahead of CP-1/CP-2.
+
+- [ ] **CP-0 — Acquire real data (the prerequisite for every number below).** TORGO is in hand (done);
+      the gating long-lead asset is now the **Speech Accessibility Project (SAP)** DUA — it has a
+      "digital-assistant commands" category and is the only corpus that makes CP-1/CP-2 trustworthy.
+      **Start the DUA immediately** (lead time is the real cost); add EasyCall (built-in OOV split) and
+      UASpeech (per-severity) in parallel. *Without CP-0, CP-1 and CP-2 are unfalsifiable.*
+- [ ] **CP-1 — The accuracy bet: does a learned encoder beat MFCC-DTW *while preserving our
+      differentiators*?** The **gating condition is constraint-preservation — language-independence +
+      1-shot arbitrary-word enrollment** (our 95/85 axes, the whole reason to exist); an option that erodes
+      them is out no matter its FRR. Within that box, test a learned few-shot encoder
+      (ZP-KWS/PhonMatchNet-class phoneme-supervised — R-SOTA-1) against MFCC-DTW at matched, held-out FAR on
+      real dysarthric audio (CP-0). The opportunity is real but **not a proven model gap**: the ~10% FRR
+      neural baselines win partly by solving an easier (closed-vocab, trained) task; the genuinely
+      constraint-matched SOTA point is **ZP-KWS at ~29–33% FRR@1%FAR** — far better than 76%, nowhere near
+      10%. Success = a significant FRR reduction at matched FAR, at shippable size, **with
+      language-independence + 1-shot intact**. This is the promoted QbE work (Phase 3 → here).
+- [ ] **CP-2 — The deployability bet: a Stage-1 wake cascade to ≤0.5 FA/hr on real ambient.** The
+      always-on false-fire rate (~82 FA/hr today, ~160× budget) is what kills always-on assistants and no
+      Stage-2 accuracy matters until it's fixed. Use openWakeWord as a **benchmark reference** for the
+      achievable FA/hr (it scores low on language-independence, so it's a yardstick, **not necessarily the
+      adopted gate**); the **constraint-preserving Stage-1 option is the enrolled-DTW / personalized wake
+      template** already built (`WakeWordGate`). Target **≤0.5 FA/hr at the wake stage alone** on a real
+      recording (R-SOTA-2; `-Dambient.wav` seam is built).
+- [ ] **CP-3 — Real-device audio metrics (the alpha gate).** Latency, CPU, battery drain, and real
+      false-fire rate on a **physical device** — the numbers the emulator's silent mic cannot produce
+      (unblocks the frozen Phase-1/Phase-2 exits). A debug `AudioRecorder` WAV-injection binding makes
+      CP-1/CP-2 measurable on-device before hardware.
+
+> **Release posture (ethics + product).** A *marketed, general* F-Droid/Play release is **frozen behind
+> CP-1/CP-2** — shipping a 76%-FRR / 82-FA/hr assistant to immobilised, speech-atypical users would erode
+> trust with exactly the people it exists to serve. What is *not* frozen: an **honestly-labelled,
+> opt-in "experimental" build** whose purpose is to gather consented real-world audio/telemetry — that
+> would directly feed CP-0 and is a legitimate parallel track, not a product claim.
+
+**Sequencing:** CP-0 (data, long lead) starts now and runs under everything · CP-2 (deployability) and
+CP-1 (accuracy) proceed in parallel once data lands — CP-2 has the nearer, cheaper win; CP-1 has the
+higher ceiling · CP-3 gates the pre-alpha→alpha crossing. The R-SOTA-1..6 items below are the detailed
+backing for CP-1/CP-2.
+
+---
+
 ## ⭐ SOTA competitive bar — derived items · status: `planned`
 
 > Added 2026-07-06 from a competitive-landscape sweep of on-device wake-word / command spotting
@@ -102,8 +166,11 @@ acceptance criteria honest (FRR + FAR/hour, never a bare "99 %").
       encoder [→ R-SOTA-1], (b) a **dual-filter cascade** — a length/second-opinion cross-verify at the
       decision layer as an FAR-cutting rejection stage (the honest `margin` lever), (c) TTS-dysarthric +
       MUSAN augmentation [→ R-SOTA-6]. Skip the ASR-branch default (breaks language-independence →
-      Path-A only). NB: even PD-DWS's *baseline* DS-TCN KWS hits ~10% FRR on dysarthric — most of our 76%
-      gap is a model gap, not a population ceiling (Euphonia's 13.9% WER personalization confirms).
+      Path-A only). NB: PD-DWS's *baseline* DS-TCN hits ~10% FRR on dysarthric, but it is closed-vocab,
+      trained on that vocabulary, and not language-independent — so it **bounds the opportunity, not a
+      proven model gap**. What *is* supported: the population is tractable (Euphonia's 13.9% WER
+      *personalized* dysarthric ASR — personalization is what we do). The constraint-matched reference is
+      ZP-KWS (~29–33% FRR@1%FAR), not 10%.
 - [ ] **R-SOTA-5 — Common Voice (multilingual, CC0) as a language-independence eval corpus**; set
       **10% FRR @ 4 FA/hr** (Howl production) as the realistic milestone before the <5% stretch.
 - [ ] **R-SOTA-6 — Attack the noise axis directly** (we score 25/100 vs mature-shipped 45–85): multi-condition
@@ -157,11 +224,14 @@ Fork the GUI skeleton; ship the core promise for non-rooted phones with cooperat
 - [x] Microphone foreground service (`foregroundServiceType="microphone"` +
       `FOREGROUND_SERVICE_MICROPHONE`) — gate: `verify-foreground-service-types.mjs`. _done —
       `ListeningService`; manifest declares both; gate green._
-- [~] Stage-1 (24/7) Silero VAD gate → software wake word (enrolled DTW wake OR microWakeWord). _core logic
+- [~] Stage-1 (24/7) Silero VAD gate → software wake word (enrolled DTW wake OR microWakeWord).
+      **↑ ELEVATED to Critical Path v2 / CP-2 — the ~82 FA/hr blocker is the deployability gate.** _core logic
       DONE & tested — `WakeWordGate` (matches wake templates only, gates Stage-2), `StreamingEnergyGate`
       (running-floor energy gate for short frames), and `ReservedCommands.commandTemplates()` (excludes the
       `__wake__` template from Stage-2 so it can't suppress real commands). PENDING (app/Bucket-B):
-      `AudioRecorder.stream()` + `ListeningService` wiring (same-stream drain), battery measurement._
+      `AudioRecorder.stream()` + `ListeningService` wiring (same-stream drain — note `StreamingEnergyGate`
+      is built but not yet injected), a benchmarked openWakeWord/personalized wake stage (R-SOTA-2),
+      battery measurement._
 - [x] Stage-2 command matcher wired to the `core:*` engine. _done — `Recognizer` injected into
       `ListeningService`; Match → in-process `CommandActionBus`._
 - [x] AccessibilityService — deterministic command→action table (`isAccessibilityTool="true"`). _done —
@@ -210,10 +280,15 @@ is wired and builds; the always-on/battery/wake-word robustness pieces remain._
 
 ## Phase 3 — Delight & reach (ongoing) · status: `active`
 
-- [~] QbE embedding enhancement (few-shot, milder impairment). _Bucket-A seam LANDED 2026-07-05 —
-      `QbeEncoder`/`QbeSpeechBackend` (few-shot cosine prototypes) + `SpeechBackendSelector` + dormant
-      `NoopQbeEncoder` DI binding; the template engine stays the default. Remaining: a real trained encoder
-      + its FRR+FAR-vs-baseline measurement (Bucket C). `docs/plans/2026-06/phase3-matcher-enhancements.md`._
+- [~] QbE embedding enhancement (few-shot). **↑ PROMOTED to Critical Path v2 / CP-1 — this is the core
+      accuracy bet, no longer "delight."** _Bucket-A seam LANDED 2026-07-05 — `QbeEncoder`/`QbeSpeechBackend`
+      (few-shot cosine prototypes) + `SpeechBackendSelector` + dormant `NoopQbeEncoder` DI binding; the
+      template engine stays the default *for now*. Remaining: a real trained encoder + its FRR+FAR-vs-baseline
+      measurement (Bucket C). **Scope under review (see the external-asset QbE note): the original
+      "24k-param, milder-impairment, never-default, normal-speech" framing is likely too timid — but any
+      replacement is **gated on preserving language-independence + 1-shot enrollment (CP-1's condition)**,
+      so the lead candidate is a phoneme-supervised / few-shot encoder (ZP-KWS-class), with a pure-SSL
+      front-end adopted only if it clears that gate.** `docs/plans/2026-06/phase3-matcher-enhancements.md`._
 - [x] Vocabulary-distinctness helper (warn on acoustically-close commands). _`core:matching`
       `VocabularyDistinctness.analyze` (scale-relative DTW + shared-onset, advisory-only) + the
       enrollment-UI nudge wired into `TeachViewModel`/`TeachScreen`; unit-tested, `make verify` green
@@ -255,11 +330,23 @@ CC-BY-4.0 / CC0 for training data. NC-licensed *or unlicensed* models are never 
 **[bundleable]** = license permits shipping inside the AGPL-3.0 app · **[measure-only]** = usable
 off-device to compute FRR/FAR or as a training-data source, never redistributed in the APK.
 
-### QbE encoder — `[~]` Phase 3 "QbE embedding enhancement"
+### QbE encoder — CP-1 (was `[~]` Phase 3 "QbE embedding enhancement")
 
-Target profile (`Qbe.kt`, `docs/plans/2026-06/phase3-matcher-enhancements.md`): ~24k params, <4 kB,
-MFCC-fed, few-shot cosine prototypes, trained on *normal* speech (stays a milder-impairment enhancement,
-never the default matcher).
+> **Scope under strategic review (2026-07-06).** The original target profile below (~24k params, normal
+> speech, *milder-impairment enhancement, never the default*) was set before the real numbers. The CP-1
+> evidence argues for a **larger-but-still-small encoder trained/adapted toward dysarthric speech,
+> evaluated as a candidate *default*, not a normal-speech-only side path** — but **gated on preserving
+> language-independence + 1-shot enrollment (CP-1)**: the ~10% neural baselines win partly by solving an
+> easier closed-vocab task, so that gap bounds the opportunity, not a settled target. The two candidate
+> architectures to bake off: (a) the 24k on-device-learnable design below; (b) a ZP-KWS/PhonMatchNet-class
+> **phoneme-supervised** encoder (~1.55M params, R-SOTA-1 — more language-agnostic than a pure-SSL front
+> end). Decide by measured FRR+FAR on real dysarthric audio (CP-0), against the constraint gate, not by
+> the pre-measurement spec. The two profiles below are
+> retained as the *lower-bound* option, not the settled target.
+
+Original target profile (`Qbe.kt`, `docs/plans/2026-06/phase3-matcher-enhancements.md`): ~24k params, <4 kB,
+MFCC-fed, few-shot cosine prototypes, trained on *normal* speech (was framed as a milder-impairment
+enhancement, never the default matcher — **now under review per the note above**).
 
 - [ ] **Train the 24k encoder** — reimplement arXiv 2403.07802 ("Boosting keyword spotting through
       on-device learnable user speech characteristics"; ~23.7k params, 1 MFLOP/epoch, TinyML) against the
@@ -292,8 +379,9 @@ their research DUAs don't touch the app license; noted per-corpus regardless.
       **[measure-only]**; check the DUA's commercial clause.
 - [ ] **UASpeech** — 16 dysarthric speakers, isolated words + intelligibility labels (VL/L/M/H) → the
       per-severity FRR table. Register with H. Kim, UIUC. **[measure-only].**
-- [ ] **TORGO** — 15 speakers, ~21 h, freely downloadable → immediate harness validation on real voices,
-      kills the `SYNTHETIC` banner. **[measure-only]; lowest barrier — do first.**
+- [x] **TORGO** — 15 speakers, ~21 h, freely downloadable → immediate harness validation on real voices,
+      kills the `SYNTHETIC` banner. **[measure-only]. DONE 2026-07-06** — in hand at `~/torgo`; first real
+      FRR/FAR + the realistic-condition sim ran on it. SAP is now the gating long-lead corpus (CP-0).
 - [ ] **EasyCall** — 55 speakers, 37 commands + 30 non-commands (mirrors the `truth=null` OOV/FAR split);
       Italian. Contact authors. **[measure-only].**
 - [ ] **Voice-drift gap** — none of the above carry `VoiceCondition` (NORMAL/TIRED/ILL) labels; map severity
@@ -308,9 +396,11 @@ harness expects by convolving the corpora above.
 - [ ] **Noise** — MUSAN (OpenSLR) for home-noise mixing. **[measure-only]** — verify the exact license
       before any redistribution.
 
-**Acquisition ordering:** TORGO + the self-trained encoder (both obtainable within ~a day) → the first
-*real* MFCC-DTW-vs-QbE bake-off on real dysarthric voices (highest-value unblock). whisper.cpp /
-sherpa-onnx and the SAP application run in parallel on longer lead times.
+**Acquisition ordering (revised 2026-07-06):** TORGO is **done** (in hand). The critical-path unblock is
+now **(1) the SAP DUA — start immediately, it is the longest lead and gates CP-1/CP-2 trust; (2) the
+self-trained / ZP-KWS-class encoder (obtainable within ~a day) → the first real MFCC-DTW-vs-learned-encoder
+bake-off (CP-1); (3) EasyCall + UASpeech in parallel for the OOV split and per-severity table.**
+whisper.cpp / sherpa-onnx (dictation / Path-A) are lower priority — off the CP-1/CP-2 path.
 
 ---
 
