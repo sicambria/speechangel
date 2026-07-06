@@ -2,18 +2,19 @@ Categories:
   - System
 License: AGPL-3.0-only
 AuthorName: SpeechAngel
-# Fill these in when the public mirror exists (F-Droid RFP needs them):
-# SourceCode: https://…
-# IssueTracker: https://…
+SourceCode: https://github.com/sicambria/speechangel
+IssueTracker: https://github.com/sicambria/speechangel/issues
 
 AutoName: SpeechAngel
 
 RepoType: git
-# Repo: https://…
+Repo: https://github.com/sicambria/speechangel.git
 
 Builds:
   - versionName: 0.1.0
     versionCode: 1
+    # Tag not yet pushed — see docs/release/RELEASE.md "F-Droid publish checklist".
+    # F-Droid's build server needs this exact tag present on the public remote.
     commit: v0.1.0
     subdir: app
     gradle:
