@@ -7,9 +7,24 @@ GRADLE := JAVA_HOME=$(JAVA_HOME) ANDROID_HOME=$(ANDROID_HOME) ./gradlew
 NODE ?= node
 AVD ?= changemappers-test
 
+# Picovoice wake-word benchmark. PV_DIR holds the (uncommitted, [measure-only]) corpus.
+PV_DIR ?= $(HOME)/picovoice-benchmark
+PV_REPORT ?= build/picovoice-report.md
+# Optional experiment-sweep overrides. Each UNSET ⇒ the PicovoiceBenchmark ctor default that produced
+# the committed report, so `make bench-picovoice` with no overrides is byte-reproducible. EVAL-003: a
+# swept variant is an exploratory, NOT-banked family — never a headline FRR/FAR win on its own.
+PV_OVERRIDES := \
+  $(if $(FRONTEND),-Dpicovoice.frontend=$(FRONTEND)) \
+  $(if $(DELTA),-Dpicovoice.deltaOrder=$(DELTA)) \
+  $(if $(SNR),-Dpicovoice.snrDb=$(SNR)) \
+  $(if $(WINDOW),-Dpicovoice.windowMs=$(WINDOW)) \
+  $(if $(HOP),-Dpicovoice.hopMs=$(HOP)) \
+  $(if $(TARGETFA),-Dpicovoice.targetFaPerHour=$(TARGETFA))
+
 .DEFAULT_GOAL := help
 
-.PHONY: help install-deps setup build assemble test static format verify guardrails emulator roadmap clean ci
+.PHONY: help install-deps setup build assemble test static format verify guardrails emulator roadmap clean ci \
+	bench-picovoice-fetch bench-picovoice bench-picovoice-smoke bench-picovoice-anchor
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -42,6 +57,25 @@ guardrails: ## Run the AI-workflow guardrail verifiers
 
 emulator: ## Boot the development AVD (override: make emulator AVD=<name>)
 	$(ANDROID_HOME)/emulator/emulator -avd $(AVD)
+
+bench-picovoice-fetch: ## Provision the Picovoice benchmark corpus into PV_DIR (open downloads, no key)
+	@./scripts/eval/fetch-picovoice-benchmark.sh $(PV_DIR)
+
+bench-picovoice: ## Run the Picovoice wake-word benchmark (no overrides ⇒ reproduces the committed report; sweep via FRONTEND=/DELTA=/SNR=/WINDOW=/HOP=/TARGETFA=)
+	$(GRADLE) :core:eval:test --tests "*PicovoiceBenchmarkTest*" \
+	  -Dpicovoice.dir=$(PV_DIR) \
+	  -Dpicovoice.bgSeconds=$(or $(BG),900) \
+	  -Dpicovoice.enroll=$(or $(ENROLL),10) \
+	  -Dpicovoice.held=$(or $(HELD),40) \
+	  -Dpicovoice.dump=$(PV_DIR)/mixed -Dpicovoice.report=$(PV_REPORT) $(PV_OVERRIDES)
+
+bench-picovoice-smoke: ## Fast Picovoice run (bgSeconds=120) — does NOT match the committed report
+	$(GRADLE) :core:eval:test --tests "*PicovoiceBenchmarkTest*" \
+	  -Dpicovoice.dir=$(PV_DIR) -Dpicovoice.bgSeconds=120 \
+	  -Dpicovoice.report=build/picovoice-report-smoke.md $(PV_OVERRIDES)
+
+bench-picovoice-anchor: ## Same-host PocketSphinx anchor on the dumped streams (run bench-picovoice first)
+	@./scripts/eval/run-pocketsphinx.sh $(PV_DIR)
 
 roadmap: ## Show the project roadmap
 	@cat docs/ROADMAP.md
