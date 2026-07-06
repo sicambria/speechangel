@@ -7,7 +7,7 @@ Phase 3** (Delight & reach). Every remaining Phase 0/1/2/3 ROADMAP item is triag
 
 - **A — fully autonomous:** plan + implement + `make verify` green on this host.
 - **B — code-yes / DoD-needs-external-input:** the harness/feature is buildable here, but the
-  acceptance criterion needs something only the world can supply (real dysarthric audio, a device).
+  acceptance criterion needs an external input the host lacked at plan time (real dysarthric audio, a device).
 - **C — external-only:** needs an account/service/large external model; plan + minimal scaffold +
   documented blocker is the honest ceiling.
 
@@ -49,11 +49,26 @@ Phase 3** (Delight & reach). Every remaining Phase 0/1/2/3 ROADMAP item is triag
   far-field/noise front-end (Phase 3; authored 2026-07-05).
 - `docs/plans/2026-06/phase3-reach-and-release.md` — shareable command packs, F-Droid/Play release
   scaffold, whisper.cpp batch dictation (Phase 3; authored 2026-07-05).
+- `docs/plans/2026-06/first-real-frr-far-torgo.md` — ✅ **DONE 2026-07-06** — **the 2026-07-06 critical
+  path** (self-scored 97/100, advisor-gated): pulled TORGO → ran `core:eval` speaker-dependent →
+  produced the first real (non-`SYNTHETIC`) FRR/rank-1 report (**GO**: rank-1 55.4% dysarthric / 74.6%
+  control, 10–40× chance — hypothesis holds, single-template baseline not yet deployable), then an
+  emulated on-device e2e run + a Doze/reboot soak (both at the emulator ceiling; physical-device
+  metrics documented as such). Score: evidence 29/30, structure 15/15, concreteness 20/20, risk 15/15,
+  test 10/10, scope 10/10. Reports under `docs/testing/2026-07-06_*.md`.
 - `docs/plans/2026-06/external-asset-acquisition.md` — the cross-phase acquisition/integration runbook
   for the ROADMAP "External-asset shortlist": QbE encoder + CC-BY training data, whisper.cpp/sherpa-onnx
   dictation + Path-A models, dysarthric-inclusive corpora (TORGO/SAP/UASpeech/EasyCall), far-field
   RIR/noise augmentation. Each row = license tag + acquisition action + dormant seam (`path:line`) +
   integration check (authored 2026-07-06).
+
+## Product maturity (2026-07-06)
+
+The product was scored **442/1000 — pre-alpha** in `docs/product/2026-07-06_product-maturity-scorecard.md`
+(a **product**-value axis, distinct from the 555/1000 AI-framework axis). Headline: the core is real
+and wired, but its accuracy is unmeasured on real voices and it has never run on a device. The scorecard
+resets priority: **first real FRR/FAR (TORGO) → one on-device end-to-end run → always-on survival soak**
+outrank every open Phase-3 enhancement below. See `docs/ROADMAP.md` "Critical path".
 
 ## Definition of "done" for this push (honesty contract)
 
