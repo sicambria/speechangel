@@ -31,6 +31,11 @@ Thumbs.db
 # Node (workflow scripts)
 node_modules/
 
+# Python (research prototyping venv — see research/requirements.txt)
+research/.venv/
+__pycache__/
+*.pyc
+
 # Test / coverage output
 **/test-results/
 **/reports/jacoco/
