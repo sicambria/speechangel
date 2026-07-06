@@ -1,6 +1,11 @@
 <!-- Product maturity scorecard. Standing doc; indexed in docs/DOC_TOC.md. -->
 # SpeechAngel — Product Maturity Scorecard
 
+> **SUPERSEDED 2026-07-06** by `docs/product/2026-07-06_sota-frr-far-and-real-life-scorecard.md`
+> (score re-based to **480/1000** after both re-score triggers below fired — first real FRR/FAR and
+> first on-device run). Retained for the methodology and the pre-measurement gap register; the current
+> number and factor breakdown live in the superseding doc.
+
 **Date:** 2026-07-06 · **Score: 442 / 1000** · **Stage: pre-alpha (exceptionally engineered)**
 
 This scores the **product** — does it deliver validated value to its target users (immobilised,
