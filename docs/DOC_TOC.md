@@ -23,6 +23,7 @@ The index of standing documentation. Paths are backtick code-paths (resolve from
 ## Planning & roadmap
 
 - `docs/ROADMAP.md` — phased roadmap (Phase 0 spike → MVP → persistence/policy → delight).
+- `docs/product/2026-07-06_product-maturity-scorecard.md` — product maturity score (442/1000, pre-alpha) + gap register + critical path.
 - `docs/plans/TEMPLATE.md` — canonical plan template (scaffold via `scripts/ops/create-plan.mjs`).
 - `docs/plans/2026-06/` — active plans.
 - `docs/plans/done/2026-06/` — completed plans.

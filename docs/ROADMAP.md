@@ -23,6 +23,46 @@ acceptance criteria honest (FRR + FAR/hour, never a bare "99 %").
 
 ---
 
+## ⭐ Critical path (2026-07-06 product scorecard)
+
+> The product was scored **442/1000 — pre-alpha** (`docs/product/2026-07-06_product-maturity-scorecard.md`).
+> The gating risk is **not** any single feature: it is that the core hypothesis — MFCC-DTW template
+> matching hitting a usable FRR/FAR *on atypical/dysarthric speech* — is **unmeasured**, and the app
+> has **never run on a device end to end**. No Phase-3 enhancement (QbE, far-field, packs, dictation)
+> should jump ahead of these three. In order:
+>
+> 1. **First real FRR/FAR.** Pull **TORGO** (free, ~a day; `docs/plans/2026-06/external-asset-acquisition.md`),
+>    run the built `core:eval` harness, produce the first *real* number and kill the `SYNTHETIC` banner.
+>    Cheapest possible retirement of the existential risk — do this first.
+> 2. **One end-to-end on-device run.** Use `make emulator` + install/launch and watch the
+>    `ListeningService → WakeGatedRecognizer → CommandActionBus → SpeechAngelAccessibilityService`
+>    loop actually fire against real audio (latency, false-fire rate, CPU).
+> 3. **Minimal always-on survival soak** (Doze / OEM task-kill / reboot) on a device.
+>
+> Each of (1) and (2) is a re-score trigger — they move the product from pre-alpha to alpha.
+
+> **Results (2026-07-06 — `docs/plans/2026-06/first-real-frr-far-torgo.md`, all three executed):**
+>
+> 1. **First real FRR/FAR — DONE.** TORGO (dysarthric F01/F03/F04) run through the built `core:eval`
+>    harness, **speaker-dependent**, via a new `WavFile`/`TorgoCorpus`/`TorgoEval` seam. `SYNTHETIC`
+>    banner gone. **Verdict: GO** — rank-1 (nearest-template) accuracy **55.4%** dysarthric / **74.6%**
+>    control, **10–40× chance**, so the MFCC-DTW hypothesis holds; but the single-template un-calibrated
+>    baseline is **60–79% FRR at FAR ≤ 5%** — real signal, not yet deployable. The gap is exactly the
+>    enhancement roadmap (multi-template voting, `ThresholdCalibrator`, QbE, realistic ~10–20-cmd
+>    vocab). Full numbers + methodology: `docs/testing/2026-07-06_frr-far-torgo.md`. *Only the FRR half
+>    of Phase-0's "Measure FRR/FAR" is retired; the always-on ambient FAR/hour budget is not measured
+>    (TORGO has no continuous ambient stream).*
+> 2. **On-device e2e — DONE at the emulator ceiling.** Build/install/launch (no crash), full UI +
+>    navigation, `SpeechAngelAccessibilityService` **bound & running**, `Try`→`Recognizer` reactive.
+>    Real audio→action fire, latency, false-fire, CPU need a **physical device** (silent emulator mic).
+>    `docs/testing/2026-07-06_on-device-e2e.md`. Phase-1 exit **not** flipped.
+> 3. **Always-on soak — DONE at the emulator ceiling.** Survived forced deep Doze; after reboot
+>    `BootReceiver` posted the legal "Tap to resume listening" notification (SDK-35-legal path).
+>    OEM task-kill + battery soak are physical-device-only. `docs/testing/2026-07-06_always-on-soak.md`.
+>    Phase-2 exit **not** flipped.
+
+---
+
 ## Phase 0 — Matcher spike (2–3 wks) · status: `active`
 
 Prove the core no OSS app has: record N commands on-device → MFCC + VAD + DTW match → multi-template
@@ -38,11 +78,13 @@ Prove the core no OSS app has: record N commands on-device → MFCC + VAD + DTW 
       (`RejectionReason.BELOW_CONFIDENCE`); JVM-tested incl. command discrimination._
 - [x] `core:enrollment` — multi-template enroll, recognizer, repositories. _done — `Enroller`,
       `Recognizer`, repository interfaces; JVM-tested._
-- [~] Measure FRR / FAR on real (incl. dysarthric) voices, quiet + home noise. _harness DONE & tested —
-      new `core:eval` module: `Evaluator` (FRR + false-accept count, per-command + per-`VoiceCondition`),
-      deterministic silence-padded synthetic corpus, `EvalReport.render()`, `docs/testing/frr-far-report-template.md`.
-      Still `[ ]` for the real numbers: BLOCKED on a labeled real-voice corpus (Bucket B). Synthetic output
-      is banner-marked SYNTHETIC._
+- [~] Measure FRR / FAR on real (incl. dysarthric) voices, quiet + home noise. _**FRR half DONE
+      2026-07-06** — TORGO (dysarthric F01/F03/F04 + control FC01/FC02/FC03) run through `core:eval`
+      speaker-dependent via new `WavFile`/`TorgoCorpus`/`TorgoEval`; `SYNTHETIC` banner gone; real rank-1
+      **55.4% dysarthric / 74.6% control** (10–40× chance) + FRR/FAR at EER & low-FAR operating points
+      (`docs/testing/2026-07-06_frr-far-torgo.md`). Still `[~]`: the **always-on ambient FAR/hour budget**
+      (≤0.5 FA/hr on continuous audio) is unmeasured — TORGO has no ambient stream (Bucket B). Verdict:
+      real signal, single-template untuned baseline not yet deployable._
 - [~] Feature front-end bake-off (plain MFCC vs PLP vs robust embedding). _harness DONE & tested —
       `FrontEndBakeoff` computes an FRR + FA comparison across static / +Δ / +Δ+ΔΔ. Winner-on-real-voices
       blocked on the corpus; PLP deliberately descoped (MFCC variants only)._
