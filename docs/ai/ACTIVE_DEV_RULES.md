@@ -63,3 +63,15 @@ Compile and test each Gradle module green in isolation before wiring the next; n
 module graph blind. This localises version-coupled API mismatches.
 - **Why:** `docs/errors/2026-06/2026-06-28_module-bringup-compile-gotchas.md`
 - **Gate:** advisory (workflow rule); backstopped by `make verify`.
+
+### EVAL-001 — Never report an absolute FRR/FAR at a cross-distribution threshold
+A recognizer accuracy number read at a fixed acceptance threshold is only meaningful on the data
+distribution that threshold was tuned for. The synthetic tone corpus and real speech produce DTW
+distances on different scales, so an absolute FRR/FAR at `MatcherConfig.defaultAcceptanceThreshold`
+on real audio is garbage (it produced a false 100% FRR on TORGO). Report **rank-1** (threshold-free)
+as the hypothesis test and derive FRR/FAR from a **self-ranged sweep** (EER / low-FAR). Always surface
+**both** enroll-side and query-side VAD drop counts so a trimming artifact cannot masquerade as a
+matcher result.
+- **Why:** `docs/errors/2026-07/2026-07-06_synthetic-threshold-meaningless-on-real-audio.md`
+- **Gate:** advisory; `core/eval/src/main/kotlin/com/speechangel/core/eval/TorgoEval.kt` is the
+  reference implementation (rank-1 + self-ranged EER + `emptyQueries`/`enrollmentFailures`).

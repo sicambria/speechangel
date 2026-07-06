@@ -4,10 +4,11 @@
 Generated index of all incident notes under `docs/errors/<YYYY-MM>/`. Regenerate with
 `node scripts/audits/verify-learning-loop.mjs --write-index` (npm: `knowledge:index`).
 
-**Total incidents: 5**
+**Total incidents: 6**
 
 | Date | Area | Status | Title | Note |
 |---|---|---|---|---|
+| 2026-07-06 | EVAL | resolved (diagnosed to a threshold-scale artifact; metrics reworked to threshold-free) | the synthetic acceptance threshold produced a garbage 100% FRR on real audio | `docs/errors/2026-07/2026-07-06_synthetic-threshold-meaningless-on-real-audio.md` |
 | 2026-06-28 | MATCH | resolved (design corrected before any code was written) | wake gate requires utterance-length input, not per-frame input | `docs/errors/2026-06/2026-06-28_wake-gate-requires-utterance-not-frame.md` |
 | 2026-06-28 | BUILD | resolved | spotless ktlint Compose crash and config-cache partial format | `docs/errors/2026-06/2026-06-28_spotless-ktlint-compose-and-config-cache.md` |
 | 2026-06-28 | MATCH | resolved | shipped config untested by permissive test threshold | `docs/errors/2026-06/2026-06-28_shipped-config-untested-by-permissive-test-threshold.md` |
