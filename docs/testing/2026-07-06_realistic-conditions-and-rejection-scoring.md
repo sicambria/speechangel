@@ -33,8 +33,10 @@ config the product actually ships. Held-out (leave-one-fold-out), matched FAR (E
 | Trusted `TorgoEval` (pooled threshold) | 59.2% | 75.7% | 4.6% |
 | New `RejectionEval` (per-speaker threshold, `raw`) | — | **75.7%** | 4.6% |
 
-The new per-speaker rejection machinery reproduces the trusted `TorgoEval` pooled-threshold path
-**exactly** (75.7% / 4.6%) on the shipped front-end — so the scorer deltas below are trustworthy.
+The new per-speaker rejection machinery **agrees with** the trusted `TorgoEval` pooled-threshold path to
+one-decimal precision (both 75.7% FRR / 4.6% FAR) on the shipped front-end — these are *different*
+procedures (per-speaker vs pooled threshold fitting) that coincide at this resolution, not a byte-identical
+reproduction; the agreement is the cross-check that the scorer deltas below are trustworthy.
 (Note: 75.7% static is nominally better than the old `delta_delta` headline of 78.3% — the shipped
 front-end was never the config the first report headlined; this aligns the number to what ships, the D3
 static-MFCC direction now serving as the baseline.)

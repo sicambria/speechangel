@@ -56,22 +56,6 @@ object AudioAugment {
     }
 
     /**
-     * Pink (1/f) noise via a light one-pole low-pass of white noise — spectrally closer to room/HVAC
-     * hum than flat white. Deterministic from [seed].
-     */
-    fun pinkNoise(n: Int, seed: Long): FloatArray {
-        val w = whiteNoise(n, seed)
-        val out = FloatArray(n)
-        var prev = 0f
-        val a = 0.98f
-        for (i in 0 until n) {
-            prev = a * prev + (1 - a) * w[i]
-            out[i] = prev * 3f // compensate the low-pass gain loss
-        }
-        return out
-    }
-
-    /**
      * Add [noise] to [signal] scaled so the resulting **signal-to-noise ratio over the speech-active
      * region** equals [snrDb]. Noise is tiled/truncated to the signal length. The SNR is measured on the
      * VAD-active region so leading/trailing silence does not deflate it.

@@ -22,7 +22,8 @@
 - **Part 2 (honest negative):** pre-registered H1 = common-mode rejection normalization, adjudicated by
   held-out McNemar on the **shipped** static front-end. **Refuted** — significant regression on control
   (χ²=39.7, p<0.001), directionally worse on dysarthric. §9 conditional adoption did **not** fire; the
-  matcher is unchanged. The `raw` baseline reproduced the trusted `TorgoEval` path exactly (75.7%/4.6%).
+  matcher is unchanged. The `raw` baseline agrees with the trusted `TorgoEval` path to one-decimal
+  (both 75.7%/4.6%; per-speaker vs pooled fitting coincide at this resolution, not byte-identical).
   `margin` is a documented future pre-registered hypothesis (EVAL-003), not adopted.
 
 ## Goal
