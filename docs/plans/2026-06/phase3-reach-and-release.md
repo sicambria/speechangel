@@ -12,6 +12,17 @@
   `DictationBackend`, bound to `NoopDictationBackend` in `RecognitionModule`), reachable from Home, kept
   entirely off the deterministic command path. `:app:assembleDebug` + `make static` green. The Bucket-C
   wall (real whisper.cpp model + native runtime + audio capture) is unchanged.
+- **Descope, deliberate (2026-07-06):** the Item-A DoD's *optional* clause — "optional same-speaker
+  templates via `FeatureCodec`" in a pack — is **not built** and is descoped by design. `PackCommand` is
+  `(label, actionId)` only; a pack carries definitions, never audio-derived template features. `FeatureCodec`
+  exists (`data/src/main/kotlin/com/speechangel/data/FeatureCodec.kt`, used for Room persistence) so the
+  path is *technically* Bucket A, but embedding features in a shareable pack adds a privacy-sensitive
+  audio-derived-data **export** surface that needs explicit consent UX and threading template data through
+  the exporter/importer/schema — for the niche same-speaker-new-device case only. That directly trades
+  against this plan's non-negotiable ("definitions-only by default; audio never leaves the device unless
+  the user explicitly opts in", Context & Constraints / Rejected approaches). The shipped definitions-only
+  re-enroll path is the intended default and is complete; the opt-in template export stays deferred until
+  a real need + a consent flow justify it. Recorded as a conscious descope, not a silent drop.
 - **Worktree:** n/a (docs-only plan; each item enters its own worktree when scheduled to build)
 - **Plan quality:** 93/100 — self-scored 2026-07-05 (see `docs/plans/INDEX.md` scoring row)
 

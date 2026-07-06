@@ -19,8 +19,9 @@ data class DictationUiState(val transcript: String = "", val message: String? = 
  * Optional dictate-to-a-text-field surface (Phase 3, stub). It talks only to the neutral
  * [DictationBackend] seam — never the command recogniser — so it stays out of the deterministic
  * command→action path entirely. The shipping backend is [com.speechangel.core.enrollment.NoopDictationBackend],
- * so a dictate attempt reports "unavailable"; real audio capture is wired together with a real
- * whisper.cpp backend (Bucket C), at which point the transcript branch below goes live unchanged.
+ * so a dictate attempt reports "unavailable". A real whisper.cpp backend (Bucket C) lands together with
+ * real audio capture — the empty placeholder clip below is swapped for a recorded clip at that point,
+ * and the transcript branch then carries a real transcription.
  */
 @HiltViewModel
 class DictationViewModel @Inject constructor(private val dictation: DictationBackend) : ViewModel() {

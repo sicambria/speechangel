@@ -152,8 +152,8 @@ no corpus, encoder, or model was acquired; the plan documents *how*, honoring IN
 An "implement all open plans" pass re-audited the four open plans (3 active + 1 planned)
 **against the working tree, not the status lines** (a general-purpose agent cross-checked every
 Bucket-A deliverable to a `path:line`). Result: all four "done"-status Phase-0/1/2 plans are accurate,
-and Bucket-A across the active plans was ~complete — with **two genuine gaps** the 2026-07-05 status
-lines over-implied:
+and Bucket-A across the active plans was ~complete — with **three findings** the 2026-07-05 status
+lines over-implied (one built, one documented boundary, one deliberate descope):
 
 1. **`phase3-reach-and-release` step 13 — dictation stub screen (was MISSING → now BUILT).** Only the
    `DictationBackend` seam + Noop + tests had landed; the "dictate to a text field" stub screen had not.
@@ -168,6 +168,13 @@ lines over-implied:
    injects `SpeechBackend`) and would be dead code while the encoder is Noop. Left dormant by design;
    recorded as a boundary in that plan's Implementation note. Wiring it live = an optional future
    `ListeningService` refactor, gated on a real encoder.
+3. **`phase3-reach-and-release` Item A — optional same-speaker template export (deliberate descope).** The
+   Item-A DoD's *optional* "same-speaker templates via `FeatureCodec`" clause is unbuilt: `PackCommand` is
+   `(label, actionId)` only. Technically Bucket A (`FeatureCodec` exists), but it adds a privacy-sensitive
+   audio-derived-data export surface needing consent UX, against the plan's definitions-only-by-default
+   non-negotiable, for the niche same-speaker-new-device case. Descoped consciously (the shipped
+   definitions-only path is the intended default); recorded in that plan's Descope note. Buildable on
+   request if a consent flow + real need justify it.
 
 No Bucket-B/C item was touched; no FRR/FAR number, corpus, encoder, model, or store account was claimed.
 
