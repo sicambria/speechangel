@@ -18,6 +18,8 @@ dependencies {
 // (`-Dtorgo.conditions=true` adds the noise/reverb grid; `-Dambient.wav=<file>` swaps a real ambient
 // recording for the synthetic proxy; `-Dtorgo.sim.report=<file>` sets the output path).
 tasks.withType<Test>().configureEach {
+    // The real-corpus evals (TORGO, Picovoice) hold multi-minute 16 kHz audio streams in memory.
+    maxHeapSize = "2g"
     listOf(
         "torgo.dir",
         "torgo.report",
@@ -27,6 +29,15 @@ tasks.withType<Test>().configureEach {
         "torgo.conditions",
         "torgo.sim.report",
         "ambient.wav",
+        // Picovoice wake-word-benchmark placement (`PicovoiceBenchmarkTest`):
+        // `-Dpicovoice.dir=<root>` runs it; `-Dpicovoice.report=<file>` sets the output; optional
+        // `-Dpicovoice.bgSeconds` / `-Dpicovoice.enroll` / `-Dpicovoice.held` / `-Dpicovoice.dump=<dir>`.
+        "picovoice.dir",
+        "picovoice.report",
+        "picovoice.bgSeconds",
+        "picovoice.enroll",
+        "picovoice.held",
+        "picovoice.dump",
     ).forEach { key ->
         providers.systemProperty(key).orNull?.let { systemProperty(key, it) }
     }
