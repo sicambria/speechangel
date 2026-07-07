@@ -265,6 +265,37 @@ per-template/per-word threshold calibration or a dedicated rejection model — n
 more speakers** (only WavLM carries recoverable headroom: rank-1 84.4% vs gate 75.0%). CP-1 stands
 untouched. Report: `docs/testing/2026-07-06_cp2-inregime-ambient-fahr.md`.
 
+`docs/plans/2026-07/cp2-per-template-calibration-spike.md` — ✅ **DONE 2026-07-07**. Tests the CP-2 spike's
+identified lever: per-word distance thresholds calibrated from in-class template distances vs a single
+global threshold. **H1 REFUTED** — per-word thresholds are a **significant regression** on all 3
+dysarthric speakers (aggregate McNemar p<0.0001, discordant 94:6). Fidelity reproduction PASSED
+(F01 numbers to the decimal). Mechanism: in-class (intra-session) distances underestimate cross-session
+query-template distances by 2–5×, making per-word thresholds systematically too strict. Margin scorer
+also worse at 0.5 FA/hr. **Banked:** the rank-1→gate gap is NOT a threshold-calibration artifact;
+cross-session variability is the real constraint. **Next lever:** multi-template/cross-session
+enrollment strategy or a dedicated Stage-2 verification model. Report:
+`docs/testing/2026-07-07_cp2-per-template-calibration.md`; harness:
+`scripts/eval/ssl_frontend_spike/per_template_cal.py`.
+
+**CP-2 multi-template enrollment spike** — ✅ **DONE 2026-07-07** (quick follow-on). Tests whether
+2+/3+/all templates per word improve detection at matched 0.5 FA/hr vs single-template enrollment.
+k=5 fold-based protocol, 5 Monte Carlo iters per N. **H1 (≥20% rel FRR) NOT DEMONSTRATED.**
+Directionally positive but tiny: ≤5.4% relative FRR reduction (F03 with 3 sessions). Single-session
+speakers show zero gain. Multi-template enrollment is a second-order lever. Report:
+`docs/testing/2026-07-07_cp2-multi-template-enrollment.md`; harness:
+`scripts/eval/ssl_frontend_spike/multi_template_enroll.py`.
+
+**CP-2 dual-cascade verification spike** — ✅ **DONE 2026-07-07 (BANKED WIN).** Tests a Stage-2
+dual-cascade gate: distance threshold AND duration-ratio cross-verify AND margin-ratio filter vs a
+single distance-threshold baseline. **H1 CONFIRMED** — **49.5% relative FRR reduction** at ≤0.5 FA/hr
+on F03 (McNemar p<0.001, 46 discordant, strict domination) and 28.6% on F04 (directional, underpowered).
+The duration-ratio cross-verify is the primary lever — background windows have 8× larger median
+|log(dur_ratio)| than positives (0.88 vs 0.11). Margin-ratio is nearly inactive. F01 already at
+3.1% FRR (SOTA-level for ≤15-command vocabulary). **Banked:** the first lever that measurably
+closes the CP-2 gap; product implementation is trivial (one duration check per gate fire). Report:
+`docs/testing/2026-07-07_cp2-dual-cascade-verification.md`; harness:
+`scripts/eval/ssl_frontend_spike/dual_cascade_verify.py`.
+
 `docs/plans/2026-07/picovoice-benchmark-operationalization.md` — ✅ **DONE 2026-07-06**. Follow-on: turns
 the one-shot harness into a repeatable **build / planning / experimentation** surface. `make bench-picovoice`
 (no overrides ⇒ byte-reproduces the committed report); six experiment knobs (`FRONTEND`/`DELTA`/`SNR`/
