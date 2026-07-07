@@ -54,6 +54,27 @@ See `docs/DEPENDENCIES.md` for the full host/SDK/emulator dependency manifest an
 > "Verified" honestly (meta §0.5): a change is verified only when the relevant `scripts/audits/*.mjs`
 > gate **and** the affected `:core:*` test task have actually run green — not "would pass".
 
+### 1.3 Verifying "did background work close?" — trust the harness list, not a hand-written `pgrep`
+
+Captured the hard way: after a long spike I told the user "all shells closed properly" based on a
+`pgrep` pattern (`in_regime|inregime_paired|ssl_frontend`) — but the still-live job ran `sweep_ssl.py`,
+which the pattern never matched. A hand-written process filter only covers the script names you *remember*,
+so it produces confident-but-wrong "all clear" answers. Concrete lessons:
+
+- **The exit dialog's "Background work is running" list is the source of truth**, not your `pgrep`. Those
+  are harness-tracked background shells (each with a task ID + human name). `TaskList` returns the **todo**
+  list, *not* background shells, so it can read empty while shells are live — do not treat an empty
+  `TaskList` as "nothing running."
+- **To actually enumerate what's alive**, list *all* your user's processes and inspect them
+  (`ps -o pid,ppid,etime,%cpu,stat,args -u "$(id -un)"`), don't grep for names you assume.
+- **A hung job looks "sleeping," not "running":** the stuck sweep sat at `loading …xlsr-53` for ~17 h at
+  **0.2 % CPU** (state `Sl`) — a stalled model/network fetch. Check `%cpu` + output-file mtime, not just
+  "is the PID present."
+- **`until ! pgrep …; do sleep N; done` watcher loops never self-close** if the thing they poll dies
+  without the expected sentinel — they orphan and poll forever. Prefer a bounded/`timeout`-wrapped wait, or
+  stop them explicitly. To kill a specific tracked shell use `TaskStop <task-id>`; the IDs surface in the
+  task-completion notifications.
+
 ---
 
 ## 2. Make targets (preferred interface)
