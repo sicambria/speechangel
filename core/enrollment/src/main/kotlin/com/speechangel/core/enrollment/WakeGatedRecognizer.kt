@@ -28,6 +28,8 @@ class WakeGatedRecognizer(
     sampleRateHz: Int,
     windowMs: Int = DEFAULT_WINDOW_MS,
     wakeWindowMs: Int = DEFAULT_WAKE_WINDOW_MS,
+    /** E04-06: Number of consecutive wake-positive frames required before Stage-2 triggers. */
+    private val wakePersistence: Int = 1,
 ) {
     /** What the host should do after feeding a frame. */
     sealed interface Outcome {
@@ -46,12 +48,15 @@ class WakeGatedRecognizer(
     private val cmdBuf = ArrayDeque<AudioSamples>()
     private val wakeBuf = ArrayDeque<AudioSamples>()
     private var wakeDetected = false
+    /** E04-06: Count of consecutive wake-positive frames. Reset on NoWake. */
+    private var consecutiveWakes = 0
 
     /** Clears all buffered audio and the wake latch. Call when listening pauses or templates clear. */
     fun reset() {
         cmdBuf.clear()
         wakeBuf.clear()
         wakeDetected = false
+        consecutiveWakes = 0
     }
 
     /**
@@ -69,12 +74,21 @@ class WakeGatedRecognizer(
             val wakeWindow = vad.trim(AudioSamples.concat(wakeBuf))
             return when (wakeWordGate.evaluate(wakeWindow, wakeTemplates)) {
                 is WakeDecision.Wake -> {
-                    wakeDetected = true
-                    wakeBuf.clear()
-                    cmdBuf.clear()
-                    Outcome.Woke
+                    consecutiveWakes++
+                    if (consecutiveWakes >= wakePersistence) {
+                        wakeDetected = true
+                        wakeBuf.clear()
+                        cmdBuf.clear()
+                        consecutiveWakes = 0
+                        Outcome.Woke
+                    } else {
+                        Outcome.Pending
+                    }
                 }
-                is WakeDecision.NoWake -> Outcome.Pending
+                is WakeDecision.NoWake -> {
+                    consecutiveWakes = 0
+                    Outcome.Pending
+                }
             }
         }
 

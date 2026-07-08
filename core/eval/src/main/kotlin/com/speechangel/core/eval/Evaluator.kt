@@ -91,7 +91,7 @@ class Evaluator(
                     var min = Float.POSITIVE_INFINITY
                     for (t in temps) {
                         if (t.features.coefficientCount != q.coefficientCount) continue
-                        val d = Dtw.distance(q, t.features, matcherConfig.bandRatio).toFloat()
+                        val d = Dtw.distance(q, t.features, matcherConfig.bandRatio, localFn()).toFloat()
                         if (d < min) min = d
                     }
                     if (min.isFinite()) best[cmd] = min
@@ -113,5 +113,10 @@ class Evaluator(
             enrollmentFailures = outcome.failures.size,
             synthetic = synthetic,
         )
+    }
+
+    private fun localFn(): (FloatArray, FloatArray) -> Double = when (matcherConfig.localDistance) {
+        "cosine" -> Dtw::cosine
+        else -> Dtw::euclidean
     }
 }

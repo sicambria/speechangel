@@ -184,4 +184,54 @@ object AudioAugment {
         }
         return AudioSamples(out, signal.sampleRateHz)
     }
+
+    /**
+     * Pitch-shift by [cents] (±100 = one semitone) using resampling + linear interpolation.
+     * Positive = higher pitch, negative = lower pitch. Preserves duration.
+     * Deterministic (no RNG).
+     */
+    fun pitchShift(signal: AudioSamples, cents: Double): AudioSamples {
+        if (signal.isEmpty || cents == 0.0) return signal
+        val factor = Math.pow(2.0, cents / 1200.0) // e.g. +100c = 2^(100/1200) ≈ 1.0595
+        val stretchedLen = (signal.samples.size / factor).toInt().coerceAtLeast(1)
+        // Resample to stretched length (pitch change), then linearly interpolate back to original length.
+        val stretched = FloatArray(stretchedLen)
+        for (i in stretched.indices) {
+            val srcIdx = i * factor
+            val idx0 = srcIdx.toInt().coerceIn(0, signal.samples.size - 1)
+            val idx1 = (idx0 + 1).coerceAtMost(signal.samples.size - 1)
+            val frac = (srcIdx - idx0).toFloat()
+            stretched[i] = signal.samples[idx0] * (1f - frac) + signal.samples[idx1] * frac
+        }
+        // Interpolate back to original length.
+        val out = FloatArray(signal.samples.size)
+        val ratio = stretchedLen.toDouble() / signal.samples.size
+        for (i in out.indices) {
+            val srcIdx = i * ratio
+            val idx0 = srcIdx.toInt().coerceIn(0, stretchedLen - 1)
+            val idx1 = (idx0 + 1).coerceAtMost(stretchedLen - 1)
+            val frac = (srcIdx - idx0).toFloat()
+            out[i] = stretched[idx0] * (1f - frac) + stretched[idx1] * frac
+        }
+        return AudioSamples(out, signal.sampleRateHz)
+    }
+
+    /**
+     * Time-stretch by [factor] (0.9 = faster/shorter, 1.1 = slower/longer) using linear
+     * interpolation resampling. Preserves pitch. Deterministic.
+     */
+    fun timeStretch(signal: AudioSamples, factor: Double): AudioSamples {
+        if (signal.isEmpty || factor == 1.0) return signal
+        val newLen = (signal.samples.size * factor).toInt().coerceAtLeast(1)
+        val out = FloatArray(newLen)
+        val ratio = signal.samples.size.toDouble() / newLen
+        for (i in out.indices) {
+            val srcIdx = i * ratio
+            val idx0 = srcIdx.toInt().coerceIn(0, signal.samples.size - 1)
+            val idx1 = (idx0 + 1).coerceAtMost(signal.samples.size - 1)
+            val frac = (srcIdx - idx0).toFloat()
+            out[i] = signal.samples[idx0] * (1f - frac) + signal.samples[idx1] * frac
+        }
+        return AudioSamples(out, signal.sampleRateHz)
+    }
 }
