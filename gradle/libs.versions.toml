@@ -30,6 +30,9 @@ mockk = "1.13.13"
 robolectric = "4.14.1"
 composeUiTestManifest = "1.7.6"
 
+# ONNX Runtime (DistilHuBERT encoder)
+onnxruntime = "1.19.2"
+
 # Quality
 detekt = "1.23.7"
 spotless = "6.25.0"
@@ -71,6 +74,9 @@ datastore-preferences = { module = "androidx.datastore:datastore-preferences", v
 # --- Coroutines ---
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+
+# --- ONNX Runtime ---
+onnxruntime-android = { module = "com.microsoft.onnxruntime:onnxruntime-android", version.ref = "onnxruntime" }
 
 # --- Testing (JVM) ---
 junit = { module = "junit:junit", version.ref = "junit" }

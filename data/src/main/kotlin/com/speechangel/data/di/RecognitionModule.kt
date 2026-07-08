@@ -8,7 +8,9 @@ import com.speechangel.core.enrollment.DictationBackend
 import com.speechangel.core.enrollment.Enroller
 import com.speechangel.core.enrollment.NoopDictationBackend
 import com.speechangel.core.enrollment.NoopQbeEncoder
+import com.speechangel.core.enrollment.NoopRawAudioEncoder
 import com.speechangel.core.enrollment.QbeEncoder
+import com.speechangel.core.enrollment.RawAudioEncoder
 import com.speechangel.core.enrollment.Recognizer
 import com.speechangel.core.enrollment.WakeWordGate
 import com.speechangel.core.matching.MatcherConfig
@@ -62,6 +64,16 @@ internal object RecognitionModule {
     @Provides
     @Singleton
     fun provideQbeEncoder(): QbeEncoder = NoopQbeEncoder()
+
+    /**
+     * Raw-audio SSL encoder binding (Phase 3, dormant). The DistilHuBERT ONNX encoder is available
+     * once the model file is placed on-device. Until then, [NoopRawAudioEncoder] keeps the seam
+     * compiling and reports [RawAudioEncoder.available] = false. Swap this provider for a
+     * [com.speechangel.data.encoder.DistilHuBERTEncoder] to enable SSL-based QbE.
+     */
+    @Provides
+    @Singleton
+    fun provideRawAudioEncoder(): RawAudioEncoder = NoopRawAudioEncoder()
 
     /**
      * Optional, opt-in batch-dictation backend (Phase 3, dormant). Bound to [NoopDictationBackend] so

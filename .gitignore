@@ -46,3 +46,5 @@ __pycache__/
 **/torgo/**
 *.tar.bz2
 core/eval/build/torgo-report.md
+*.onnx
+*.onnx.data

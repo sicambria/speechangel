@@ -21,6 +21,9 @@ dependencies {
     implementation(libs.datastore.preferences)
     implementation(libs.kotlinx.coroutines.android)
 
+    // DistilHuBERT ONNX encoder (Phase 3, dormant until model file supplied)
+    implementation(libs.onnxruntime.android)
+
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(libs.kotlinx.coroutines.test)
