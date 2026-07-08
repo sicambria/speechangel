@@ -454,4 +454,61 @@ whisper.cpp / sherpa-onnx (dictation / Path-A) are lower priority — off the CP
 - [~] CI workflow running the guardrail + core-test subset. _present — `.github/workflows/ci.yml`
       (build-test + guardrails jobs); not yet observed green on a GitHub Actions run._
 
+### Verification infrastructure gaps (audit 2026-07-08) · status: `planned`
+
+> Added 2026-07-08 from an end-to-end capability audit (15 domains scored 0–1000). Priority order below matches audit Tier 1→2→3.
+
+**P0 — Ground zero (highest ROI, lowest effort, block fundamental quality)**
+
+- [ ] **JMH microbenchmarks (Perf: 85 → 750).** Add JMH benchmarks to core:dsp, core:matching, core:enrollment: FFT, MFCC per-frame, DTW at typical sizes, enrollment + recognition. Gate: CI artifacts with Mann-Whitney U regression detection. SOTA: JMH is the JVM standard; Android Macrobenchmark for e2e latency.
+- [ ] **On-device instrumentation tests (Testing: 0 → 600).** Create app/src/androidTest — launch `ListeningService`, feed synthetic audio through mock `AudioRecord`/WAV injection, assert `AccessibilityService` dispatches correct actions. **Highest criticality gap: the core listening loop has never run an automated on-device assertion.**
+- [ ] **Dependency vulnerability scanning (Security: 0 → 650).** OWASP Dependency Check Gradle plugin + SBOM via `cyclonedx-gradle-plugin`. Gate: fail CI on CVSS ≥ 7.0. Industry-standard for Android apps shipping to Play.
+- [ ] **Real-time factor measurement.** RTF = processing time / audio duration; target < 0.3 for always-on viability. Industry standard for on-device speech. Gate: measured + reported in every CI run.
+
+**P1 — Structural lifts (install what is already built)**
+
+- [ ] **Wire pre-commit → `guardrails:check`.** Husky hooks are authored but not installed (hooks themselves exist but are not running). Single change lifts 5 domain scores. Gate: guardrails:check blocks `git commit` on violation.
+- [ ] **Add `core:model` tests.** 97-line domain model is untested. Property tests for `CommandId`/`TemplateId` value classes, `RecognitionResult` sealed class exhaustiveness, `AudioSamples` arithmetic.
+- [ ] **Fix stale INDEX.md.** 4 of 10 incidents (2026-07) not indexed. Run `verify-learning-loop.mjs --write-index`. Add CI gate that fails on regress.
+- [ ] **GitHub Actions CI.** Wire `make ci` (verify + guardrails) to `.github/workflows/ci.yml` on push/PR. Matrix: JDK 21 only (AGP 8.7+ constraint). Reference: workflow file already scaffolded but not observed green.
+
+**P2 — Deep improvements (medium effort, domain specialization)**
+
+- [ ] **Multi-language FRR/FAR eval (Accuracy: 780 → 920).** Common Voice 3–5 languages with distinct phonologies. Core differentiator ("language-independent") has never been measured.
+- [ ] **UASpeech corpus loader.** 16 dysarthric speakers, per-severity FRR table. Add to `core:eval` alongside `TorgoCorpus`. Academic SOTA benchmark for dysarthric ASR.
+- [ ] **Gradle dependency verification.** Gradle dependency verification XML with checksum/signature verification of all downloaded artifacts. Complements OWASP scanning — prevents supply-chain attacks.
+- [ ] **Cllr/Cdet metric.** NIST detection cost function alongside raw FRR/FAR. Operating-point-agnostic, complements EER. Industry standard for detection task evaluation.
+- [ ] **DET curve rendering.** Detection Error Tradeoff plots for visual operating-point analysis. Use `lets-plot` (Apache-2.0, JetBrains-maintained) or the Python spike's matplotlib.
+- [ ] **Real-world ambient FAR measurement.** Run the built `-Dambient.wav` seam on a real 24h+ recording. The ~82 FA/hr proxy is synthetic-only; a real recording is the honest number.
+
+**P3 — Advanced hardening (higher effort, long-tail)**
+
+- [ ] **Streaming-vs-batch golden tests.** Process same WAV through `TorgoEval` (batch) and simulated streaming `WakeGatedRecognizer` → assert identical recognition decisions. Catches VAD endpointing differences between the two paths.
+- [ ] **Continuous soak tests (Temporal: 300 → 750).** 30+ minutes of silence + periodic commands through streaming pipeline. Assert no thread leaks, no heap growth, all callbacks fire. Catches always-on resource exhaustion.
+- [ ] **Property-based/fuzz testing for DSP.** `kotest-property` + JQF on FFT/MFCC/VAD/DTW edge cases (NaN, denormals, zero-length, extremely long sequences, DC offset, ultrasonic). SOTA: JQF is JVM standard for structure-aware fuzzing; kotest-property is Kotlin SOTA for property-based testing.
+- [ ] **Cross-implementation fidelity CI gate.** Run Python `harness.py` against same test data as JVM `TorgoEval`. Assert rank-1 within ±2pp. Catches silent regression between measurement pipelines (EVAL-004 provenance).
+- [ ] **Battery drain measurement.** Android Battery Historian on physical device running wake loop 2+ hours. Gate: mean power < N mW. The "1-2%/hr" claim in research docs is cited from literature, never measured on SpeechAngel.
+- [ ] **Memory allocation tracking.** `allocationCount` in JMH tests + Android Studio Profiler. Gate: allocation rate < N KB/sec for the 24/7 wake loop.
+- [ ] **Accessibility compliance tests.** TalkBack, touch target sizes, color contrast. Use `androidx.test.accessibility` + Espresso AccessibilityChecks. Required for `isAccessibilityTool="true"` declaration credibility.
+
+**Capability audit baseline (15 domains scored 0–1000)**
+
+| Domain | Score | Strongest | Weakest |
+|---|---|---|---|
+| Accuracy Measurement (FRR/FAR) | 780 | Held-out eval · McNemar · confusion matrices | Only 3 TORGO speakers |
+| Build Reproducibility | 750 | Pinned deps · version catalog · wrapper check | No lockfile · no reproducible APK |
+| Incident & Error Learning Loop | 680 | 10 incidents · 5 promoted rules · 4-dim closure | INDEX stale · zero RCA plans |
+| Docs Integrity | 650 | Backtick paths · no relative links · structural gates | No freshness checks |
+| Robustness & Ablation | 620 | 8-condition sim · deterministic AudioAugment | No MUSAN · no codec robustness |
+| Wake-Word / Ambient FA | 620 | Picovoice benchmark · AmbientFar proxy | Not in CI · no PocketSphinx run |
+| Workflow Guardrails | 600 | 11 verifiers · classify.mjs · plan discipline | Pre-commit not wired · 3 contracts only |
+| Static Analysis & Formatting | 580 | Spotless/ktlint · Detekt · custom structural guards | No complexity thresholds |
+| Cross-Implementation Fidelity | 550 | JVM↔Python MFCC-DTW decimal repro · 2×2 decomp | Python not in CI |
+| Platform / Android Conformance | 420 | FGS type/permission check · AssistRole | No accessibility testing |
+| Security & Secret Detection | 400 | PEM/AWS/API key scan · keystore filename detection | No dependency vuln scan · no dep verification |
+| Testing & Coverage | 385 | 38 test files · Kover 70% line · Truth assertions | Zero androidTest · no model tests · no fuzzing |
+| ML / SSL Feature Eval | 350 | 14 Python spike scripts · QbE seam | No trained encoder · spike not integrated |
+| Temporal / Streaming Correctness | 300 | Off-main guard · WakeGatedRecognizer tests | No streaming-vs-batch golden test |
+| Performance & Latency | **85** | None | **No JMH · no macrobench · no RTF · no battery/memory profiling** |
+
 See `docs/meta/port-status.md` for the honest wave-by-wave status.
