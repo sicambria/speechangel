@@ -55,6 +55,21 @@ internal object RecognitionModule {
     @Singleton
     fun provideWakeWordGate(mfcc: MfccExtractor, matcher: TemplateMatcher): WakeWordGate = WakeWordGate(mfcc, matcher, wakeThreshold = 8.0f)
 
+    @Provides
+    @Singleton
+    fun provideEnroller(mfcc: MfccExtractor, vad: Vad): Enroller = Enroller(
+        mfcc = mfcc,
+        vad = vad,
+        idGenerator = { UUID.randomUUID().toString() },
+        clock = { System.currentTimeMillis() },
+    )
+}
+
+/** Dormant Phase-3 seam bindings (QbE, SSL raw-audio encoding, batch dictation) — see [RecognitionModule]. */
+@Module
+@InstallIn(SingletonComponent::class)
+internal object RecognitionSeamsModule {
+
     /**
      * Query-by-example encoder binding (Phase 3, dormant). The optional QbE matcher is off by default;
      * with [NoopQbeEncoder] the [com.speechangel.core.enrollment.SpeechBackendSelector] never selects
@@ -84,13 +99,4 @@ internal object RecognitionModule {
     @Provides
     @Singleton
     fun provideDictationBackend(): DictationBackend = NoopDictationBackend()
-
-    @Provides
-    @Singleton
-    fun provideEnroller(mfcc: MfccExtractor, vad: Vad): Enroller = Enroller(
-        mfcc = mfcc,
-        vad = vad,
-        idGenerator = { UUID.randomUUID().toString() },
-        clock = { System.currentTimeMillis() },
-    )
 }

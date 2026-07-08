@@ -29,7 +29,9 @@ import java.nio.FloatBuffer
  * [encode] is safe to call from any thread.
  */
 
-class DistilHuBERTEncoder(private val modelPath: String) : AutoCloseable, RawAudioEncoder {
+class DistilHuBERTEncoder(private val modelPath: String) :
+    AutoCloseable,
+    RawAudioEncoder {
 
     private val env: OrtEnvironment = OrtEnvironment.getEnvironment()
     private var session: OrtSession? = null
@@ -39,8 +41,6 @@ class DistilHuBERTEncoder(private val modelPath: String) : AutoCloseable, RawAud
 
     /** DistilHuBERT embedding width. */
     override val dimensions: Int = 768
-
-    private val SAMPLE_RATE_HZ = 16000
 
     /**
      * Load the ONNX model from [modelPath]. Must be called once before [encode].
