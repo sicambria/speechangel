@@ -325,3 +325,17 @@ the one-shot harness into a repeatable **build / planning / experimentation** su
 `WINDOW`/`HOP`/`TARGETFA`) wired to `-D` for CLI sweeps; advisory benchmark-impact bullet in the plan
 `TEMPLATE.md` + START_HERE rows. No results ledger (declined); no CI gate (corpus is `[measure-only]`).
 EVAL-003 framing throughout: pinned default is the banked baseline, sweeps are a NOT-banked family.
+
+## Authoritative SOTA doc consolidation (2026-07-08)
+
+`docs/plans/2026-07/authoritative-sota-doc-consolidation.md` — ✅ **DONE 2026-07-08** (two adversarial
+reviewers + advisor-gated; self-scored 95/100). Consolidated the fragmented SOTA material (5 docs, 3
+scoring systems, a broken "supersedes" claim, cross-doc number contradictions) into **one authoritative
+reference**: `docs/product/2026-07-08_sota-wake-word-reference.md` now carries the external field survey
+(recovering the retired competitive-bar's 7-axis ranking, PD-DWS technique mining, Euphonia proof-point,
+and comparability caveat) plus a short config-explicit "where SpeechAngel stands" section (§11) with a
+3-way banked/deployable honesty ledger and the three-scoring reconciliation. Retired
+`docs/product/2026-07-06_sota-competitive-bar.md` (superseded header, kept on disk); fixed the inverted
+baseline label in `docs/product/2026-07-08_sota-domain-bands.md` (shipped = static = FRR 75.7%, not the
+`delta_delta` 78.3%); repointed all inbound refs. Docs-only — no code, no new measurement; every FRR/FAR
+figure is cited from existing `docs/testing/*` reports and made config-explicit. `run-all.mjs` 11/11.
