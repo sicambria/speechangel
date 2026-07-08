@@ -201,6 +201,8 @@ Run with `~/git/speechangel/research/.venv/bin/python3`.
 | `ambient_6h.py` | 6h realistic ambient proxy (silence + speech-noise + noise) |
 | `multi_session.py` | F03 3-session cross-session distance measurement |
 | `e11_e20_sim.py` | E11-E20 10-experiment simulation harness |
+| `dysarthria_sim.py` | First-principles dysarthria simulator (5 subsystems, 10 params) |
+| `eval_dysarthria_sim.py` | Severity sweep + per-subsystem ablation evaluation |
 
 **Kotlin integration:**
 | File | Role |
@@ -234,5 +236,4 @@ Run with `~/git/speechangel/research/.venv/bin/python3`.
 2. **Download real household ambient** — replace synthetic proxy with actual recordings (≥6h)
 3. **Language independence extension** — Common Voice for Asian/African families
 4. **CP-0 real-user data** — SAP DUA, UASpeech, per-severity breakdown
-5. **fp16 ONNX fix** — resolve type-mismatch in graph-level conversion
-6. **F-Droid/Play release** — with "experimental" labelling
+5. **F-Droid/Play release** — with "experimental" labelling
