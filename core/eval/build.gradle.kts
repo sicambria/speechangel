@@ -48,6 +48,11 @@ tasks.withType<Test>().configureEach {
         "picovoice.frontend",
         "picovoice.deltaOrder",
         "picovoice.targetFaPerHour",
+        // Automated SOTA scorecard (`SotaScorecardTest`): `-Dtorgo.dir` runs it; `-Dsota.ssl=<file>`
+        // supplies the optional Python-spike metrics (D7/8/9); `-Dsota.report` / `-Dsota.json` set outputs.
+        "sota.ssl",
+        "sota.report",
+        "sota.json",
     ).forEach { key ->
         providers.systemProperty(key).orNull?.let { systemProperty(key, it) }
     }
