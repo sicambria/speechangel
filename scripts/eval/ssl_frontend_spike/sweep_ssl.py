@@ -5,6 +5,16 @@ Usage: python sweep_ssl.py <model> <speakers-csv> [pools] [layers]
   e.g. sweep_ssl.py wav2vec2 F01 mean,frames_norm 0,4,6,8,10,12
 """
 import sys, time
+# --emit=<file>: append structured SOTA-scorecard metrics (D9) for SotaScorecard; not prose. Stripped
+# from argv before the positional parse so it composes with `<model> <speakers> [pools] [layers]`.
+_EMIT = None
+_argv = []
+for _a in sys.argv[1:]:
+    if _a.startswith("--emit="):
+        _EMIT = _a.split("=", 1)[1]
+    else:
+        _argv.append(_a)
+sys.argv = [sys.argv[0]] + _argv
 import numpy as np
 import torch
 import harness as H
@@ -96,3 +106,8 @@ for pool in pools:
 
 best = max(results, key=lambda r: r[2])
 print(f"\nBEST: layer={best[0]} pool={best[1]} agg-rank1={best[2]*100:.1f}% AUC={best[3]:.3f}", flush=True)
+
+if _EMIT:
+    with open(_EMIT, "a") as _f:
+        _f.write(f"domain9_value={best[2]:.4f}\n")
+        _f.write(f"domain9_config=SSL ceiling rank-1: {model} L{best[0]} {best[1]}, off-device (deployable student NOT BUILT)\n")

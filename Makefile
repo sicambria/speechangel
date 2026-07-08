@@ -21,10 +21,23 @@ PV_OVERRIDES := \
   $(if $(HOP),-Dpicovoice.hopMs=$(HOP)) \
   $(if $(TARGETFA),-Dpicovoice.targetFaPerHour=$(TARGETFA))
 
+# Automated SOTA scorecard — measured performance mapped to the 15-domain 0–1000 band ladder
+# (DomainBands). TORGO is present at $(HOME)/torgo on the dev host. SOTA_SSL holds the optional
+# torch-backed D8/D9 metrics; SOTA_PY is a python with torch+transformers (default python3 has neither —
+# point it at a venv, e.g. SOTA_PY=$(HOME)/torch-venv/bin/python; SSL weights are cached, CPU is fine).
+TORGO_DIR ?= $(HOME)/torgo
+SOTA_REPORT ?= build/sota-scorecard.md
+SOTA_JSON ?= build/sota-score.json
+# Absolute: written by sota-score-ssl (make's cwd = repo root) but read by the :core:eval test whose
+# working dir is the module dir — a relative path would not resolve in both.
+SOTA_SSL ?= $(CURDIR)/core/eval/build/sota-metrics-ssl.txt
+SOTA_PY ?= python3
+
 .DEFAULT_GOAL := help
 
 .PHONY: help install-deps setup build assemble test static format verify guardrails emulator roadmap clean ci \
-	bench-picovoice-fetch bench-picovoice bench-picovoice-smoke bench-picovoice-anchor
+	bench-picovoice-fetch bench-picovoice bench-picovoice-smoke bench-picovoice-anchor \
+	sota-score sota-score-ssl sota-score-full
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -76,6 +89,19 @@ bench-picovoice-smoke: ## Fast Picovoice run (bgSeconds=120) — does NOT match 
 
 bench-picovoice-anchor: ## Same-host PocketSphinx anchor on the dumped streams (run bench-picovoice first)
 	@./scripts/eval/run-pocketsphinx.sh $(PV_DIR)
+
+sota-score: ## Automated SOTA scorecard — JVM domains vs TORGO → 0–1000 band map (no torch; folds in SOTA_SSL if present)
+	$(GRADLE) :core:eval:test --tests "*SotaScorecardTest*" --rerun-tasks \
+	  -Dtorgo.dir=$(TORGO_DIR) -Dsota.report=$(SOTA_REPORT) -Dsota.json=$(SOTA_JSON) \
+	  $(if $(wildcard $(SOTA_SSL)),-Dsota.ssl=$(SOTA_SSL))
+
+sota-score-ssl: ## Measure SSL domains D8 (dual-cascade) + D9 (ceiling) into SOTA_SSL (needs torch: SOTA_PY=<venv python>)
+	@rm -f $(SOTA_SSL)
+	@mkdir -p $(dir $(SOTA_SSL))
+	PYTHONPATH=scripts/eval/ssl_frontend_spike $(SOTA_PY) scripts/eval/ssl_frontend_spike/sweep_ssl.py wavlm F01,F03,F04 --emit=$(SOTA_SSL)
+	PYTHONPATH=scripts/eval/ssl_frontend_spike $(SOTA_PY) scripts/eval/ssl_frontend_spike/dual_cascade_verify.py F01,F03,F04 60 --emit=$(SOTA_SSL)
+
+sota-score-full: sota-score-ssl sota-score ## Full SOTA scorecard incl. torch-backed D8/D9 (needs torch: SOTA_PY=<venv python>)
 
 roadmap: ## Show the project roadmap
 	@cat docs/ROADMAP.md

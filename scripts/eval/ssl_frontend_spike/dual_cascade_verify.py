@@ -10,6 +10,17 @@ import os, sys, glob, math, time, wave
 import numpy as np
 import harness as H
 
+# --emit=<file>: append structured SOTA-scorecard metrics (D8) for SotaScorecard; not prose. Stripped
+# from argv before the positional parse so it composes with `<speakers> <bg_min>`.
+_EMIT = None
+_argv = []
+for _a in sys.argv[1:]:
+    if _a.startswith("--emit="):
+        _EMIT = _a.split("=", 1)[1]
+    else:
+        _argv.append(_a)
+sys.argv = [sys.argv[0]] + _argv
+
 # ----------------------------------------------------------------- config
 SPEAKERS = sys.argv[1].split(",") if len(sys.argv) > 1 else ["F01", "F03", "F04"]
 BG_MIN = int(sys.argv[2]) if len(sys.argv) > 2 else 60
@@ -236,6 +247,7 @@ def evaluate_dual(info, thr_d, thr_dur, thr_margin):
 DUR_CANDS = np.linspace(0.05, 2.0, 20)
 MARGIN_CANDS = np.linspace(0.2, 1.0, 17)
 
+rel_by_spk = {}
 for spk in SPEAKERS:
     if spk not in spk_info:
         continue
@@ -292,11 +304,20 @@ for spk in SPEAKERS:
             frr_d = 1 - best_dual[0]
             if frr_s > 0.01:
                 rel = (frr_s - frr_d) / frr_s * 100
+                rel_by_spk[spk] = rel / 100.0
                 print(f"  ★ Rel FRR reduction: {rel:+.1f}%  "
                       f"({'WIN >= 20%' if rel >= 20 else 'GAIN < 20%' if rel > 5 else 'TIE'})",
                       flush=True)
     else:
         print(f"  Dual-cascade:  no valid point", flush=True)
+
+if _EMIT:
+    # Banked headline = the binding large-vocab speaker (F03), else the strongest measured.
+    _spk = "F03" if "F03" in rel_by_spk else (max(rel_by_spk, key=rel_by_spk.get) if rel_by_spk else None)
+    if _spk is not None:
+        with open(_EMIT, "a") as _f:
+            _f.write(f"domain8_value={rel_by_spk[_spk]:.4f}\n")
+            _f.write(f"domain8_config=dual-cascade rel FRR reduction, WavLM-base-plus L12, {_spk}, off-device ({BG_MIN}min bg)\n")
 
 # =================================================================
 # 6. Per-positive detection vectors for McNemar
