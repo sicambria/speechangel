@@ -91,7 +91,7 @@ acceptance criteria honest (FRR + FAR/hour, never a bare "99 %").
 > magnitude from deployable** (76%/62% FRR @ ~5% FAR; **~82 FA/hr** ambient), while modest neural KWS
 > baselines get ~10% FRR on dysarthric — *but* those baselines are closed-vocabulary, trained on that
 > vocabulary, and not language-independent, so 10-vs-76 **bounds the opportunity, not a proven model gap**
-> (the "non-comparable protocols" caveat of `…sota-competitive-bar.md`). What *is* supported is that the
+> (the "non-comparable protocols" caveat of `docs/product/2026-07-08_sota-wake-word-reference.md` §0). What *is* supported is that the
 > **population is tractable** — Euphonia's 13.9% WER *personalized* dysarthric ASR, and personalization is
 > exactly what SpeechAngel does. So the product now lives or dies on **two bets**, both gated on **real
 > data** — not on building more features. Everything in Phases 0–3 is a means to
@@ -162,7 +162,7 @@ backing for CP-1/CP-2.
 ## ⭐ SOTA competitive bar — derived items · status: `planned`
 
 > Added 2026-07-06 from a competitive-landscape sweep of on-device wake-word / command spotting
-> (`docs/product/2026-07-06_sota-competitive-bar.md`). That doc pins the external SOTA as concrete
+> (`docs/product/2026-07-08_sota-wake-word-reference.md` §6, §9). That doc pins the external SOTA as concrete
 > sourced numbers and places SpeechAngel in the same 7-axis ranking (**overall 59** — best-in-field on
 > language-independence + trainability + transparency, worst on maturity + noise). **Acceptance targets
 > adopted from the bar:** always-on **≤0.5 FA/hr** (openWakeWord) → stretch **≤0.1 FA/hr** (Porcupine);

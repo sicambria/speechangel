@@ -4,7 +4,7 @@
 
 **Date:** 2026-07-08 · **SOTA = 1000 (theoretical maximum for SpeechAngel's constraint set)**
 Companion to `docs/product/2026-07-08_score-band-pathway.md` (product-level scorecard pathway)
-and `docs/product/2026-07-06_sota-competitive-bar.md` (external SOTA anchors).
+and `docs/product/2026-07-08_sota-wake-word-reference.md` (the authoritative external SOTA reference).
 
 ---
 
@@ -69,7 +69,7 @@ per hour of ambient audio. The deployability-critical combined discrimination+re
 | **800** | ≤15% | ≤15% | `:core:eval:test` + `AmbientFar` |
 | **700** | ≤35% | ≤35% | `:core:eval:test` + `AmbientFar` |
 | **600** | ≤55% | — | `:core:eval:test` + `AmbientFar` |
-| **Current** | **75.7%** (static) / **78.3%** (shipped) | **70.7%** | `TorgoEval.heldOut()` |
+| **Current** | **75.7%** (static = shipped; `delta_delta` variant 78.3%) | **70.7%** | `TorgoEval.heldOut()` |
 
 **Measurement:** Held-out leave-one-fold-out threshold selection, matched FAR calibration via
 `AmbientFar.measuredResult()`, reported as FRR at the matched operating point. Validation:

@@ -1,8 +1,8 @@
 <!-- Concrete requirements/acquisition spec backing Critical Path v2 (CP-0..CP-3). Index in docs/DOC_TOC.md. -->
 # SpeechAngel — CP-0..CP-3 Requirements & Acquisition Spec
 
-**Date:** 2026-07-06 · Backs `docs/ROADMAP.md` "Critical path v2". Companion to the scorecard +
-competitive-bar docs.
+**Date:** 2026-07-06 · Backs `docs/ROADMAP.md` "Critical path v2". Companion to the scorecard and the
+authoritative SOTA reference (`docs/product/2026-07-08_sota-wake-word-reference.md`).
 
 This lists **exactly what is needed** to execute the four critical-path bets — with concrete quantities,
 audio formats, model parameters, target ranges, and **error margins**. Where a precise value does not yet

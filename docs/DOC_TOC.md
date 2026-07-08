@@ -25,7 +25,10 @@ The index of standing documentation. Paths are backtick code-paths (resolve from
 
 - `docs/ROADMAP.md` — phased roadmap (Phase 0 spike → MVP → persistence/policy → delight).
 - `docs/product/2026-07-06_sota-frr-far-and-real-life-scorecard.md` — **current** score (480/1000, early-alpha): path to SOTA FRR/FAR + real-life factor scorecard + where-SOTA/where-not.
-- `docs/product/2026-07-06_sota-competitive-bar.md` — external SOTA bar (Porcupine/openWakeWord/Howl/PhonMatchNet/LRDWWS), SpeechAngel placed in the 7-axis ranking (overall 59), and the R-SOTA-1..6 roadmap items.
+- `docs/product/2026-07-08_sota-wake-word-reference.md` — **the authoritative SOTA reference**: first-principles wake-word/KWS field survey (algorithm families, production systems, benchmarks, evidence tiers, 7-axis field ranking) + SpeechAngel's config-explicit measured standing and banked/deployable honesty ledger (§11). Supersedes the competitive-bar; written to feed the paper.
+- `docs/product/2026-07-08_sota-domain-bands.md` — the 15-domain SOTA=1000 constraint-preserving band ladder with per-domain thresholds + validation scripts.
+- `docs/product/2026-07-08_score-band-pathway.md` — code-only score-band pathway (480→~890) mapping R-SOTA/CP items to point deltas.
+- `docs/product/2026-07-06_sota-competitive-bar.md` — *superseded* 2026-07-08 by the authoritative SOTA reference; retained for history (origin of the 7-axis ranking + R-SOTA-1..6 items).
 - `docs/product/2026-07-06_cp-requirements-spec.md` — exactly what CP-0..CP-3 need: corpora/formats/params/target ranges + error margins + the honest "unknown, needs measurement" register.
 - `docs/product/2026-07-06_product-maturity-scorecard.md` — *superseded* pre-measurement scorecard (442/1000); retained for methodology + gap register.
 - `docs/plans/TEMPLATE.md` — canonical plan template (scaffold via `scripts/ops/create-plan.mjs`).

@@ -1,6 +1,13 @@
 <!-- SOTA competitive bar for on-device wake-word / command spotting. Standing reference; index in docs/DOC_TOC.md. -->
 # SpeechAngel — SOTA Competitive Bar (wake-word / command spotting)
 
+> **SUPERSEDED 2026-07-08** by `docs/product/2026-07-08_sota-wake-word-reference.md` (the authoritative
+> SOTA reference), which folds in this doc's unique material — the 7-axis field ranking, the PD-DWS
+> technique mining, the Euphonia personalization proof-point, and the governing comparability caveat.
+> Retained for history; as a superseded doc it may hold pre-consolidation numbers (e.g. the rounded
+> "76%" dysarthric FRR — the config-explicit number of record is now 75.7% static, in the authoritative
+> doc §11).
+
 **Date:** 2026-07-06 · Companion to `docs/product/2026-07-06_sota-frr-far-and-real-life-scorecard.md`.
 
 This doc pins the **external state-of-the-art** so "SOTA" in our reports is a concrete, sourced number,

@@ -255,5 +255,5 @@ real progress; it is not the same as being closer to it, which is why the value 
   data (which would themselves require the absent corpus). **The concrete, sourced bar** — Porcupine
   97.1% @ 0.1 FA/hr, openWakeWord <0.5 FA/hr / <5% FRR, Howl 10% FRR @ 4 FA/hr (production), PhonMatchNet
   29–33% FRR @ 1% FAR (zero-shot), LRDWWS'24 dysarthric FAR 0.32%/FRR 0.5% — plus SpeechAngel's placement
-  in the 7-axis ranking (overall 59) lives in `docs/product/2026-07-06_sota-competitive-bar.md`, with the
+  in the 7-axis ranking (overall 59) lives in `docs/product/2026-07-08_sota-wake-word-reference.md` (§6.3, §9), with the
   derived R-SOTA-1..6 roadmap items.
