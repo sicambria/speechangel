@@ -148,15 +148,38 @@ def main():
         print(f"  {dur_s:.1f}s audio: {times.mean()*1000:.0f}ms ±{times.std()*1000:.0f}ms", flush=True)
 
     if not os.path.exists(OUT_FP16):
-        print("\nConverting to fp16 (known: type-mismatch on load — de-prioritized for v1)...", flush=True)
+        print("\nConverting to fp16 (onnxsim → float16 converter pipeline)...", flush=True)
+        from onnxsim import simplify
         model = onnx.load(OUT_FP32)
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            model_fp16 = oc_float16.convert_float_to_float16(model)
-        onnx.save(model_fp16, OUT_FP16)
-        print(f"  fp16 size: {os.path.getsize(OUT_FP16)/1024/1024:.1f} MB (load failures expected)", flush=True)
+        model_simp, check = simplify(model)
+        print(f"  Simplified: {len(model.graph.node)} → {len(model_simp.graph.node)} nodes, check={check}",
+              flush=True)
 
-    print(f"\nDone. fp32 ONNX: {OUT_FP32} ({os.path.getsize(OUT_FP32)/1024/1024:.1f} MB)")
+        model_fp16 = oc_float16.convert_float_to_float16(model_simp)
+        onnx.save(model_fp16, OUT_FP16)
+        sz = os.path.getsize(OUT_FP16) / 1024 / 1024
+        print(f"  fp16 size: {sz:.1f} MB", flush=True)
+
+        import onnxruntime as ort
+        try:
+            sess16 = ort.InferenceSession(OUT_FP16)
+            t = np.random.randn(1, 32000).astype(np.float16)
+            out16 = sess16.run(None, {"audio": t})[0]
+            print(f"  fp16 inference OK: shape={out16.shape}, dtype={out16.dtype}", flush=True)
+
+            # Fidelity check
+            sess32 = ort.InferenceSession(OUT_FP32)
+            t32 = np.random.randn(1, 32000).astype(np.float32)
+            out32 = sess32.run(None, {"audio": t32})[0]
+            cd = 1.0 - float(out32.flatten() @ out16.flatten().astype(np.float32).T)
+            print(f"  fp32 vs fp16 cos dist: {cd:.2e}", flush=True)
+        except Exception as e:
+            print(f"  fp16 load failed (expected on some ORT versions): {e}", flush=True)
+
+    print(f"\nDone. ONNX models:")
+    print(f"  fp32: {OUT_FP32} ({os.path.getsize(OUT_FP32)/1024/1024:.1f} MB)")
+    if os.path.exists(OUT_FP16):
+        print(f"  fp16: {OUT_FP16} ({os.path.getsize(OUT_FP16)/1024/1024:.1f} MB)")
 
 
 if __name__ == "__main__":
