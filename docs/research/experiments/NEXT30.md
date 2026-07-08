@@ -6,6 +6,16 @@
 **Basis:** `docs/research/OVERALL.md`, `docs/testing/2026-07-07_journey-cp2-summary.md`,
 `docs/research/experiments/SCORES.md`, `docs/plans/2026-07/cp2-sota-roadmap-n4-to-n12.md`.
 
+> **Seeded result — N+4 executed 2026-07-08 (experiment #2 below).** The one host-runnable stage that
+> needed no new code was run to seed a real number. **DoD met: the banked dual-cascade causes zero
+> regression on control speakers** — b(single-only)=0 on FC01/FC02/FC03 and aggregate (n=740, 60-min
+> LibriSpeech background). It rejects no query the single-threshold baseline accepts, de-risking the
+> banked CP-2 lever for the full population. FC01 is directionally better (FRR 11.8%→2.9%) but
+> underpowered (n=34, McNemar p=0.25); FC02/FC03 tie (controls are already well-separated at 0 FA/hr, so
+> the duration filter is inactive at the operating point). Notably FC03 — a *control* speaker with a
+> 383-utterance / large vocabulary — sits at 16.4% FRR, echoing the vocabulary-size finding (W1) on
+> typical speech too. Full log: `docs/testing/2026-07-08_n4-dual-cascade-control-verification.md`.
+
 > **Framing (EVAL-003 discipline).** Every item below is a **proposed experiment** — a pre-registered
 > hypothesis + Definition-of-Done, **not** a claimed gain. No number here is "banked" or a "win";
 > expected magnitudes are targets to be confirmed at matched FAR, held-out, with a paired test. IDs
@@ -111,12 +121,14 @@ determinism) · **Evidence** (0–100, literature/prior-result backing). `RH` = 
   (redirect to CP-1). Decisive either way.
 - **Why #1:** it is the fork that decides whether W1 or W3 gets the next quarter of effort.
 
-**2. N+4 — Dual-cascade control-speaker verification. Score 770. `RH`. [W2]**
+**2. N+4 — Dual-cascade control-speaker verification. Score 770. `RH`. ✅ RUN 2026-07-08. [W2]**
 - **H1:** the banked dual-cascade does **not** regress on control speakers — FRR @0.5 FA/hr ≤
   single-threshold FRR with zero false-negatives (b(single-only)=0).
 - **Protocol:** `dual_cascade_verify.py FC01,FC02,FC03 60` (script exists, no new code).
 - **DoD:** McNemar at ≤0.5 FA/hr per control speaker; b>0 ⇒ collateral damage on typical speech.
-- **Why high:** de-risks the one banked CP-2 win for the full population before it ships. Cheapest run.
+- **Result (2026-07-08):** **DoD MET.** b(single-only)=0 on all three control speakers + aggregate
+  (n=740). FC01 FRR 11.8%→2.9% (directional, p=0.25, n=34); FC02/FC03 tie (b=c=0). No collateral damage.
+  The one banked CP-2 lever is safe on typical speech. `docs/testing/2026-07-08_n4-dual-cascade-control-verification.md`.
 
 **3. N+5 / E02-11 — Energy-ratio cross-verify (3rd cascade stage). Score 740. `RH`. [W2]**
 - **H1:** adding |log(q_rms / t_rms)| ≤ θ as a third cascade stage reduces FRR @0.5 FA/hr by ≥10%
@@ -351,7 +363,7 @@ E07-12 → E07-05 distillation). Do not commit the CP-1 GPU spend before N+7 ans
 | # | ID | Wall | Score | Runnable here? | Blocker |
 |---|---|---|---|---|---|
 | 1 | N+7 / E08-11 | W1 | 870 | ✅ | — |
-| 2 | N+4 | W2 | 770 | ✅ | — |
+| 2 | N+4 | W2 | 770 | ✅ **RUN** (DoD met, b=0) | — |
 | 3 | N+5 / E02-11 | W2 | 740 | ✅ | — |
 | 4 | N+10 / E09-11 | W2 | 760 | ✅ | — |
 | 5 | N+9 / E07-11 | W3 | 760 | ✅ | model download |
