@@ -1,9 +1,9 @@
 package com.speechangel.core.eval
 
+import com.google.common.truth.Truth.assertThat
 import com.speechangel.core.dsp.DeltaOrder
 import com.speechangel.core.dsp.MfccConfig
 import com.speechangel.core.matching.MatcherConfig
-import com.google.common.truth.Truth.assertThat
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import java.io.File
@@ -61,13 +61,17 @@ class FullEvalTest {
         val fe = FeatureFrontEnd("none", MfccConfig(deltaOrder = DeltaOrder.NONE))
         val sb = StringBuilder()
         sb.appendLine("## E03-01: Enrollment Count Sweep (static MFCC, TORGO)\n")
-        sb.appendLine("Note: TorgoEval uses k-fold with ~4/5 enrollment templates per fold by default. This test runs the standard k-fold with 5 folds (each fold uses ~80% of data for enrollment, ~20% for test). For true enrollment count sweep, a custom harness is needed.\n")
+        sb.appendLine(
+            "Note: TorgoEval uses k-fold with ~4/5 enrollment templates per fold by default. This test runs the standard k-fold with 5 folds (each fold uses ~80% of data for enrollment, ~20% for test). For true enrollment count sweep, a custom harness is needed.\n",
+        )
         sb.appendLine("| Config | Rank-1 | FRR (HO) | FAR (HO) | EER |")
         sb.appendLine("|---|---:|---:|---:|---:|")
 
         for (k in listOf(2, 3, 5, 10)) {
             val r = TorgoEval(fe, k = k).run(dir).aggregate
-            sb.appendLine("| k=$k folds | ${p(r.rank1)} | ${p(r.frrLowFarGlobalHeldOut)} | ${p(r.farLowFarGlobalHeldOut)} | ${p(r.frrAtEer)} |")
+            sb.appendLine(
+                "| k=$k folds | ${p(r.rank1)} | ${p(r.frrLowFarGlobalHeldOut)} | ${p(r.farLowFarGlobalHeldOut)} | ${p(r.frrAtEer)} |",
+            )
         }
         write("E03-01-enroll-count", sb)
     }
@@ -77,11 +81,19 @@ class FullEvalTest {
         val dir = requireTorgo()
         val sb = StringBuilder()
         sb.appendLine("## E02-08 & E04-06: Conceptual Evaluation\n")
-        sb.appendLine("These experiments require modifications to the core matching pipeline (path-length tracking in DTW, persistence counters in WakeGatedRecognizer). The architecture supports them:\n")
-        sb.appendLine("- **E02-08 (890):** Dtw.withPath() is implemented (returns path length). TemplateMatcher can now reject based on path-length deviation. Next step: integrate into match() flow.")
-        sb.appendLine("- **E04-06 (870):** WakeGatedRecognizer.onFrame() processes frames sequentially. Adding a `consecutiveWakeCount` counter and requiring N consecutive positives is a ~5 line change.")
+        sb.appendLine(
+            "These experiments require modifications to the core matching pipeline (path-length tracking in DTW, persistence counters in WakeGatedRecognizer). The architecture supports them:\n",
+        )
+        sb.appendLine(
+            "- **E02-08 (890):** Dtw.withPath() is implemented (returns path length). TemplateMatcher can now reject based on path-length deviation. Next step: integrate into match() flow.",
+        )
+        sb.appendLine(
+            "- **E04-06 (870):** WakeGatedRecognizer.onFrame() processes frames sequentially. Adding a `consecutiveWakeCount` counter and requiring N consecutive positives is a ~5 line change.",
+        )
         sb.appendLine("- **E17-01 (860):** Audio pipeline watchdog requires Android AudioRecord integration — JVM eval can't test this.")
-        sb.appendLine("\nDtw.withPath() is compiled, tested, and ready for integration. See `core/matching/src/main/kotlin/com/speechangel/core/matching/Dtw.kt:18`.")
+        sb.appendLine(
+            "\nDtw.withPath() is compiled, tested, and ready for integration. See `core/matching/src/main/kotlin/com/speechangel/core/matching/Dtw.kt:18`.",
+        )
         write("E02-08-E04-06-concepts", sb)
     }
 
@@ -102,7 +114,13 @@ class FullEvalTest {
             sb.appendLine("- In-sample reference: FRR ${p(spk.frrAtLowFarInSample)}")
             sb.appendLine()
         }
-        sb.appendLine("**Finding:** Per-command calibration inflates held-out FAR to ${"%.1f".format(r.perSpeaker.first().farLowFarPerCmdHeldOut * 100)}-${"%.1f".format(r.perSpeaker.last().farLowFarPerCmdHeldOut * 100)}% vs global ${"%.1f".format(r.aggregate.farLowFarGlobalHeldOut * 100)}%. This is a non-improvement — sparse negatives cause accept-all fallback. Fix: held-out calibration with more negatives per command (requires larger corpus).")
+        sb.appendLine(
+            "**Finding:** Per-command calibration inflates held-out FAR to ${"%.1f".format(
+                r.perSpeaker.first().farLowFarPerCmdHeldOut * 100,
+            )}-${"%.1f".format(r.perSpeaker.last().farLowFarPerCmdHeldOut * 100)}% vs global ${"%.1f".format(
+                r.aggregate.farLowFarGlobalHeldOut * 100,
+            )}%. This is a non-improvement — sparse negatives cause accept-all fallback. Fix: held-out calibration with more negatives per command (requires larger corpus).",
+        )
         write("E09-02-per-cmd-calib", sb)
     }
 
@@ -147,7 +165,16 @@ class FullEvalTest {
             sb.appendLine("| $name | ${p(r.rank1)} | ${p(r.frrLowFarGlobalHeldOut)} | ${p(r.farLowFarGlobalHeldOut)} | ${p(r.frrAtEer)} |")
         }
         sb.appendLine()
-        sb.appendLine("**Winner:** Static MFCC (NONE) at ${p(configs.map { TorgoEval(FeatureFrontEnd(it.first, MfccConfig(deltaOrder = it.second)), matcherConfig = MatcherConfig(localDistance = it.third)).run(dir).aggregate.rank1 }.max())} → switch shipped default. +3.8pp vs ΔΔ.\n")
+        sb.appendLine(
+            "**Winner:** Static MFCC (NONE) at ${p(
+                configs.map {
+                    TorgoEval(
+                        FeatureFrontEnd(it.first, MfccConfig(deltaOrder = it.second)),
+                        matcherConfig = MatcherConfig(localDistance = it.third),
+                    ).run(dir).aggregate.rank1
+                }.max(),
+            )} → switch shipped default. +3.8pp vs ΔΔ.\n",
+        )
 
         // ── E02-01: Cosine vs Euclidean ──
         sb.appendLine("## E02-01: Cosine vs Euclidean DTW (SCORE: 810)")
@@ -168,34 +195,50 @@ class FullEvalTest {
         sb.appendLine("|---|---:|---:|---:|---:|---:|")
         for (k in listOf(2, 3, 5, 10)) {
             val r = TorgoEval(fe, k = k).run(dir).aggregate
-            sb.appendLine("| k=$k | ${(k-1)*100/k}% | ${p(r.rank1)} | ${p(r.frrLowFarGlobalHeldOut)} | ${p(r.farLowFarGlobalHeldOut)} | ${p(r.frrAtEer)} |")
+            sb.appendLine(
+                "| k=$k | ${(k - 1) * 100 / k}% | ${p(
+                    r.rank1,
+                )} | ${p(r.frrLowFarGlobalHeldOut)} | ${p(r.farLowFarGlobalHeldOut)} | ${p(r.frrAtEer)} |",
+            )
         }
         sb.appendLine()
 
         // ── Architectural readiness ──
         sb.appendLine("## E02-08: Dual-Filter Cascade (SCORE: 890)")
         sb.appendLine()
-        sb.appendLine("**Status: Architecture ready.** Dtw.withPath() returns path length alongside distance. TemplateMatcher can reject based on path-length deviation. Next step: integrate into match() with tolerance sweep.\n")
+        sb.appendLine(
+            "**Status: Architecture ready.** Dtw.withPath() returns path length alongside distance. TemplateMatcher can reject based on path-length deviation. Next step: integrate into match() with tolerance sweep.\n",
+        )
 
         sb.appendLine("## E04-06: Multi-Frame Persistence (SCORE: 870)")
         sb.appendLine()
-        sb.appendLine("**Status: Architecture ready.** WakeGatedRecognizer.onFrame() already processes per-frame. Adding a consecutive-wake counter is a 5-line change. Requires N consecutive Wake outcomes before triggering Stage-2.\n")
+        sb.appendLine(
+            "**Status: Architecture ready.** WakeGatedRecognizer.onFrame() already processes per-frame. Adding a consecutive-wake counter is a 5-line change. Requires N consecutive Wake outcomes before triggering Stage-2.\n",
+        )
 
         sb.appendLine("## E17-01: Audio Pipeline Watchdog (SCORE: 860)")
         sb.appendLine()
-        sb.appendLine("**Status: Android-only.** Requires AudioRecord silence detection and auto-restart. Architecture planned: monitor RMS over 30s windows, restart on sustained silence. JVM eval cannot test.\n")
+        sb.appendLine(
+            "**Status: Android-only.** Requires AudioRecord silence detection and auto-restart. Architecture planned: monitor RMS over 30s windows, restart on sustained silence. JVM eval cannot test.\n",
+        )
 
         sb.appendLine("## E05-04: MUSAN Augmentation (SCORE: 830)")
         sb.appendLine()
-        sb.appendLine("**Status: Code ready.** AudioAugment.addNoise() exists. MUSAN corpus needed (~30 GB). Additive noise at 5/10/15 dB SNR during enrollment. Expected: 10-20% rel FRR reduction at SNR≤10 dB.\n")
+        sb.appendLine(
+            "**Status: Code ready.** AudioAugment.addNoise() exists. MUSAN corpus needed (~30 GB). Additive noise at 5/10/15 dB SNR during enrollment. Expected: 10-20% rel FRR reduction at SNR≤10 dB.\n",
+        )
 
         sb.appendLine("## E04 Multi-Frame / Threshold / SNR-Adaptive (SCORE: 810)")
         sb.appendLine()
-        sb.appendLine("**Status: Architecture ready.** Per-speaker calibration, SNR-adaptive thresholds, and multi-frame persistence all build on existing infrastructure with minimal code changes.\n")
+        sb.appendLine(
+            "**Status: Architecture ready.** Per-speaker calibration, SNR-adaptive thresholds, and multi-frame persistence all build on existing infrastructure with minimal code changes.\n",
+        )
 
         sb.appendLine("## E13-08: Pitch-Shifted Enrollment (SCORE: 800)")
         sb.appendLine()
-        sb.appendLine("**Status: Needs implementation.** AudioAugment has reverb, band-limit, noise, gain/clip — but no pitch shift. Adding phase-vocoder or PSOLA pitch shifting would enable ±25/50/75/100 cent enrollment augmentation.\n")
+        sb.appendLine(
+            "**Status: Needs implementation.** AudioAugment has reverb, band-limit, noise, gain/clip — but no pitch shift. Adding phase-vocoder or PSOLA pitch shifting would enable ±25/50/75/100 cent enrollment augmentation.\n",
+        )
 
         sb.appendLine("## Evaluation Readiness Summary")
         sb.appendLine()

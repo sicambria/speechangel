@@ -1,9 +1,9 @@
 package com.speechangel.core.eval
 
+import com.google.common.truth.Truth.assertThat
 import com.speechangel.core.dsp.DeltaOrder
 import com.speechangel.core.dsp.MfccConfig
 import com.speechangel.core.matching.MatcherConfig
-import com.google.common.truth.Truth.assertThat
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import java.io.File
@@ -15,13 +15,7 @@ import java.io.File
  */
 class FullEval2Test {
 
-    data class Trial(
-        val label: String,
-        val rank1: Double,
-        val frrHo: Double,
-        val farHo: Double,
-        val eer: Double,
-    )
+    data class Trial(val label: String, val rank1: Double, val frrHo: Double, val farHo: Double, val eer: Double)
 
     @Test
     fun `run all new experiments on TORGO`() {
@@ -80,7 +74,9 @@ class FullEval2Test {
         for (fl in listOf(15, 20, 25, 30, 40, 50)) {
             val fe = FeatureFrontEnd("f${fl}ms", MfccConfig(frameLengthMs = fl))
             val r = TorgoEval(fe).run(dir).aggregate
-            sb.appendLine("| ${fl}ms | ${p(r.rank1)} | ${p(r.frrLowFarGlobalHeldOut)} | ${p(r.farLowFarGlobalHeldOut)} | ${p(r.frrAtEer)} |")
+            sb.appendLine(
+                "| ${fl}ms | ${p(r.rank1)} | ${p(r.frrLowFarGlobalHeldOut)} | ${p(r.farLowFarGlobalHeldOut)} | ${p(r.frrAtEer)} |",
+            )
         }
         sb.appendLine()
 
@@ -92,14 +88,16 @@ class FullEval2Test {
         for (br in listOf(5, 10, 15, 20, 30)) {
             val mc = MatcherConfig(bandRatio = br / 100.0)
             val r = TorgoEval(staticFE, matcherConfig = mc).run(dir).aggregate
-            sb.appendLine("| ${br}% | ${p(r.rank1)} | ${p(r.frrLowFarGlobalHeldOut)} | ${p(r.farLowFarGlobalHeldOut)} | ${p(r.frrAtEer)} |")
+            sb.appendLine("| $br% | ${p(r.rank1)} | ${p(r.frrLowFarGlobalHeldOut)} | ${p(r.farLowFarGlobalHeldOut)} | ${p(r.frrAtEer)} |")
         }
         sb.appendLine()
 
         // ── E13-08: Pitch-shift enrollment augmentation ──
         sb.appendLine("## E13-08: Pitch-Shifted Enrollment Augmentation")
         sb.appendLine()
-        sb.appendLine("AudioAugment.pitchShift() implemented (resample-based, deterministic). Adds ±25/50/75/100 cent pitch shifting for enrollment augmentation. Can be combined with MUSAN noise for realistic condition diversity. Ready for evaluation with noise-mixed TORGO data.\n")
+        sb.appendLine(
+            "AudioAugment.pitchShift() implemented (resample-based, deterministic). Adds ±25/50/75/100 cent pitch shifting for enrollment augmentation. Can be combined with MUSAN noise for realistic condition diversity. Ready for evaluation with noise-mixed TORGO data.\n",
+        )
 
         // ── Combined: Dual-filter + k-NN ──
         sb.appendLine("## Combined: Dual-Filter (tol=0.3) + k-NN (k=3)")
@@ -109,7 +107,9 @@ class FullEval2Test {
         for ((df, k) in listOf(Pair(0.0, 1), Pair(0.3, 1), Pair(0.0, 3), Pair(0.3, 3))) {
             val mc = MatcherConfig(dualFilterTolerance = df, kNN = k)
             val r = TorgoEval(staticFE, matcherConfig = mc).run(dir).aggregate
-            sb.appendLine("| df=${df}, k=$k | ${p(r.rank1)} | ${p(r.frrLowFarGlobalHeldOut)} | ${p(r.farLowFarGlobalHeldOut)} | ${p(r.frrAtEer)} |")
+            sb.appendLine(
+                "| df=$df, k=$k | ${p(r.rank1)} | ${p(r.frrLowFarGlobalHeldOut)} | ${p(r.farLowFarGlobalHeldOut)} | ${p(r.frrAtEer)} |",
+            )
         }
         sb.appendLine()
 
@@ -123,11 +123,17 @@ class FullEval2Test {
         sb.appendLine("| Config | Rank-1 | FRR HO | FAR HO | EER |")
         sb.appendLine("|---|---:|---:|---:|---:|")
         sb.appendLine("| 25ms + 10% band (baseline) | 59.2% | 75.7% | 4.6% | 45.7% |")
-        sb.appendLine("| 30ms + 30% band | ${p(bestA.rank1)} | ${p(bestA.frrLowFarGlobalHeldOut)} | ${p(bestA.farLowFarGlobalHeldOut)} | ${p(bestA.frrAtEer)} |")
+        sb.appendLine(
+            "| 30ms + 30% band | ${p(
+                bestA.rank1,
+            )} | ${p(bestA.frrLowFarGlobalHeldOut)} | ${p(bestA.farLowFarGlobalHeldOut)} | ${p(bestA.frrAtEer)} |",
+        )
         sb.appendLine()
         sb.appendLine("**Per-speaker (30ms + 30%):**")
         for (spk in bestR.perSpeaker) {
-            sb.appendLine("- ${spk.id}: rank-1 ${p(spk.rank1)}, FRR ${p(spk.frrLowFarGlobalHeldOut)} @ FAR ${p(spk.farLowFarGlobalHeldOut)}")
+            sb.appendLine(
+                "- ${spk.id}: rank-1 ${p(spk.rank1)}, FRR ${p(spk.frrLowFarGlobalHeldOut)} @ FAR ${p(spk.farLowFarGlobalHeldOut)}",
+            )
         }
         sb.appendLine()
 
@@ -144,7 +150,9 @@ class FullEval2Test {
         sb.appendLine("| E09-08 Hysteresis zone | zone=any | 59.2% | 75.7% | 0pp (same reason) |")
         sb.appendLine("| **Combined best** | **30ms + 30%** | **TBD** | **TBD** | **see above** |")
         sb.appendLine()
-        sb.appendLine("**Key insight:** Dual-filter, k-NN, and hysteresis operate at the acceptance/rejection level, not at the distance-ranking level. Rank-1 (nearest template = correct command) is unaffected. These features would change FRR/FAR at the threshold level — evaluation requires per-threshold scoring on DistanceRows, not aggregate TorgoEval.")
+        sb.appendLine(
+            "**Key insight:** Dual-filter, k-NN, and hysteresis operate at the acceptance/rejection level, not at the distance-ranking level. Rank-1 (nearest template = correct command) is unaffected. These features would change FRR/FAR at the threshold level — evaluation requires per-threshold scoring on DistanceRows, not aggregate TorgoEval.",
+        )
         sb.appendLine()
         sb.appendLine("**Winners:** 30ms frames (+1.1pp, E01-01) and 30% DTW band (+5.2pp, E06-05). Combined effect: test above.")
 
@@ -160,10 +168,10 @@ class FullEval2Test {
     private fun p(v: Double) = String.format(java.util.Locale.US, "%.1f%%", v * 100)
 
     private fun write(name: String, sb: StringBuilder) {
-        val out = File("build/eval-${name}.md")
+        val out = File("build/eval-$name.md")
         out.parentFile?.mkdirs()
         out.writeText(sb.toString())
         println(sb.toString())
-        println("→ wrote build/eval-${name}.md")
+        println("→ wrote build/eval-$name.md")
     }
 }
