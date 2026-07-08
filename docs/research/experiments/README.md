@@ -78,8 +78,10 @@
 
 ## Key Supporting Files
 
+- `docs/research/experiments/NEXT30.md` — **The forward plan: next 30 experiments toward SOTA**, re-prioritized from the current frontier (vocabulary size is the binding constraint; dual-cascade banked). Ranked, scored, tagged runnable-here vs blocked, each a pre-registered hypothesis + DoD.
 - `docs/research/experiments/SCORES.md` — Full scoring of all 200 experiments with criteria breakdown
 - `docs/research/experiments/RESULTS.md` — Compilation of executed experiment results
+- `docs/research/experiments/TOP30_EVAL.md` — End-to-end evaluation of the 14 already-run experiments
 - `docs/research/OVERALL.md` — Complete research synthesis
 
 ## Quick Links
