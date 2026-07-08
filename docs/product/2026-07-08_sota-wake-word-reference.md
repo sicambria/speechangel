@@ -136,6 +136,28 @@ P1 is easiest (89.2% closed-set rank-1 even with MFCC-DTW). P3 is hardest (needs
 - **Ranked:** The most deployment-proven OSS option for SpeechAngel's platform (Android). BUT: no published benchmark numbers, unknown FA/hr on ambient audio, ESP32-S3-optimized architecture may not be ideal for phone-class hardware.
 - **License:** Apache 2.0 (code + models, from esphome/micro-wake-word-models).
 - **Relevance to SpeechAngel:** Primary candidate for Stage-1 always-on gate if DTW proves insufficient. License is clean. Needs independent benchmark on SpeechAngel's target data.
+- **⚠️ MEASURED (2026-07-08):** Benchmarked on identical Picovoice wake-word-benchmark mixed streams (LibriSpeech + DEMAND, cross-speaker). See §3.3.1 for full results.
+
+#### 3.3.1 SpeechAngel microWakeWord benchmark (2026-07-08)
+
+Measured with identical protocol as the Porcupine and DTW benchmarks (`scripts/eval/bench_microWakeWord.py`).
+
+**Test conditions:** Picovoice wake-word-benchmark mixed streams, LibriSpeech + DEMAND at variable SNR, 6 keywords × ~20 min streams. Models: `alexa.tflite` and `hey_jarvis.tflite` (ESPHome V2). ESLHome exact quantization reproduced (`pymicro-features` frontend + `int8 = round(float * 9.84024) - 128`).
+
+| Keyword | Model | Stream duration | Labels | Best FA/hr ≤0.5? | Best FRR @ ≤5 FA/hr | Shipped cutoff | Shipped FRR | Shipped FA/hr |
+|---------|-------|----------------|--------|-------------------|----------------------|----------------|-------------|---------------|
+| alexa | `alexa.tflite` (55 KB) | 19.5 min | 40 | **FAIL** — 100% FRR @ 0.0 FA/hr | 57.5% FRR @ **64.7 FA/hr** | 0.90 | **97.5% FRR** | 3.1 FA/hr |
+| jarvis | `hey_jarvis.tflite` (52 KB) | 19.9 min | 40 | **FAIL** — 100% FRR @ 3.0 FA/hr | 92.5% FRR @ 15.1 FA/hr | 0.97 | **100.0% FRR** | 6.0 FA/hr |
+
+**Key findings:**
+
+1. **No deployable operating point exists.** At the shipped thresholds, microWakeWord detects almost nothing (1/40 for alexa, 0/40 for jarvis) — FRR ≥97.5%.
+2. **Cross-speaker generalization is near-zero.** These models were trained on synthetic TTS for in-home smart-speaker use — the Picovoice benchmark keyword takes (real human speakers, variable microphone conditions) are far out-of-distribution.
+3. **FA/hr is high at any useful detection rate.** To catch even 42.5% of alexa utterances (cutoff=0.10), FA/hr = 64.7 — worse than SpeechAngel DTW's ~82 FA/hr at similar detection.
+4. **jarvis model mismatched.** Trained for "Hey Jarvis" but benchmark keyword is bare "jarvis" — explains the 92.5% FRR floor.
+5. **Model size vs performance trade-off.** At 52-55 KB (int8 TFLite), these are 20× smaller than even the smallest neural KWS (BC-ResNet-1 ~320K). The size explains the poor cross-speaker generalization.
+
+**Conclusion for SpeechAngel:** microWakeWord is not a viable Stage-1 wake gate for the cross-speaker, noise-robust deployment SpeechAngel requires. It may be usable as a lightweight "quiet-environment same-speaker" fallback, but its strength is MCU-class efficiency for in-home smart speakers with known voices — not the heterogeneous, noise-robust always-on gate SpeechAngel needs.
 
 ### 3.4 Howl (Firefox Voice / castorini) — **the real-deployment reality bar**
 - **Architecture:** Multiple options — res8, LSTM, LAS encoder, MobileNetv2. Published at NLP-OSS 2020. Uses Common Voice + Montreal Forced Aligner for training.
@@ -176,6 +198,7 @@ P1 is easiest (89.2% closed-set rank-1 even with MFCC-DTW). P3 is hardest (needs
 | **B: Peer-reviewed with published numbers** | BC-ResNet, MatchboxNet, ZP-KWS, PD-DWS, Howl | Conference/journal publication | Different protocols, mostly P1-only for conv models |
 | **C: Open-source, self-reported** | openWakeWord, sherpa-onnx KWS | Code + models available, authors report numbers | No independent verification; FA/hr claims need replication |
 | **D: Open-source, deployment-proven, no benchmark** | microWakeWord | Runs in production (Home Assistant) | No published accuracy numbers |
+| **D→B: Now independently measured** | microWakeWord (SpeechAngel benchmark) | Measured on Picovoice benchmark 2026-07-08 | 100% FRR @ ≤0.5 FA/hr; 57.5% FRR @ 64.7 FA/hr |
 | **E: Proprietary, no/opaque numbers** | Sensory THF, SoundHound Houndify, Google Assistant, Siri | Undisclosed | Not usable as SOTA bar |
 
 ---
@@ -188,7 +211,8 @@ For **always-on FA/hr** (P3, the product-gating metric):
 |------|--------|-------|--------------------|---------------|
 | 1 | **Porcupine** | 0.1 | ~2.9% miss (97.1% det) @ 10 dB SNR | A |
 | 2 | **openWakeWord** | <0.5 (design target) | <5% (design target) | C |
-| 3 | **Howl** (production) | 4.0 | ~10% | B |
+| 3 | **microWakeWord** (alexa, measured) | 64.7 | 57.5% FRR | D→B |
+| 4 | **Howl** (production) | 4.0 | ~10% | B |
 
 For **discrimination accuracy** on GSC V2 (P1):
 
@@ -270,3 +294,4 @@ Pre-filter audio frames with energy-based or Silero VAD before running expensive
 | Date | Change |
 |------|--------|
 | 2026-07-08 | Initial comprehensive reference. Aggregates arXiv papers (MatchboxNet, BC-ResNet, ZP-KWS, MDTC, PD-DWS), production systems (Porcupine, openWakeWord, microWakeWord, Howl, sherpa-onnx), benchmarks (GSC, Hey Snips, Picovoice, DiPCo, LRDWWS). |
+| 2026-07-08 | microWakeWord independently measured on Picovoice benchmark. alexa: 100% FRR @ ≤0.5 FA/hr, 57.5% FRR @ 64.7 FA/hr. jarvis: 100% FRR @ ≤0.5 FA/hr. No deployable operating point found. Script: `scripts/eval/bench_microWakeWord.py`. |
