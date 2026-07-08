@@ -298,6 +298,15 @@ closes the CP-2 gap; product implementation is trivial (one duration check per g
 
 `docs/plans/2026-07/picovoice-benchmark-operationalization.md` — ✅ **DONE 2026-07-06**. Follow-on: turns
 
+**10-experiment SOTA roadmap** (`docs/plans/2026-07/experiments-e1-to-e10.md`) — **SCORED 92/100.**
+Ten experiments in three waves closing the remaining gaps to SOTA across noise, efficiency,
+language independence, atypical-speech, and maturity axes. Wave 1 (E1–E4, immediate): DistilHuBERT
+control consolidation, noise robustness, HuBERT-base test + PCA probe, per-word FRR breakdown.
+Wave 2 (E5–E8, ≤7h): language-independence gate, augmentation enrollment, ONNX benchmark, real
+ambient measurement. Wave 3 (E9–E10, synthesis): CP-1 distillation architecture, three-scenario
+SOTA scorecard update. Every experiment has explicit DoD, McNemar, fidelity check, EVAL compliance,
+"if refuted" path, and confidence rating.
+
 **CP-2 SOTA roadmap Stages N+4–N+9** (`docs/plans/2026-07/cp2-sota-roadmap-n4-to-n12.md`) —
 ✅ **DONE 2026-07-07 (4 immediate stages executed).** Defining finding: **DistilHuBERT (23.5M,
 2 layers) OUTPERFORMS WavLM-L12 (95M, 12 layers)** at the CP-2 binding axis — F03 25.4% →
