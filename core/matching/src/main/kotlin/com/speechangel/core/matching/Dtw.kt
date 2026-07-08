@@ -96,22 +96,38 @@ object Dtw {
                 val bestDist: Double
                 val bestLen: Int
                 when {
-                    dDiag <= dUp && dDiag <= dLeft -> { bestDist = dDiag; bestLen = prevLen[j - 1] }
-                    dUp <= dLeft -> { bestDist = dUp; bestLen = prevLen[j] }
-                    else -> { bestDist = dLeft; bestLen = currLen[j - 1] }
+                    dDiag <= dUp && dDiag <= dLeft -> {
+                        bestDist = dDiag
+                        bestLen = prevLen[j - 1]
+                    }
+                    dUp <= dLeft -> {
+                        bestDist = dUp
+                        bestLen = prevLen[j]
+                    }
+                    else -> {
+                        bestDist = dLeft
+                        bestLen = currLen[j - 1]
+                    }
                 }
                 if (bestDist != INF) {
                     curr[j] = cost + bestDist
                     currLen[j] = bestLen + 1
                 }
             }
-            val tmp = prev; prev = curr; curr = tmp
-            val tmpLen = prevLen; prevLen = currLen; currLen = tmpLen
+            val tmp = prev
+            prev = curr
+            curr = tmp
+            val tmpLen = prevLen
+            prevLen = currLen
+            currLen = tmpLen
         }
 
         val accumulated = prev[m]
         val pathLen = prevLen[m]
-        return if (accumulated == INF) Result(INF, 0)
-        else Result(accumulated / (n + m), pathLen)
+        return if (accumulated == INF) {
+            Result(INF, 0)
+        } else {
+            Result(accumulated / (n + m), pathLen)
+        }
     }
 }

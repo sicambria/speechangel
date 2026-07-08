@@ -48,6 +48,7 @@ class WakeGatedRecognizer(
     private val cmdBuf = ArrayDeque<AudioSamples>()
     private val wakeBuf = ArrayDeque<AudioSamples>()
     private var wakeDetected = false
+
     /** E04-06: Count of consecutive wake-positive frames. Reset on NoWake. */
     private var consecutiveWakes = 0
 

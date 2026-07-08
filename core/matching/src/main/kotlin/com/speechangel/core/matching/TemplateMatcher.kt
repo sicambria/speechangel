@@ -86,42 +86,54 @@ class TemplateMatcher(private val config: MatcherConfig = MatcherConfig()) {
             if (winnerBest.distance > threshold) {
                 return RecognitionResult.NoMatch(RejectionReason.BELOW_CONFIDENCE, winnerBest.distance, winnerCommand)
             }
-            return RecognitionResult.Match(winnerCommand, winnerBest.templateId, confidenceOf(winnerBest.distance, runnerUp, threshold), winnerBest.distance)
+            return RecognitionResult.Match(
+                winnerCommand,
+                winnerBest.templateId,
+                confidenceOf(winnerBest.distance, runnerUp, threshold),
+                winnerBest.distance,
+            )
         }
 
         // Enhanced path: dual-filter, k-NN, and/or hysteresis.
         return enhancedMatch(query, templates, perCommandThresholds)
     }
 
-    private fun enhancedMatch(
-        query: FeatureSequence, templates: List<Template>,
-        perCommandThresholds: Map<CommandId, Float>,
-    ): RecognitionResult {
-        data class TmplDist(val templateId: TemplateId, val distance: Float)
+    private data class TmplDist(val templateId: TemplateId, val distance: Float)
 
-        val distsPerCommand = LinkedHashMap<CommandId, MutableList<TmplDist>>()
+    /** Dual-filter (E02-08) distance, or null if the template is rejected/incompatible. */
+    private fun dualFilteredDistance(query: FeatureSequence, template: Template, ln: (FloatArray, FloatArray) -> Double): Float? {
+        val r = Dtw.withPath(query, template.features, config.bandRatio, ln)
+        if (r.pathLength <= 0) return null
+        val selfR = Dtw.withPath(template.features, template.features, config.bandRatio, ln)
+        val expectedLen = if (selfR.pathLength > 0) selfR.pathLength.toDouble() else r.pathLength.toDouble()
+        val deviation = kotlin.math.abs(r.pathLength - expectedLen) / expectedLen
+        if (deviation > config.dualFilterTolerance) return null
+        return r.distance.toFloat()
+    }
+
+    private fun distanceOrNull(query: FeatureSequence, template: Template, ln: (FloatArray, FloatArray) -> Double): Float? =
+        if (config.dualFilterTolerance > 0.0) {
+            dualFilteredDistance(query, template, ln)
+        } else {
+            Dtw.distance(query, template.features, config.bandRatio, ln).toFloat()
+        }
+
+    private fun distsPerCommand(query: FeatureSequence, templates: List<Template>): LinkedHashMap<CommandId, MutableList<TmplDist>> {
         val ln = localFn()
-
+        val distsPerCommand = LinkedHashMap<CommandId, MutableList<TmplDist>>()
         for (template in templates) {
             if (template.features.coefficientCount != query.coefficientCount) continue
-            val dist: Float
-            if (config.dualFilterTolerance > 0.0) {
-                val r = Dtw.withPath(query, template.features, config.bandRatio, ln)
-                if (r.pathLength <= 0) continue
-                val selfR = Dtw.withPath(template.features, template.features, config.bandRatio, ln)
-                val expectedLen = if (selfR.pathLength > 0) selfR.pathLength.toDouble() else r.pathLength.toDouble()
-                val deviation = kotlin.math.abs(r.pathLength - expectedLen) / expectedLen
-                if (deviation > config.dualFilterTolerance) continue // rejected by dual-filter
-                dist = r.distance.toFloat()
-            } else {
-                dist = Dtw.distance(query, template.features, config.bandRatio, ln).toFloat()
-            }
-            if (dist.isFinite()) {
+            val dist = distanceOrNull(query, template, ln)
+            if (dist != null && dist.isFinite()) {
                 distsPerCommand.getOrPut(template.commandId) { mutableListOf() }.add(TmplDist(template.id, dist))
             }
         }
-        if (distsPerCommand.isEmpty()) return RecognitionResult.NoMatch(RejectionReason.NO_TEMPLATES)
+        return distsPerCommand
+    }
 
+    private fun bestPerCommandAndTemplate(
+        distsPerCommand: Map<CommandId, List<TmplDist>>,
+    ): Pair<LinkedHashMap<CommandId, Float>, HashMap<CommandId, TemplateId>> {
         val bestPerCommand = LinkedHashMap<CommandId, Float>()
         val bestTemplate = HashMap<CommandId, TemplateId>()
         for ((cmd, tds) in distsPerCommand) {
@@ -129,33 +141,57 @@ class TemplateMatcher(private val config: MatcherConfig = MatcherConfig()) {
             bestTemplate[cmd] = sorted.first().templateId
             bestPerCommand[cmd] = sorted.take(config.kNN).map { it.distance }.average().toFloat()
         }
+        return bestPerCommand to bestTemplate
+    }
 
+    private fun decideHysteresis(
+        wCmd: CommandId,
+        wDist: Float,
+        rDist: Float?,
+        threshold: Float,
+        templateId: TemplateId,
+    ): RecognitionResult {
+        val tH = threshold * (1.0f + config.hysteresisZone.toFloat())
+        val tL = threshold * (1.0f - config.hysteresisZone.toFloat())
+        return when {
+            wDist <= tL -> RecognitionResult.Match(wCmd, templateId, confidenceOf(wDist, rDist, threshold), wDist)
+            wDist > tH -> RecognitionResult.NoMatch(RejectionReason.BELOW_CONFIDENCE, wDist, wCmd)
+            else -> {
+                val margin = if (rDist != null && rDist > 0f) (rDist - wDist) / rDist else 0f
+                if (margin > 0.1f) {
+                    RecognitionResult.Match(wCmd, templateId, confidenceOf(wDist, rDist, threshold), wDist)
+                } else {
+                    RecognitionResult.NoMatch(RejectionReason.BELOW_CONFIDENCE, wDist, wCmd)
+                }
+            }
+        }
+    }
+
+    private fun enhancedMatch(
+        query: FeatureSequence,
+        templates: List<Template>,
+        perCommandThresholds: Map<CommandId, Float>,
+    ): RecognitionResult {
+        val dists = distsPerCommand(query, templates)
+        if (dists.isEmpty()) return RecognitionResult.NoMatch(RejectionReason.NO_TEMPLATES)
+
+        val (bestPerCommand, bestTemplate) = bestPerCommandAndTemplate(dists)
         val ranked = bestPerCommand.entries.sortedBy { it.value }
         val winner = ranked.first()
         val wCmd = winner.key
         val wDist = winner.value
         val rDist = ranked.getOrNull(1)?.value
         val threshold = perCommandThresholds[wCmd] ?: config.defaultAcceptanceThreshold
+        val templateId = bestTemplate[wCmd] ?: TemplateId("knn")
 
         if (config.hysteresisZone > 0.0) {
-            val tH = threshold * (1.0f + config.hysteresisZone.toFloat())
-            val tL = threshold * (1.0f - config.hysteresisZone.toFloat())
-            return when {
-                wDist <= tL -> RecognitionResult.Match(wCmd, bestTemplate[wCmd] ?: TemplateId("knn"), confidenceOf(wDist, rDist, threshold), wDist)
-                wDist > tH -> RecognitionResult.NoMatch(RejectionReason.BELOW_CONFIDENCE, wDist, wCmd)
-                else -> {
-                    val margin = if (rDist != null && rDist > 0f) (rDist - wDist) / rDist else 0f
-                    if (margin > 0.1f) RecognitionResult.Match(wCmd, bestTemplate[wCmd] ?: TemplateId("knn"), confidenceOf(wDist, rDist, threshold), wDist)
-                    else RecognitionResult.NoMatch(RejectionReason.BELOW_CONFIDENCE, wDist, wCmd)
-                }
-            }
+            return decideHysteresis(wCmd, wDist, rDist, threshold, templateId)
         }
         if (wDist > threshold) return RecognitionResult.NoMatch(RejectionReason.BELOW_CONFIDENCE, wDist, wCmd)
-        return RecognitionResult.Match(wCmd, bestTemplate[wCmd] ?: TemplateId("knn"), confidenceOf(wDist, rDist, threshold), wDist)
+        return RecognitionResult.Match(wCmd, templateId, confidenceOf(wDist, rDist, threshold), wDist)
     }
 
-    fun distance(a: FeatureSequence, b: FeatureSequence): Double =
-        Dtw.distance(a, b, config.bandRatio, localFn())
+    fun distance(a: FeatureSequence, b: FeatureSequence): Double = Dtw.distance(a, b, config.bandRatio, localFn())
 
     private data class Best(val templateId: TemplateId, val distance: Float)
 
@@ -173,5 +209,4 @@ class TemplateMatcher(private val config: MatcherConfig = MatcherConfig()) {
         }
         return ((1f - config.marginWeight) * base + config.marginWeight * margin).coerceIn(0f, 1f)
     }
-
 }
