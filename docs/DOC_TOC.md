@@ -19,6 +19,7 @@ The index of standing documentation. Paths are backtick code-paths (resolve from
 
 - `docs/standards/documentation-governance.md` — temporal buckets + link-safety.
 - `docs/standards/ai-framework-maturity-standard.md` — the 10-dimension `/1000` maturity rubric.
+- `docs/standards/engineering-principles.md` — first-principles engineering, OSS reuse before reinvention, continuous technology discovery; linked to AI workflows.
 
 ## Planning & roadmap
 

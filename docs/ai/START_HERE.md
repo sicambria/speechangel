@@ -18,8 +18,9 @@ immobilized and speech-impaired users. It is **deterministic** (a fixed command�
 2. `AGENTS.md` — operating rules + the 9-step Incident Protocol + the Gradle gates.
 3. `docs/ai/AI_BEHAVIOR_GUARDRAILS.md` — the ~13 universal behavior rules.
 4. `docs/ai/ACTIVE_DEV_RULES.md` — promoted technical rules (starts empty).
-5. `research/README.md` and `research/04_build_and_reuse_plan.md` — what the app is + the build plan.
-6. `docs/ROADMAP.md` — the trackable phase/wave roadmap.
+5. `docs/standards/engineering-principles.md` — first-principles engineering, OSS reuse before reinvention, continuous technology discovery (AI workflows linked).
+6. `research/README.md` and `research/04_build_and_reuse_plan.md` — what the app is + the build plan.
+7. `docs/ROADMAP.md` — the trackable phase/wave roadmap.
 
 ---
 
