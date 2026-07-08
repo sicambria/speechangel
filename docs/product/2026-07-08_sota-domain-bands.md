@@ -151,7 +151,9 @@ additive white noise, not real-world noise types.
 | **600** | — | — | (reverb is mild; no band distinction needed) |
 | **Current** | **64.6%** (tied with clean) | **69.5%** (better than clean — acoustic variation aids discrimination at small vocab) | `ConditionEval` |
 
-**Measurement:** `AudioAugment.convolveRir()`. Validation: same as Domain 4.
+**Measurement:** `AudioAugment.convolveRir()`. Validation:
+`./gradlew :core:eval:test -Dtorgo.dir=$HOME/torgo -Dtorgo.conditions=true` (conditions grid
+includes reverb_small and reverb_medium).
 **Note:** Reverb is NOT the binding constraint — the condition grid proves it's mild.
 The small vocabulary / speaker-dependent nature means room acoustics can actually help
 discrimination (timbre variation across commands is preserved, noise floor is not raised).
@@ -218,7 +220,7 @@ MFCC-level replication.
 | **800** | ≥30% rel | ≤30% | `dual_cascade_verify.py` |
 | **700** | ≥20% rel | ≤40% | `dual_cascade_verify.py` |
 | **600** | ≥10% rel | ≤50% | `dual_cascade_verify.py` |
-| **Current** | **BANKED**: F03 50.3%→25.4% (49.5% rel, p<0.001) — **WavLM only** | — | `dual_cascade_verify.py` |
+| **Current** | **BANKED**: F03 50.3%→25.4% (49.5% rel, p<0.001) — **WavLM only** | F03 **25.4%** @ ≤0.5 FA/hr (WavLM), MFCC NOT EVALUATED | `dual_cascade_verify.py` |
 
 **Measurement:** 3D grid search (distance × |log(dur_ratio)| × margin_ratio), per-(query,template)-pair
 features, 1.01h LibriSpeech background, matched ≤0.5 FA/hr, paired McNemar + exact binomial.
@@ -396,16 +398,20 @@ mechanization of measurement discipline — the "guardrail promotion ladder" fro
 | **800** | 2/5 | 2 rules promoted | `run-all.mjs` PASS |
 | **700** | 1/5 | 1 rule promoted | `run-all.mjs` PASS |
 | **600** | 0/5 | 0 promoted (all advisory) | `run-all.mjs` + manual EVAL check |
-| **Current** | **0/5** (all advisory in `ACTIVE_DEV_RULES.md`) | **0 promoted to contracts or hard gates** | `verify-sota-measurement.mjs` (new, this commit) |
+| **Current** | **Partial: 3 hard-checks covering EVAL-002/003/004/005 citations + fidelity** (EVAL-001 advisory-only) | **eval-measurement-discipline + sota-band-consistency contracts active** | `verify-sota-measurement.mjs` |
 
 **Measurement:** Count of hard-gated EVAL rules in `scripts/audits/run-all.mjs` vs the 5 rules
 in `ACTIVE_DEV_RULES.md`. Each promoted rule must have: a contract entry in
 `workflow-boundary-contracts.json`, a hard-gate verifier in `scripts/audits/`, and a `classify.mjs`
 match pattern that surfaces the contract.
 
-**Current state:** `verify-sota-measurement.mjs` (created this commit) is the first hard gate —
-it checks EVAL-002/003 citation in testing docs, S-tier staleness, and honesty banners. EVAL-004
-(fidelity reproduction) and EVAL-005 (replication) remain advisory.
+**Current state:** `verify-sota-measurement.mjs` (created 2026-07-08) enforces three hard checks:
+(1) EVAL-002/003/005 citation in testing docs, (2) EVAL-004 fidelity-reproduction statements on
+delta claims, (3) honesty-banner presence on generated eval reports. Advisory warnings cover
+S-tier experiment staleness (plan-file check) and negated-citation detection. EVAL-001
+(pre-registration as a distinct sequential gate) remains advisory-only. Two boundary contracts
+are active (`eval-measurement-discipline`, `sota-band-consistency`). This is the first rung on
+the guardrail promotion ladder — 3 hard checks + 2 contracts from zero.
 
 ---
 
@@ -427,7 +433,7 @@ it checks EVAL-002/003 citation in testing docs, S-tier staleness, and honesty b
 | 12. Battery/resource | ≤30%/hr | ≤20%/hr | ≤12%/hr | ≤8%/hr | ≤5%/hr | ≤2%/hr | **<600** (UNKNOWN) |
 | 13. Enrollment efficiency | ≥60% | ≥70% | ≥80% | ≥85% | ≥90% | 100% | **600-700** (saturates ≥3) |
 | 14. Vocab size scaling | ≥50% | ≥60% | ≥70% | ≥80% | ≥90% | ≥90% | **600** (56.8% @ 77cmd) |
-| 15. Guardrail coverage | 0/5 | 1/5 | 2/5 | 3/5 | 4/5 | 5/5 | **600** (first gate this commit) |
+| 15. Guardrail coverage | 0/5 | 1/5 | 2/5 | 3/5 | 4/5 | 5/5 | **600** (3 hard checks + 2 contracts, this commit) |
 
 ---
 

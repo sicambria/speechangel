@@ -85,15 +85,53 @@
       "id": "sota-band-consistency",
       "category": "sota-accuracy",
       "title": "SOTA domain band doc ↔ measurement baseline consistency",
-      "description": "The SOTA domain bands doc (docs/product/2026-07-08_sota-domain-bands.md) defines the SOTA=1000 ceiling across 15 domains. Any change that would alter a band threshold or a claimed baseline should be validated against the measurement scripts listed in the Validation scripts index.",
+      "description": "The SOTA domain bands doc (docs/product/2026-07-08_sota-domain-bands.md) defines the SOTA=1000 ceiling across 15 domains. Any change that would alter a band threshold or a claimed baseline should be validated against the measurement scripts listed in the Validation scripts index. The followUp runs the full guardrail suite to catch any downstream eval discipline violations the edit may trigger.",
       "patterns": [
         "docs/product/2026-07-08_sota-domain-bands\\.md$"
       ],
       "followUps": [
         {
-          "label": "Validate SOTA band consistency",
-          "command": "node scripts/audits/verify-sota-measurement.mjs",
+          "label": "Validate SOTA band consistency + run full guardrail suite",
+          "command": "node scripts/audits/run-all.mjs",
           "paths": ["docs/product/2026-07-08_sota-domain-bands.md"]
+        }
+      ]
+    },
+    {
+      "id": "qbe-encoder-model-sync",
+      "category": "sota-accuracy",
+      "title": "QbeEncoder interface ↔ trained model ↔ eval results sync",
+      "description": "The QbeEncoder seam (core:matching/QbeEncoder.kt) defines the interface for learned few-shot embeddings. A change to the encoder interface, the model training pipeline, or the eval results that reference QbE accuracy must stay consistent: the 2×2 decomposition (representation × matcher) must hold, the model size constraint (≤2MB on-device) must be satisfied, and the eval must reproduce the baseline before claiming a delta.",
+      "patterns": [
+        "(?i)QbeEncoder\\.kt$",
+        "(?i)QbeSpeechBackend\\.kt$",
+        "ssl_frontend_spike/.*\\.py$",
+        "docs/testing/.*cp1.*\\.md$"
+      ],
+      "followUps": [
+        {
+          "label": "Verify QbE encoder ↔ model consistency",
+          "command": "node scripts/audits/verify-sota-measurement.mjs",
+          "paths": ["core/matching/QbeEncoder.kt", "core/matching/QbeSpeechBackend.kt", "scripts/eval/ssl_frontend_spike/"]
+        }
+      ]
+    },
+    {
+      "id": "matcher-2x2-decomposition",
+      "category": "sota-accuracy",
+      "title": "Dtw / TemplateMatcher changes ↔ 2×2 decomposition holds",
+      "description": "The CP-1 ceiling spike proved that representation and matcher are separate levers: WavLM+DTW ties MFCC-DTW, MFCC+pooling drops to 39.3%. Any change to the DTW implementation, the TemplateMatcher, or the embedding pooler must verify that the 2×2 decomposition still isolates the correct lever — i.e., representation quality and matcher quality must be independently testable, not confounded.",
+      "patterns": [
+        "(?i)Dtw\\.kt$",
+        "(?i)TemplateMatcher\\.kt$",
+        "matcher2x2\\.py$",
+        "ssl_features\\.py$"
+      ],
+      "followUps": [
+        {
+          "label": "Verify 2×2 decomposition still holds (representation × matcher cross-test)",
+          "command": "python3 scripts/eval/ssl_frontend_spike/matcher2x2.py F01 F03 F04 FC01 FC02 FC03 && echo 'Verify: WavLM+DTW ≈ MFCC-DTW (tie), and MFCC+pooling < MFCC-DTW (confound check)'",
+          "paths": ["core/matching/Dtw.kt", "core/matching/TemplateMatcher.kt", "scripts/eval/ssl_frontend_spike/matcher2x2.py", "scripts/eval/ssl_frontend_spike/ssl_features.py"]
         }
       ]
     }
