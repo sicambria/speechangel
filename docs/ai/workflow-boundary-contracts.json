@@ -57,6 +57,45 @@
           "paths": ["docs/errors/"]
         }
       ]
+    },
+    {
+      "id": "eval-measurement-discipline",
+      "category": "sota-accuracy",
+      "title": "Eval code or accuracy claims ↔ EVAL measurement discipline",
+      "description": "Any change to core:eval, core:matching, core:enrollment, core:dsp, scripts/eval, or accuracy-claim docs must comply with EVAL-002 (held-out thresholds), EVAL-003 (pre-registration/banked-vs-exploratory), and EVAL-005 (replication claim). The verify-sota-measurement.mjs guardrail enforces citation of these in testing docs.",
+      "patterns": [
+        "core/eval/.*\\.kt$",
+        "core/matching/.*\\.kt$",
+        "core/enrollment/.*\\.kt$",
+        "core/dsp/.*\\.kt$",
+        "scripts/eval/.*",
+        "docs/testing/.*\\.md$",
+        "docs/research/experiments/.*\\.md$",
+        "docs/product/.*sota.*\\.md$"
+      ],
+      "followUps": [
+        {
+          "label": "Verify EVAL measurement discipline",
+          "command": "node scripts/audits/verify-sota-measurement.mjs",
+          "paths": ["core/eval/", "core/matching/", "core/enrollment/", "core/dsp/", "scripts/eval/"]
+        }
+      ]
+    },
+    {
+      "id": "sota-band-consistency",
+      "category": "sota-accuracy",
+      "title": "SOTA domain band doc ↔ measurement baseline consistency",
+      "description": "The SOTA domain bands doc (docs/product/2026-07-08_sota-domain-bands.md) defines the SOTA=1000 ceiling across 15 domains. Any change that would alter a band threshold or a claimed baseline should be validated against the measurement scripts listed in the Validation scripts index.",
+      "patterns": [
+        "docs/product/2026-07-08_sota-domain-bands\\.md$"
+      ],
+      "followUps": [
+        {
+          "label": "Validate SOTA band consistency",
+          "command": "node scripts/audits/verify-sota-measurement.mjs",
+          "paths": ["docs/product/2026-07-08_sota-domain-bands.md"]
+        }
+      ]
     }
   ]
 }

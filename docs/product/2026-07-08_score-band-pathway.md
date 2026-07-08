@@ -3,7 +3,9 @@
 # SpeechAngel — Score Band Pathway (480 → 900+), code-only
 
 **Date:** 2026-07-08 · **Current score: 480 / 1000** · Companion to
-`docs/product/2026-07-06_sota-frr-far-and-real-life-scorecard.md`.
+`docs/product/2026-07-06_sota-frr-far-and-real-life-scorecard.md` and
+`docs/product/2026-07-08_sota-domain-bands.md` (15-domain SOTA=1000 band structure with
+real-world metrics and validation scripts).
 
 Code-specific milestones, roadmap items, and point contributions per band. Non-code tasks
 (store accounts, DUA paperwork, usability studies, policy declarations) are excluded — factors 6

@@ -23,6 +23,7 @@ const VERIFIERS = [
   "verify-foreground-service-types.mjs",
   "verify-listening-offmain.mjs",
   "verify-no-secrets.mjs",
+  "verify-sota-measurement.mjs",
 ];
 
 function main() {
