@@ -157,12 +157,12 @@ or CP-1 distillation. Run it first among the immediate stages.
 
 ## Definition of Done
 
-- [ ] **N+4:** McNemar FRR FAR report on FC01/FC02/FC03 — no regression (b=0)
-- [ ] **N+5:** McNemar FRR FAR — energy-ratio adds ≥10% rel FRR reduction vs 2-stage (or honest negative)
-- [ ] **N+7:** Vocabulary-optimized vs random-15 vs all-77 — decisive answer on binding constraint
-- [ ] **N+9:** DistilHuBERT FRR FAR at ≤0.5 FA/hr vs WavLM baseline
-- [ ] Testing reports for all four stages in `docs/testing/2026-07-07_*`
-- [ ] Updated `docs/plans/INDEX.md`
+- [x] **N+4:** McNemar FRR FAR report on FC01/FC02/FC03 — no regression (b=0) ✅
+- [x] **N+5:** McNemar FRR FAR — energy-ratio adds +91.7% rel on F04, TIE on F01/F03 ✅
+- [x] **N+7:** Vocabulary-optimized vs random-15 vs all-77 — decisive: both vocab + embedding are binding ✅
+- [x] **N+9:** DistilHuBERT FRR FAR at ≤0.5 FA/hr — 23.5M OUTPERFORMS 95M WavLM (F03 2.2% FRR!) ✅
+- [x] Testing reports for all four stages in `docs/testing/2026-07-07_cp2-stages-n4-n5-n7-n9.md` ✅
+- [x] Updated `docs/plans/INDEX.md` ✅
 
 ## Risks & Mitigations
 

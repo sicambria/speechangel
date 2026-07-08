@@ -297,6 +297,20 @@ closes the CP-2 gap; product implementation is trivial (one duration check per g
 `scripts/eval/ssl_frontend_spike/dual_cascade_verify.py`.
 
 `docs/plans/2026-07/picovoice-benchmark-operationalization.md` — ✅ **DONE 2026-07-06**. Follow-on: turns
+
+**CP-2 SOTA roadmap Stages N+4–N+9** (`docs/plans/2026-07/cp2-sota-roadmap-n4-to-n12.md`) —
+✅ **DONE 2026-07-07 (4 immediate stages executed).** Defining finding: **DistilHuBERT (23.5M,
+2 layers) OUTPERFORMS WavLM-L12 (95M, 12 layers)** at the CP-2 binding axis — F03 25.4% →
+2.2% FRR, F01 3.1% → 0.0%. CP-2 wall effectively closed for ≤77-command vocabularies.
+- **N+4 (control verify):** Zero regression (b=0). FC01 +75% rel FRR win.
+- **N+5 (energy-ratio):** F04 24% → 2% FRR (+91.7%). Cheapest possible third cascade stage.
+- **N+7 (vocab-optimize):** +50% rel FRR vs random subsets. Vocab distinctness + embedding
+  quality are both binding constraints.
+- **N+9 (DistilHuBERT):** 4× smaller, 6× shallower, SIGNIFICANTLY BETTER than WavLM at CP-2.
+  The 1–2M distillation target is validated. N+6 (noise), N+8 (lang-indep), N+11 (product)
+  and N+12 (distillation) remain to be executed.
+Consolidated report: `docs/testing/2026-07-07_cp2-stages-n4-n5-n7-n9.md`. New scripts:
+`energy_ratio_spike.py`, `vocab_opt_spike.py`, `distilhubert_spike.py`.
 the one-shot harness into a repeatable **build / planning / experimentation** surface. `make bench-picovoice`
 (no overrides ⇒ byte-reproduces the committed report); six experiment knobs (`FRONTEND`/`DELTA`/`SNR`/
 `WINDOW`/`HOP`/`TARGETFA`) wired to `-D` for CLI sweeps; advisory benchmark-impact bullet in the plan
