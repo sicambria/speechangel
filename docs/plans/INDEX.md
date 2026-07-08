@@ -339,3 +339,19 @@ and comparability caveat) plus a short config-explicit "where SpeechAngel stands
 baseline label in `docs/product/2026-07-08_sota-domain-bands.md` (shipped = static = FRR 75.7%, not the
 `delta_delta` 78.3%); repointed all inbound refs. Docs-only — no code, no new measurement; every FRR/FAR
 figure is cited from existing `docs/testing/*` reports and made config-explicit. `run-all.mjs` 11/11.
+
+## Automated SOTA scorecard (2026-07-08)
+
+`docs/plans/2026-07/automated-sota-scorecard.md` — ✅ **DONE 2026-07-08** (advisor-gated; self-scored
+94/100). The first automated bridge from measured performance to the `SOTA=1000` band ladder — the doc's
+"Current band" column was hand-typed until now. Adds `DomainBands` (thresholds-as-data + a pure
+band-mapper, unit-tested against the committed table) and `SotaScorecard` (`core:eval`): runs the
+JVM-measurable domains vs TORGO on the shipped static-MFCC front-end, emits a per-domain band map +
+machine-readable JSON, with a **wall-dominated (minimum-band) composite** — headline `<600`, bound by the
+FRR and ambient-FA/hr walls. Honesty-first: unmeasurable domains are `NOT_MEASURED` with the
+reason/command (never guessed); simulated/proxy/low-fidelity measurements are tagged; the composite is
+flagged optimistically biased. Reproduces the committed floor (rank-1 59.2% → 600; FRR 75.7% @ FAR 4.6% →
+`<600`) as the EVAL-004 fidelity gate, and surfaced a doc rounding error (D5 reverb 64.6% is `<600`, not
+the hand-typed 700). SSL domains D8/D9 (torch, isolated `~/torch-venv`) fold in via a `--emit` key=value
+bridge (`make sota-score-full`); `make sota-score` runs the JVM subset with no torch. `run-all.mjs`
+11/11; `:core:eval` detekt/spotless/test green.
