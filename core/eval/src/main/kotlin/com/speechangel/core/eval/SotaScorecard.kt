@@ -62,13 +62,14 @@ class SotaScorecard(
         val bindingDomains: List<DomainScore> get() = compositeDomains.filter { it.band == bindingBand }
     }
 
-    fun run(torgoRoot: File, sslMetrics: File? = null): Scorecard {
+    fun run(torgoRoot: File, sslMetrics: File? = null, rulesFile: File? = null): Scorecard {
         val ssl = sslMetrics?.takeIf { it.isFile }?.let { readMetrics(it) } ?: emptyMap()
         val domains = torgoDomains(torgoRoot) +
             conditionDomains(torgoRoot) +
             ambientDomain(torgoRoot) +
             sslDomains(ssl) +
-            blockedDomains()
+            blockedDomains() +
+            guardrailDomain(rulesFile)
         return Scorecard(torgoRoot.name, domains.sortedBy { it.id })
     }
 
@@ -154,7 +155,7 @@ class SotaScorecard(
         ),
     )
 
-    /** Domains 10/11/12/13/15 — not measurable on this host, or structural. */
+    /** Domains 10/11/12/13 — not measurable on this host (data-shape or physical-device gaps). */
     private fun blockedDomains(): List<DomainScore> = listOf(
         notMeasured(
             10,
@@ -168,12 +169,48 @@ class SotaScorecard(
             "enrollment efficiency: the current k-fold fraction sweep is not the 1–5 " +
                 "template-count sweep the band defines — needs a dedicated harness",
         ),
-        notMeasured(
-            15,
-            "guardrail coverage: structural/process, not a performance measurement " +
-                "(see `scripts/audits/verify-sota-measurement.mjs`)",
-        ),
     )
+
+    /**
+     * Domain 15 — guardrail coverage: the count of EVAL-001..005 rules promoted to **hard gates** in
+     * `docs/ai/ACTIVE_DEV_RULES.md` (a rule counts iff its `**Gate:**` line says `hard`). Structural/process,
+     * so [DomainScore.countsForComposite] = false: measured and reported, never folded into the shipped-system
+     * wall. Requires `-Dsota.rules=<path>`; without it the domain stays [Status.NOT_MEASURED] (never guessed).
+     */
+    private fun guardrailDomain(rulesFile: File?): DomainScore {
+        if (rulesFile == null || !rulesFile.isFile) {
+            return notMeasured(
+                15,
+                "guardrail coverage: pass `-Dsota.rules=docs/ai/ACTIVE_DEV_RULES.md` to count hard-gated EVAL rules",
+            )
+        }
+        val count = countHardGatedEvalRules(rulesFile)
+        return domain(
+            15,
+            count.toDouble(),
+            Status.MEASURED,
+            false,
+            "hard-gated EVAL rules in `${rulesFile.name}`: $count/5 (`**Gate:** hard` + named verifier); " +
+                "structural process metric, excluded from the shipped-system composite",
+        )
+    }
+
+    /**
+     * Counts EVAL-`NNN` rule sections whose `**Gate:**` line contains the word `hard`. One count per
+     * `### EVAL-NNN` heading; the promotion-ladder table (non-`### EVAL-NNN` heading) is not a rule section,
+     * and only the first `**Gate:**` line inside each section is inspected.
+     */
+    internal fun countHardGatedEvalRules(rulesFile: File): Int {
+        val text = rulesFile.readText()
+        val headers = Regex("""(?m)^###\s+(EVAL-\d{3})\b""").findAll(text).map { it.range.first }.toList()
+        var hard = 0
+        for ((i, start) in headers.withIndex()) {
+            val end = headers.getOrNull(i + 1) ?: text.length
+            val gateLine = text.substring(start, end).lineSequence().firstOrNull { it.contains("**Gate:**") }
+            if (gateLine != null && Regex("""\bhard\b""").containsMatchIn(gateLine)) hard++
+        }
+        return hard
+    }
 
     // ---- measurement helpers ----
 

@@ -43,8 +43,38 @@ class SotaScorecardTest {
         // D9 SSL ceiling rank-1 (higher better): WavLM 71.9% → 800 (≥70 rung; the 900 rung is ≥75).
         assertThat(DomainBands.bandFor(9, 0.719)).isEqualTo(800)
 
+        // D15 guardrail coverage (count_of_5, higher better): 0 → 600, 2 → 800, 3 → 900.
+        assertThat(DomainBands.bandFor(15, 0.0)).isEqualTo(600)
+        assertThat(DomainBands.bandFor(15, 2.0)).isEqualTo(800)
+        assertThat(DomainBands.bandFor(15, 3.0)).isEqualTo(900)
+
         assertThat(DomainBands.bandLabel(DomainBands.BELOW_FLOOR)).isEqualTo("<600")
         assertThat(DomainBands.bandLabel(900)).isEqualTo("900")
+    }
+
+    @Test
+    fun `guardrail coverage counts hard-gated EVAL rules`() {
+        // Hermetic: a fixture rules file with two hard-gated rules → count 2 → band 800.
+        val tmp = File.createTempFile("active-dev-rules", ".md")
+        tmp.writeText(
+            """
+            ### EVAL-001 — never report bare-threshold FRR
+            - **Gate:** advisory; TorgoEval.kt reference.
+            ### EVAL-003 — pre-register one hypothesis
+            - **Gate:** **hard** — verify-sota-measurement.mjs check 1 (banked-vs-exploratory label).
+            ### EVAL-004 — reproduce the whole pipeline
+            - **Gate:** **hard** — verify-sota-measurement.mjs check 3 (fidelity statement).
+
+            ### EVAL guardrail promotion ladder
+            | EVAL-005 | hard | (this is a TABLE row, not a rule Gate line — must NOT be counted) |
+            ### EVAL-005 — extreme operating points are high-variance
+            - **Gate:** advisory; in_regime.py reference.
+            """.trimIndent(),
+        )
+        val count = SotaScorecard().countHardGatedEvalRules(tmp)
+        assertThat(count).isEqualTo(2) // EVAL-003 + EVAL-004 only; the ladder table row is not a Gate line.
+        assertThat(DomainBands.bandFor(15, count.toDouble())).isEqualTo(800)
+        tmp.delete()
     }
 
     @Test
@@ -55,8 +85,9 @@ class SotaScorecardTest {
         assertThat(root.isDirectory).isTrue()
 
         val ssl = System.getProperty("sota.ssl")?.let { File(it) }
+        val rules = System.getProperty("sota.rules")?.let { File(it) }
         val scorer = SotaScorecard()
-        val sc = scorer.run(root, ssl)
+        val sc = scorer.run(root, ssl, rules)
 
         val d1 = sc.domains.first { it.id == 1 }
         val d2 = sc.domains.first { it.id == 2 }
@@ -72,6 +103,16 @@ class SotaScorecardTest {
         // Wall-dominated composite is <600 (FRR / ambient walls), never inflated by strong domains.
         assertThat(sc.bindingLabel).isEqualTo("<600")
         assertThat(sc.compositeDomains).isNotEmpty()
+
+        // D15 guardrail coverage: measured from the rules file (≥2 hard-gated → ≥800), but structural —
+        // NOT in the wall-dominated composite, so it never inflates the <600 headline.
+        if (rules != null && rules.isFile) {
+            val d15 = sc.domains.first { it.id == 15 }
+            assertThat(d15.status).isEqualTo(SotaScorecard.Status.MEASURED)
+            assertThat(d15.band).isAtLeast(800)
+            assertThat(d15.countsForComposite).isFalse()
+            assertThat(sc.compositeDomains.map { it.id }).doesNotContain(15)
+        }
 
         val md = scorer.renderMarkdown(sc)
         val json = scorer.renderJson(sc)
