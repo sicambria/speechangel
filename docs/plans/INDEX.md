@@ -355,3 +355,22 @@ flagged optimistically biased. Reproduces the committed floor (rank-1 59.2% → 
 the hand-typed 700). SSL domains D8/D9 (torch, isolated `~/torch-venv`) fold in via a `--emit` key=value
 bridge (`make sota-score-full`); `make sota-score` runs the JVM subset with no torch. `run-all.mjs`
 11/11; `:core:eval` detekt/spotless/test green.
+
+## SOTA 800-push — every sub-800 domain × 10 experiments (2026-07-09)
+
+`docs/plans/2026-07/sota-800-push.md` — 🔵 **ACTIVE** (advisor-gated). For each of the **13 sub-800
+domains** (D1–D7, D10–D15), 10 pre-registered, command-level experiments to break the **800 band**,
+organized around 6 shared levers (CP-1 encoder, CP-2 dual-cascade@MFCC, multi-condition augmentation, vocab
+distinctness, front-end robustness, simulation fidelity). Honesty contract: proxies never earn a green
+≥800; the five constraints are an admissibility filter; DoD on the binding axis (FRR @ matched FAR).
+Env-reality probe (2026-07-09) confirmed torch/transformers, TORGO, Common Voice, DEMAND, LibriSpeech, and
+DistilHuBERT ONNX are all **present**, so most "device/download-blocked" domains have runnable automated
+proxies. **Banked this session:** **D15 guardrail coverage → 800** by adding **two genuine substance gates** to
+`verify-sota-measurement.mjs` (check 3 = a delta claim needs a reproduced baseline *number*; check 4 = an
+adjudicated McNemar/rel-reduction result needs an explicit *banked/NOT-banked verdict*) — advisor-corrected
+from an earlier draft that counted pre-existing citation checks (which fail a uniform criterion). The count
+2/5 = the two substance gates **built and verified to bite** this session (criterion: "a rule counts iff a
+blocking check enforces a rule-specific substance artifact"). 002/005 are gateable but that is future work
+(E15-06/07); 001 has no check. Both new gates verified to bite on fixtures. `SotaScorecard` auto-measures it (excluded from the wall-dominated composite,
+so the headline stays `<600`). **R1:** D5 reverb band reconciled to `<600` in the domain-bands doc.
+`make sota-score` shows D15 `2/5 | 800 | MEASURED`; `make guardrails` 11/11 green.
