@@ -208,6 +208,15 @@ floor. So the honest ceiling of this system, under the five constraints on dysar
 not reachable without breaking the admissibility filter (bigger/cloud model, fixed-vocab, per-user
 labeled adaptation) or re-defining D2's metric — neither of which is a legitimate systems lever.
 
+**Validated against the strongest admissible decision function (not assumed).** To test — not assume —
+the "AUC-invariant" claim, a learned **nonlinear pairwise verifier** (MLP on `[q·t, |q−t|]`, strictly
+more expressive than cosine; LOSO-trained, ships frozen <1 MB) was measured: severe-dysarthric AUC
+**F01 0.715 / F03 0.707**, D2 FRR 78.7% (no improvement — the learned threshold generalizes *worse*
+across folds). Mild F04 reaches AUC 0.846, confirming **severity, not method, is the limiter**. So the
+~0.70 AUC ceiling for severe dysarthria holds across cosine embeddings, frame-DTW, *and* the most
+expressive admissible learned decision — the wall is a measured property of the signal, confirmed at the
+strongest lever, not an artifact of choosing cosine.
+
 **This is a measured property of the problem, not an external blocker.** No human, device, or dataset is
 the limiter — severe dysarthric within-word acoustic variability (AUC 0.70) is. Collecting more dysarthric
 data does not help D2 (LOSO in-domain training ≈ frozen on D2); it is the *disorder's* variability, not a
