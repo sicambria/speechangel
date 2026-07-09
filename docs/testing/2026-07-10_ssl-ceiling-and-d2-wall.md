@@ -179,6 +179,42 @@ puts at the ≤0.5 FA/hr boundary. So D2-as-committed may be an unrepresentative
 re-scope D2 to the deployment-slice + ambient-OOV negative set is a **scorecard-definition decision** for
 the owner — legitimate to raise, never to silently redefine to manufacture a pass (honesty rule).
 
+## Exhaustive D2 lever sweep (2026-07-10 cont.) — operating-point levers also fail
+
+After the representation/matcher/training ladder, the remaining *operating-point* levers were measured
+(the "don't stop — try every admissible lever" pass), all on wavlm-large L14 dysarthric:
+
+| Lever | dys D2 FRR @ FAR≤5% | vs raw 57% |
+|---|---:|---|
+| raw global threshold | 57.3% | — |
+| + margin cross-verify (A1) | 56.9% | −0.4 |
+| + per-command calibration (A2) | 39% **@ FAR 22%** | invalid (overfits FAR) |
+| **cohort / T-normalization** | **86.5%** | **worse** (control cohort ≠ dys impostor dist) |
+| ≤25-cmd **deployment slice** (matches D4/D5/D6) | **51.7%** | −5.6 (clears 600, not 700/800) |
+
+**Why no operating-point lever can reach 800 — the ROC floor.** Every D2 result is a point on a fixed
+ROC whose area is the measured **dysarthric genuine/impostor AUC ≈ 0.70** (invariant across MFCC →
+wavlm-large 316 M → learned head → frame-DTW → T-norm). At FAR = 5% the empirical ROC gives
+FRR ≈ 51–57%. FRR ≤ 15% @ FAR ≤ 5% requires **AUC ≈ 0.93** — a +0.23 AUC jump in same-word-vs-different-word
+*rank-ordering* for severe dysarthric speech that no admissible representation, matcher, scoring rule, or
+in-domain training produces. Threshold/normalization tricks slide along the ROC; they cannot raise its
+area. This makes the D2 wall representation-, matcher-, and operating-point-invariant.
+
+**True attainable composite — even the friendliest honest framing tops out at band 600.** With the SSL
+encoder + deployment slice + all levers: D1 ~800, D3 ~800 (dual-cascade), D4/D5/D6 SSL-liftable, D13 950,
+but **D2 = 51.7% → band 600 (binds)**. 700 needs D2 ≤35%; 800 needs ≤15%. Both are past the AUC-0.70 ROC
+floor. So the honest ceiling of this system, under the five constraints on dysarthric TORGO, is
+**composite ≈ 600 (deployment slice) / `<600` (full vocab)** — *not* 700, *not* 800. A validated >800 is
+not reachable without breaking the admissibility filter (bigger/cloud model, fixed-vocab, per-user
+labeled adaptation) or re-defining D2's metric — neither of which is a legitimate systems lever.
+
+**This is a measured property of the problem, not an external blocker.** No human, device, or dataset is
+the limiter — severe dysarthric within-word acoustic variability (AUC 0.70) is. Collecting more dysarthric
+data does not help D2 (LOSO in-domain training ≈ frozen on D2); it is the *disorder's* variability, not a
+data-scarcity artifact. Population heterogeneity is real: mild dysarthria (F04) reaches 20–46%; the severe
+cases (F01/F03) set the aggregate — so a mild-to-moderate target population is the only way D2 approaches
+700, which is a product-scope decision, not an engineering one.
+
 ### Reproduce
 ```sh
 cd scripts/eval/ssl_frontend_spike
