@@ -374,6 +374,15 @@ blocking check enforces a rule-specific substance artifact"). 002/005 are gateab
 (E15-06/07); 001 has no check. Both new gates verified to bite on fixtures. `SotaScorecard` auto-measures it (excluded from the wall-dominated composite,
 so the headline stays `<600`). **R1:** D5 reverb band reconciled to `<600` in the domain-bands doc.
 `make sota-score` shows D15 `2/5 | 800 | MEASURED`; `make guardrails` 11/11 green.
+**2026-07-10 ADJUDICATION (still 🔵 active — decisive ceiling measured):** the composite is **D2-bound
+and D2 is a measured intrinsic wall**. An SSL-quality encoder lifts the accuracy walls (D1 dysarthric
+rank-1 = 79.4% frozen wavlm-large / 78.7% learned → clears 800), but **D2 (FRR@FAR≤5% on dysarthric
+in-vocab confusors) does not drop below ~55%** under any admissible representation × matcher ×
+training-data combination — root-caused to dysarthric within-word variability (genuine/impostor AUC
+~0.70; needs ≳0.95). **Honest 800 is unreachable under the five-constraint filter on dysarthric TORGO,
+bound solely by D2.** Reproducible: `docs/testing/2026-07-10_ssl-ceiling-and-d2-wall.md` (harnesses
+`ceiling_sweep.py`, `d2_ceiling.py`, `metric_probe.py`, `loso_probe.py`, `frame_dtw_sep.py`). Remaining
+fork = owner scorecard-definition decision (re-scope D2's synthetic negative set), not a system lever.
 
 ## Complete the SOTA scorecard — build the NOT_MEASURED domains (2026-07-09)
 

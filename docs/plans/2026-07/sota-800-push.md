@@ -3,6 +3,21 @@
 # SpeechAngel — SOTA 800-Push Plan (every sub-800 domain × 10 experiments)
 
 **Status:** active (created 2026-07-09) · **Owner:** journey run 2026-07-09
+**2026-07-10 adjudication — the composite is D2-bound, and D2 is a measured intrinsic wall.** The
+decisive ceiling test (`docs/testing/2026-07-10_ssl-ceiling-and-d2-wall.md`) upper-bounded the whole
+push. Result: **D1/D4/D5/D6 accuracy walls are liftable** by an SSL-quality encoder (D1 dysarthric
+rank-1 measured 79.4% frozen wavlm-large / 78.7% learned — clears 800), but **D2 (FRR@FAR≤5% on
+dysarthric in-vocab confusors) does not move below ~55%** under *any* admissible lever — representation
+(MFCC→wavlm-large 316 M→learned metric head), matcher (mean-pool cosine→frame-level DTW), or training
+data (control→in-domain LOSO). Root cause measured: dysarthric within-word variability caps
+genuine/impostor separability at **AUC ~0.70** (needs ≳0.95 for FRR≤15%). **Therefore an honest 800
+composite is unreachable under the five-constraint admissibility filter on dysarthric TORGO, bound
+solely by D2.** Per the honesty contract this is banked as the wall + true attainable composite
+(`<600`, D2-bound), never laundered. The remaining honest fork is a **scorecard-definition decision for
+the owner**: whether D2's negative set (in-vocab *singleton* OOV — synthetic, unrepresentative of a
+speaker-dependent product's real rejection burden) should be re-scoped to the deployment-slice +
+ambient-OOV axis (where the dual-cascade already sits at the ≤0.5 FA/hr / ~75%-det boundary). Not pulled
+unilaterally.
 **Companion refs:** `docs/product/2026-07-08_sota-domain-bands.md` (band ladder, source of truth),
 `core/eval/src/main/kotlin/com/speechangel/core/eval/DomainBands.kt` (machine thresholds),
 `docs/ai/ACTIVE_DEV_RULES.md` (EVAL-001..005),
