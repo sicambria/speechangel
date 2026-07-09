@@ -37,7 +37,7 @@ class SotaScorecard(
     private val target: Double = 0.05,
     private val matcherConfig: MatcherConfig = MatcherConfig(),
 ) {
-    enum class Status { MEASURED, PROXY, SIMULATED_CHANNEL, LOW_FIDELITY, NOT_MEASURED }
+    enum class Status { MEASURED, PROXY, SIMULATED_CHANNEL, SIMULATED_DEVICE, LOW_FIDELITY, NOT_MEASURED }
 
     data class DomainScore(
         val id: Int,
@@ -68,7 +68,8 @@ class SotaScorecard(
             conditionDomains(torgoRoot) +
             ambientDomain(torgoRoot) +
             sslDomains(ssl) +
-            blockedDomains() +
+            deviceDomains(torgoRoot) +
+            enrollmentDomain(torgoRoot) +
             guardrailDomain(rulesFile)
         return Scorecard(torgoRoot.name, domains.sortedBy { it.id })
     }
@@ -130,46 +131,95 @@ class SotaScorecard(
         )
     }
 
-    /** Domains 7/8/9 — SSL / Python spikes via the `--emit` metrics bridge (D8/D9 are off-device, not shipped). */
+    /**
+     * Domains 7/8/9 — Python spikes via the `--emit` metrics bridge. D7 (in-regime wake detection) is a
+     * torch-free numpy MFCC spike and a shipped-path PROXY (counts); D8/D9 need torch and are off-device
+     * research-tier (excluded).
+     *
+     * **Domain 10 is deliberately NOT here.** Its `lang_indep_rank1.py` diagnostic empirically confirms
+     * that single-read Common Voice yields only chance-level cross-clip rank-1 (English anchor ≈ 1/N ≈
+     * chance) — the null, not a signal. DTW distance is informative only for same-content pairs, which CV
+     * lacks, so no valid command-word rank-1 proxy exists on available data. D10 therefore stays
+     * [Status.NOT_MEASURED]; its band basis is the **by-construction** argument (no LM/lexicon/phoneme in
+     * the shipped MFCC path; Zhang 2014; Picovoice 89.2% untuned English corroboration) documented in
+     * `docs/product/2026-07-08_sota-domain-bands.md` §10 — argued in prose, never mapped to a band from
+     * noise (the doc's "no theoretical derivations in the band table" rule).
+     */
     private fun sslDomains(ssl: Map<Int, Metric>): List<DomainScore> = listOf(
         sslDomain(
             ssl,
             7,
-            "wake detection @ ~0 FA/hr, MFCC-DTW in-regime, off-device (numpy)",
+            Status.PROXY,
             true,
-            "run `in_regime.py mfcc` with --emit (off-device; not the shipped ambient path)",
+            "in-regime MFCC-DTW detection @ ≤0.5 FA/hr, LibriSpeech bg, off-device numpy MFCC (mirrors shipped `none`)",
+            "run `make sota-score-ssl` → `in_regime.py mfcc <spk> <bg_min> --emit` (torch-free; in-regime proxy, optimistically biased)",
         ),
         sslDomain(
             ssl,
             8,
-            "dual-cascade rel FRR reduction, WavLM-base-plus L12, off-device",
+            Status.MEASURED,
             false,
+            "dual-cascade rel FRR reduction, WavLM-base-plus L12, off-device",
             "run `dual_cascade_verify.py --emit` (needs torch; research-tier, not shipped)",
         ),
         sslDomain(
             ssl,
             9,
-            "SSL embedding ceiling rank-1, off-device",
+            Status.MEASURED,
             false,
+            "SSL embedding ceiling rank-1, off-device",
             "run `sweep_ssl.py --emit` (needs torch; ceiling probe, deployable student NOT BUILT)",
+        ),
+        notMeasured(
+            10,
+            "language independence: single-read Common Voice yields only chance-level cross-clip rank-1 " +
+                "(anchor ≈ 1/N ≈ chance — the null; `lang_indep_rank1.py` diagnostic), so no valid " +
+                "command-word rank-1 proxy exists on available data. Basis is by-construction (no " +
+                "LM/lexicon/phoneme in the shipped MFCC path; Zhang 2014; Picovoice 89.2% untuned) — see " +
+                "domain-bands §10, argued in prose not banded from noise",
         ),
     )
 
-    /** Domains 10/11/12/13 — not measurable on this host (data-shape or physical-device gaps). */
-    private fun blockedDomains(): List<DomainScore> = listOf(
-        notMeasured(
-            10,
-            "language independence: CommonVoiceCorpus.kt NOT BUILT and Common Voice data " +
-                "shape (single-read sentences) does not fit the speaker-dependent rank-1-delta metric",
-        ),
-        notMeasured(11, "on-device P50 latency: physical device only (emulator mic is silent; no JMH/androidTest)"),
-        notMeasured(12, "on-device battery/CPU/RAM: physical device only (`dumpsys batterystats`)"),
-        notMeasured(
+    /** Domains 11/12 — on-device latency + battery, host-measured then device-scaled (SIMULATED_DEVICE, excluded). */
+    private fun deviceDomains(root: File): List<DomainScore> {
+        val latency = LatencyEval(frontEnd, mic, minReps, matcherConfig).run(root)
+            ?: return listOf(
+                notMeasured(11, "no deployment-slice speaker to time"),
+                notMeasured(12, "no latency input for the battery model"),
+            )
+        val d11 = domain(
+            11,
+            latency.deviceP50Ms,
+            Status.SIMULATED_DEVICE,
+            false,
+            "host P50 ${fmt(latency.hostP50Ms)} ms on ${latency.hostCpu} × ${latency.deviceScale} (Pixel 6 scale) " +
+                "over ${latency.templateCount} templates — HOST-SCALED estimate, excluded from composite",
+        )
+        val model = BatteryModel()
+        val battery = model.estimate(latency.deviceP50Ms)
+        val d12 = domain(
+            12,
+            battery.pctPerHour,
+            Status.SIMULATED_DEVICE,
+            false,
+            "${fmt(battery.pctPerHour)}%/hr (±${fmt(battery.pctPerHourHigh - battery.pctPerHour)}); ${model.assumptions()}",
+        )
+        return listOf(d11, d12)
+    }
+
+    /** Domain 13 — enrollment efficiency: real TORGO template-count sweep (MEASURED, counts). */
+    private fun enrollmentDomain(root: File): DomainScore {
+        val e = EnrollmentEfficiencyEval(frontEnd, k, minReps, mic, matcherConfig).run(root)
+        if (e.points.all { it.queries == 0 }) return notMeasured(13, "no scorable positives for the enrollment sweep")
+        return domain(
             13,
-            "enrollment efficiency: the current k-fold fraction sweep is not the 1–5 " +
-                "template-count sweep the band defines — needs a dedicated harness",
-        ),
-    )
+            e.efficiency,
+            Status.MEASURED,
+            true,
+            "static MFCC (`none`), TORGO; 1-shot rank-1 ${pct(e.oneShotRank1)} / saturation ${pct(e.saturationRank1)} " +
+                "(saturates @ ${e.saturationCount} templates) → efficiency ${pct(e.efficiency)}",
+        )
+    }
 
     /**
      * Domain 15 — guardrail coverage: the count of EVAL-001..005 rules promoted to **hard gates** in
@@ -227,9 +277,16 @@ class SotaScorecard(
         config: String,
     ): DomainScore? = byName[condition]?.let { domain(id, it.rank1, Status.SIMULATED_CHANNEL, true, config) }
 
-    private fun sslDomain(ssl: Map<Int, Metric>, id: Int, defaultConfig: String, counts: Boolean, howto: String): DomainScore {
+    private fun sslDomain(
+        ssl: Map<Int, Metric>,
+        id: Int,
+        status: Status,
+        counts: Boolean,
+        defaultConfig: String,
+        howto: String,
+    ): DomainScore {
         val m = ssl[id] ?: return notMeasured(id, "SSL/Python domain — $howto")
-        return domain(id, m.value, if (counts) Status.PROXY else Status.MEASURED, counts, m.config.ifBlank { defaultConfig })
+        return domain(id, m.value, status, counts, m.config.ifBlank { defaultConfig })
     }
 
     /** Replicates `SimReport`'s ambient proxy: enroll a small-vocab speaker's words, scan a synthetic stream. */
@@ -284,7 +341,10 @@ class SotaScorecard(
         appendLine("`SOTA=1000` band ladder (`DomainBands`). **Real speech; any acoustic condition is a")
         appendLine("SIMULATED channel — a probe, NOT a field far-field recording.** Ambient FA/hr is a")
         appendLine("SYNTHETIC in-regime proxy (real OOV speech + silence gaps + 20 dB noise), optimistically")
-        appendLine("biased. NOT MEASURED means no real measurement exists on this host — never a guessed band.")
+        appendLine("biased. **SIMULATED_DEVICE** domains (latency/battery) are host-measured then device-scaled")
+        appendLine("or first-principles-derived — displayed and banded but **excluded from the composite** so a")
+        appendLine("modelled number can never set the wall (as are LOW_FIDELITY/confounded domains). NOT MEASURED")
+        appendLine("means no real measurement exists on this host — never a guessed band.")
         appendLine()
         appendLine("## Headline — wall-dominated composite: **${sc.bindingLabel}**")
         appendLine()
@@ -351,3 +411,6 @@ class SotaScorecard(
         const val SLICE_MAX = 25 // deployment-slice vocabulary cutoff (matches SimReport/ConditionEval).
     }
 }
+
+/** One-decimal format for the device-domain provenance strings (file-level to keep the class lean). */
+private fun fmt(v: Double) = String.format(Locale.US, "%.1f", v)

@@ -48,6 +48,29 @@ class SotaScorecardTest {
         assertThat(DomainBands.bandFor(15, 2.0)).isEqualTo(800)
         assertThat(DomainBands.bandFor(15, 3.0)).isEqualTo(900)
 
+        // D7 in-regime detection (higher better): 0.90 rung → 950; floor 0.50 → 600; below → <600.
+        assertThat(DomainBands.bandFor(7, 0.9375)).isEqualTo(950)
+        assertThat(DomainBands.bandFor(7, 0.50)).isEqualTo(600)
+        assertThat(DomainBands.bandFor(7, 0.49)).isEqualTo(DomainBands.BELOW_FLOOR)
+
+        // D11 latency P50 ms (lower better): 150 → 900; 1000 → 600; 40 → 1000; 1001 → <600.
+        assertThat(DomainBands.bandFor(11, 150.0)).isEqualTo(900)
+        assertThat(DomainBands.bandFor(11, 1000.0)).isEqualTo(600)
+        assertThat(DomainBands.bandFor(11, 40.0)).isEqualTo(1000)
+        assertThat(DomainBands.bandFor(11, 1001.0)).isEqualTo(DomainBands.BELOW_FLOOR)
+
+        // D12 battery %/hr (lower better): 2 → 1000; 8 → 900; 30 → 600; 31 → <600.
+        assertThat(DomainBands.bandFor(12, 2.0)).isEqualTo(1000)
+        assertThat(DomainBands.bandFor(12, 8.0)).isEqualTo(900)
+        assertThat(DomainBands.bandFor(12, 30.0)).isEqualTo(600)
+        assertThat(DomainBands.bandFor(12, 31.0)).isEqualTo(DomainBands.BELOW_FLOOR)
+
+        // D13 enrollment efficiency (higher better): 0.60 → 600; 0.86 → 900; 1.0 → 1000; 0.59 → <600.
+        assertThat(DomainBands.bandFor(13, 0.60)).isEqualTo(600)
+        assertThat(DomainBands.bandFor(13, 0.86)).isEqualTo(900)
+        assertThat(DomainBands.bandFor(13, 1.0)).isEqualTo(1000)
+        assertThat(DomainBands.bandFor(13, 0.59)).isEqualTo(DomainBands.BELOW_FLOOR)
+
         assertThat(DomainBands.bandLabel(DomainBands.BELOW_FLOOR)).isEqualTo("<600")
         assertThat(DomainBands.bandLabel(900)).isEqualTo("900")
     }
@@ -75,6 +98,23 @@ class SotaScorecardTest {
         assertThat(count).isEqualTo(2) // EVAL-003 + EVAL-004 only; the ladder table row is not a Gate line.
         assertThat(DomainBands.bandFor(15, count.toDouble())).isEqualTo(800)
         tmp.delete()
+    }
+
+    @Test
+    fun `battery model is a deterministic first-principles function of decide latency`() {
+        val model = BatteryModel()
+        // Zero compute → baseline-only draw = P_BASELINE_W / BATTERY_WH × 100.
+        val idle = model.estimate(0.0)
+        assertThat(idle.dutyCycle).isEqualTo(0.0)
+        assertThat(idle.pctPerHour).isWithin(0.05).of(BatteryModel.P_BASELINE_W / BatteryModel.BATTERY_WH * 100.0)
+        // A real-time decide (RTF=1 over the avg utterance) adds P_ACTIVE_W × SPEECH_DUTY.
+        val busy = model.estimate(BatteryModel.AVG_UTTERANCE_MS)
+        assertThat(busy.dutyCycle).isWithin(1e-9).of(BatteryModel.SPEECH_DUTY)
+        val expectedW = BatteryModel.P_BASELINE_W + BatteryModel.P_ACTIVE_W * BatteryModel.SPEECH_DUTY
+        assertThat(busy.pctPerHour).isWithin(0.05).of(expectedW / BatteryModel.BATTERY_WH * 100.0)
+        // Monotonic in latency; band lands in the plausible on-device range (not <600).
+        assertThat(busy.pctPerHour).isGreaterThan(idle.pctPerHour)
+        assertThat(DomainBands.bandFor(12, busy.pctPerHour)).isAtLeast(600)
     }
 
     @Test
@@ -114,10 +154,35 @@ class SotaScorecardTest {
             assertThat(sc.compositeDomains.map { it.id }).doesNotContain(15)
         }
 
+        // D11/D12/D13 now land a band from JVM harnesses (no device, no torch).
+        val d11 = sc.domains.first { it.id == 11 }
+        val d12 = sc.domains.first { it.id == 12 }
+        val d13 = sc.domains.first { it.id == 13 }
+        assertThat(d11.value).isNotNull()
+        assertThat(d11.status).isEqualTo(SotaScorecard.Status.SIMULATED_DEVICE)
+        assertThat(d12.value).isNotNull()
+        assertThat(d12.status).isEqualTo(SotaScorecard.Status.SIMULATED_DEVICE)
+        assertThat(d13.value).isNotNull()
+        assertThat(d13.status).isEqualTo(SotaScorecard.Status.MEASURED)
+
+        // Counting invariant: only measurement-backed domains set the wall. Host-scaled/derived
+        // (D11/D12) and confounded (D14) are excluded; D13 (real TORGO sweep) counts.
+        val compositeIds = sc.compositeDomains.map { it.id }.toSet()
+        assertThat(compositeIds).containsNoneOf(11, 12, 14)
+        assertThat(compositeIds).contains(13)
+
+        // D10 stays NOT_MEASURED — single-read Common Voice yields no valid rank-1 proxy (advisor-gated);
+        // language independence is argued by-construction in the docs, never banded from noise.
+        val d10 = sc.domains.first { it.id == 10 }
+        assertThat(d10.status).isEqualTo(SotaScorecard.Status.NOT_MEASURED)
+        assertThat(d10.value).isNull()
+        assertThat(compositeIds).doesNotContain(10)
+
         val md = scorer.renderMarkdown(sc)
         val json = scorer.renderJson(sc)
         assertThat(md).contains("wall-dominated composite: **<600**")
         assertThat(md).contains("SIMULATED channel")
+        assertThat(md).contains("excluded from the composite")
         assertThat(json).contains("\"bindingBand\": \"<600\"")
 
         val mdOut = File(System.getProperty("sota.report").orEmpty().ifBlank { "build/sota-scorecard.md" })

@@ -374,3 +374,23 @@ blocking check enforces a rule-specific substance artifact"). 002/005 are gateab
 (E15-06/07); 001 has no check. Both new gates verified to bite on fixtures. `SotaScorecard` auto-measures it (excluded from the wall-dominated composite,
 so the headline stays `<600`). **R1:** D5 reverb band reconciled to `<600` in the domain-bands doc.
 `make sota-score` shows D15 `2/5 | 800 | MEASURED`; `make guardrails` 11/11 green.
+
+## Complete the SOTA scorecard — build the NOT_MEASURED domains (2026-07-09)
+
+`docs/plans/2026-07/complete-sota-measurement.md` — ✅ **DONE 2026-07-09** (advisor-gated; self-scored
+98/100). Turns the five `NOT_MEASURED` cells into fully-automated, scripted mechanisms — no waiting for
+people or physical devices. **D7** wake detection: adds `--emit` to `in_regime.py` (torch-free mfcc arm) →
+detection at the **≤0.5 FA/hr** operating point (closes the prior "@ ~0 FA/hr" mislabel); PROXY, counts.
+**D11** latency (`LatencyEval.kt`) times the real shipped `EnergyVad`→`MfccExtractor`→`TemplateMatcher`
+path on the host JVM and device-scales it by a cited `DEVICE_SCALE=2.6`; **D12** battery (`BatteryModel.kt`)
+is a first-principles power model with every constant a cited `const val` — both SIMULATED_DEVICE and
+**excluded from the composite** (a modelled number must never set the wall). **D13** enrollment efficiency
+(`EnrollmentEfficiencyEval.kt`) is a real TORGO template-count sweep → efficiency 90.7% → band 950
+(MEASURED, counts). **D10** language independence: two proxy protocols were built and run; both fail on
+single-read Common Voice (augment-self-match → tautology ~100%; cross-clip → chance, anchor 1.8%), so D10
+stays `NOT_MEASURED` and is argued **by construction** (no LM/lexicon/phoneme in the shipped MFCC path;
+Zhang 2014; Picovoice 89.2% untuned) in domain-bands §10 — the `lang_indep_rank1.py` diagnostic's null is
+the reproducible evidence. Net (merged with the 800-push D15 auto-measure): **14/15 banded** (D1–D9 where
+data lands, + D11/D12/D13, + D15 via `-Dsota.rules`), **D10** the sole first-principles-argued domain;
+composite still wall-dominated `<600` (FRR 75.7% @ FAR≤5% + ambient FA/hr). `run-all.mjs` 11/11;
+`:core:eval` detekt/spotless/test green; measure-only (no runtime change).
