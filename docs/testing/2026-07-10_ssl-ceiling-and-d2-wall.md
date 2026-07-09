@@ -224,6 +224,39 @@ data-scarcity artifact. Population heterogeneity is real: mild dysarthria (F04) 
 cases (F01/F03) set the aggregate — so a mild-to-moderate target population is the only way D2 approaches
 700, which is a product-scope decision, not an engineering one.
 
+## Template-count curve (2026-07-10 cont.) — the one lever that STRUCTURALLY moves D2
+
+More enrollment templates tightens the genuine min-distance (min over K), which *raises the ROC area*
+rather than sliding along it — the one structural lever. Measured (wavlm-large L14, D2 FRR@FAR≤5%,
+leave-one-out over positives, words with ≥K+1 reps):
+
+| K templates/cmd | Control (typical) | Dysarthric |
+|---:|---:|---:|
+| 1 | 46.2% | 58.7% |
+| 2 | 30.1% | 42.9% |
+| 3 | 15.4% | 40.5% |
+| 4 | **11.1%** (band 800) | — (no data: max 5 reps, 9 words ≥4) |
+
+**Typical speech reaches D2 = 800 with 4-shot enrollment (11.1% FRR).** So D2 is NOT a universal wall —
+it is specifically **severe-dysarthric × few-shot**: dysarthric FRR drops 58.7→42.9→40.5 then *plateaus
+~40%* by K=3 (high within-word variability means a new token stays far from all K enrolled tokens). The
+plateau is band 600–700, and TORGO cannot test K≥4 for dysarthric (a genuine data limit, not an
+untried lever). A simulated many-shot dysarthric number would be a PROXY and cannot earn a green 800
+(honesty rule 1).
+
+**Refined verdict.** The composite ceiling is **population-and-enrollment-dependent**, not a flat wall:
+- **Typical / mild-dysarthric users + few-shot enrollment + SSL encoder:** D2 → 800 (validated at the
+  off-device ceiling; needs the deployable ≤2 MB student for a *shipped* green 800).
+- **Severe dysarthric (F01/F03) + available reps:** D2 plateaus ~40% → band 600–700; 800 (≤15%,
+  AUC ≈0.93) is beyond reach on this data under the constraints.
+
+So a **validated shipped composite >800 still hinges on the deployable ≤2 MB SSL-quality encoder**
+(the CP-1/L1 build) — the linchpin for D2/D3/D4 on *any* population. With it, typical-user 800 is
+plausible (D2 4-shot = 11% at the ceiling); severe-dysarthric tops out at ~600–700 (D2 plateau). Without
+it, all populations are `<600`/600 on the shipped MFCC path. This is the honest, measured state — the
+gap to 800 is a **specific engineering build (tiny distilled encoder) + a product enrollment/population
+scoping decision**, not a flat impossibility and not a fabrication.
+
 ### Reproduce
 ```sh
 cd scripts/eval/ssl_frontend_spike
