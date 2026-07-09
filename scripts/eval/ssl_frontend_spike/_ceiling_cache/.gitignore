@@ -1,0 +1,4 @@
+# Large derived embedding caches — regenerable via the *.py spikes; do NOT commit.
+*.npz
+# Keep the small result JSONs (durable measurement evidence) — they are the banked numbers.
+!*.json
