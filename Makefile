@@ -28,6 +28,9 @@ PV_OVERRIDES := \
 TORGO_DIR ?= $(HOME)/torgo
 SOTA_REPORT ?= build/sota-scorecard.md
 SOTA_JSON ?= build/sota-score.json
+# D7 in-regime wake detection: speaker + background minutes (torch-free numpy MFCC arm).
+SOTA_SPK ?= F01
+SOTA_BG_MIN ?= 60
 # Absolute: written by sota-score-ssl (make's cwd = repo root) but read by the :core:eval test whose
 # working dir is the module dir — a relative path would not resolve in both.
 SOTA_SSL ?= $(CURDIR)/core/eval/build/sota-metrics-ssl.txt
@@ -95,13 +98,19 @@ sota-score: ## Automated SOTA scorecard — JVM domains vs TORGO → 0–1000 ba
 	  -Dtorgo.dir=$(TORGO_DIR) -Dsota.report=$(SOTA_REPORT) -Dsota.json=$(SOTA_JSON) \
 	  $(if $(wildcard $(SOTA_SSL)),-Dsota.ssl=$(SOTA_SSL))
 
-sota-score-ssl: ## Measure SSL domains D8 (dual-cascade) + D9 (ceiling) into SOTA_SSL (needs torch: SOTA_PY=<venv python>)
+sota-score-ssl: ## Measure Python-bridge domains D7 (wake det) + D8/D9 (SSL, torch) + D10 (lang diagnostic) into SOTA_SSL
 	@rm -f $(SOTA_SSL)
 	@mkdir -p $(dir $(SOTA_SSL))
+	# D7 — in-regime wake detection @ ≤0.5 FA/hr (mfcc arm is torch-free; numpy MFCC mirrors shipped `none`).
+	PYTHONPATH=scripts/eval/ssl_frontend_spike $(SOTA_PY) scripts/eval/ssl_frontend_spike/in_regime.py mfcc $(SOTA_SPK) $(SOTA_BG_MIN) --emit=$(SOTA_SSL)
+	# D10 — language-independence DIAGNOSTIC: writes a `#`-commented null-result line only (no band); D10
+	# stays NOT_MEASURED and is argued by-construction in domain-bands §10 (torch-free).
+	PYTHONPATH=scripts/eval/ssl_frontend_spike $(SOTA_PY) scripts/eval/ssl_frontend_spike/lang_indep_rank1.py --emit=$(SOTA_SSL)
+	# D8/D9 — SSL dual-cascade + ceiling (need torch: SOTA_PY=<venv python>; SSL weights cached, CPU is fine).
 	PYTHONPATH=scripts/eval/ssl_frontend_spike $(SOTA_PY) scripts/eval/ssl_frontend_spike/sweep_ssl.py wavlm F01,F03,F04 --emit=$(SOTA_SSL)
 	PYTHONPATH=scripts/eval/ssl_frontend_spike $(SOTA_PY) scripts/eval/ssl_frontend_spike/dual_cascade_verify.py F01,F03,F04 60 --emit=$(SOTA_SSL)
 
-sota-score-full: sota-score-ssl sota-score ## Full SOTA scorecard incl. torch-backed D8/D9 (needs torch: SOTA_PY=<venv python>)
+sota-score-full: sota-score-ssl sota-score ## Full SOTA scorecard incl. bridge domains D7/D8/D9 (needs torch: SOTA_PY=<venv python>)
 
 roadmap: ## Show the project roadmap
 	@cat docs/ROADMAP.md
