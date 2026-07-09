@@ -93,6 +93,7 @@ bench-picovoice-anchor: ## Same-host PocketSphinx anchor on the dumped streams (
 sota-score: ## Automated SOTA scorecard — JVM domains vs TORGO → 0–1000 band map (no torch; folds in SOTA_SSL if present)
 	$(GRADLE) :core:eval:test --tests "*SotaScorecardTest*" --rerun-tasks \
 	  -Dtorgo.dir=$(TORGO_DIR) -Dsota.report=$(SOTA_REPORT) -Dsota.json=$(SOTA_JSON) \
+	  -Dsota.rules=$(CURDIR)/docs/ai/ACTIVE_DEV_RULES.md \
 	  $(if $(wildcard $(SOTA_SSL)),-Dsota.ssl=$(SOTA_SSL))
 
 sota-score-ssl: ## Measure SSL domains D8 (dual-cascade) + D9 (ceiling) into SOTA_SSL (needs torch: SOTA_PY=<venv python>)
