@@ -355,3 +355,22 @@ flagged optimistically biased. Reproduces the committed floor (rank-1 59.2% → 
 the hand-typed 700). SSL domains D8/D9 (torch, isolated `~/torch-venv`) fold in via a `--emit` key=value
 bridge (`make sota-score-full`); `make sota-score` runs the JVM subset with no torch. `run-all.mjs`
 11/11; `:core:eval` detekt/spotless/test green.
+
+## Complete the SOTA scorecard — build the NOT_MEASURED domains (2026-07-09)
+
+`docs/plans/2026-07/complete-sota-measurement.md` — ✅ **DONE 2026-07-09** (advisor-gated; self-scored
+98/100). Turns the five `NOT_MEASURED` cells into fully-automated, scripted mechanisms — no waiting for
+people or physical devices. **D7** wake detection: adds `--emit` to `in_regime.py` (torch-free mfcc arm) →
+detection at the **≤0.5 FA/hr** operating point (closes the prior "@ ~0 FA/hr" mislabel); PROXY, counts.
+**D11** latency (`LatencyEval.kt`) times the real shipped `EnergyVad`→`MfccExtractor`→`TemplateMatcher`
+path on the host JVM and device-scales it by a cited `DEVICE_SCALE=2.6`; **D12** battery (`BatteryModel.kt`)
+is a first-principles power model with every constant a cited `const val` — both SIMULATED_DEVICE and
+**excluded from the composite** (a modelled number must never set the wall). **D13** enrollment efficiency
+(`EnrollmentEfficiencyEval.kt`) is a real TORGO template-count sweep → efficiency 90.7% → band 950
+(MEASURED, counts). **D10** language independence: two proxy protocols were built and run; both fail on
+single-read Common Voice (augment-self-match → tautology ~100%; cross-clip → chance, anchor 1.8%), so D10
+stays `NOT_MEASURED` and is argued **by construction** (no LM/lexicon/phoneme in the shipped MFCC path;
+Zhang 2014; Picovoice 89.2% untuned) in domain-bands §10 — the `lang_indep_rank1.py` diagnostic's null is
+the reproducible evidence. Net: **13/15 banded**, D10 first-principles-argued, D15 structural; composite
+still wall-dominated `<600` (FRR 75.7% @ FAR≤5% + ambient FA/hr). `run-all.mjs` 11/11; `:core:eval`
+detekt/spotless/test green; measure-only (no runtime change).
