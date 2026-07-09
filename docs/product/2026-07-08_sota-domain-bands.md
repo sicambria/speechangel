@@ -149,7 +149,12 @@ additive white noise, not real-world noise types.
 | **800** | ≥75% | ≥70% | `ConditionEval` |
 | **700** | ≥65% | ≥65% | `ConditionEval` |
 | **600** | — | — | (reverb is mild; no band distinction needed) |
-| **Current** | **64.6%** (tied with clean) | **69.5%** (better than clean — acoustic variation aids discrimination at small vocab) | `ConditionEval` |
+| **Current** | **64.6%** (tied with clean) → **`<600`** (below the 700 ≥65% rung) | **69.5%** (better than clean — acoustic variation aids discrimination at small vocab) → **700** | `ConditionEval` |
+
+**Band (wall-dominated, min of the two cells):** small-reverb 64.6% is `<600` (just below the 700
+≥65% rung); medium-reverb 69.5% is 700. The domain band is the **min = `<600`**, which is what
+`SotaScorecard` reports (it scores the `reverb_small` cell). The composite table below is corrected to
+`<600` (was hand-labeled 700 — an optimistic mislabel; **R1**, 2026-07-09).
 
 **Measurement:** `AudioAugment.convolveRir()`. Validation:
 `./gradlew :core:eval:test -Dtorgo.dir=$HOME/torgo -Dtorgo.conditions=true` (conditions grid
@@ -423,7 +428,7 @@ the guardrail promotion ladder — 3 hard checks + 2 contracts from zero.
 | 2. FRR @ ≤5 FA/hr | ≤55% | ≤35% | ≤15% | ≤5% | ≤2% | ≤0.5% | **<600** (75.7%) |
 | 3. Ambient FA/hr | ≤5 | ≤2 | ≤0.5 | ≤0.1 | ≤0.05 | ≤0.01 | **<600** (~82) |
 | 4. Noise @ 20dB | ≥55% | ≥60% | ≥70% | ≥80% | ≥85% | ≥95% | **600** (56.1%) |
-| 5. Reverb robustness | — | ≥65% | ≥75% | ≥85% | ≥90% | ≥95% | **700** (64.6%) |
+| 5. Reverb robustness | — | ≥65% | ≥75% | ≥85% | ≥90% | ≥95% | **<600** (64.6% small; R1 2026-07-09) |
 | 6. Bandwidth robustness | — | ≥65% | ≥75% | ≥85% | ≥90% | ≥95% | **700** (65.9%) |
 | 7. Wake detection @ ≤0.5 FA/hr | ≥50% | ≥65% | ≥75% | ≥85% | ≥90% | ≥95% | **600** (~69% @ ~0 FA/hr) |
 | 8. Dual-cascade rejection | ≥10% rel | ≥20% rel | ≥30% rel | ≥40% rel | ≥50% rel | ≥60% rel | **900** (49.5% WavLM) |
