@@ -15,6 +15,18 @@ import os, sys, glob, math, time, wave
 import numpy as np
 import harness as H
 
+# --emit=<file>: append structured SOTA-scorecard metrics (D7) for SotaScorecard; not prose. Stripped
+# from argv before the positional parse so it composes with `<arm> [speaker] [bg_min] [win_s] [hop_s]`.
+# The mfcc arm is torch-free, so `make sota-score-ssl` can emit D7 without the venv.
+_EMIT = None
+_argv = []
+for _a in sys.argv[1:]:
+    if _a.startswith("--emit="):
+        _EMIT = _a.split("=", 1)[1]
+    else:
+        _argv.append(_a)
+sys.argv = [sys.argv[0]] + _argv
+
 PV = os.path.expanduser("~/picovoice-benchmark")
 arm = sys.argv[1] if len(sys.argv) > 1 else "mfcc"
 SPK = sys.argv[2] if len(sys.argv) > 2 else "F01"
@@ -122,3 +134,21 @@ for target in [0.1, 0.5, 1.0, 5.0, 10.0]:
 d95 = min((c for c in curve if c[0][0] >= 0.95), key=lambda c: c[0][1], default=None)
 print(f"   FA/hr to reach 95% detection (FRR<5%): {d95[0][1]:.1f}" if d95 else "   FRR<5% unreachable", flush=True)
 print(f"[{arm}] done {time.time()-t0:.0f}s", flush=True)
+
+# ---- SOTA-scorecard bridge: D7 = max detection at the ≤0.5 FA/hr operating point (mfcc arm) ----
+# The domain-bands doc flags that current numbers are @ ~0 FA/hr, NOT the strict ≤0.5 point. We report
+# the strict point: max detection over all thresholds whose FA/hr ≤ 0.5. A trivial reject-all threshold
+# always satisfies ≤0.5 (det 0), so `best` exists; if the best achievable detection there is 0, we emit
+# 0 and name the achieved FA/hr — never silently substitute the looser ~0-FA/hr number.
+if _EMIT and arm == "mfcc":
+    TARGET_FAHR = 0.5
+    best = max((c for c in curve if c[0][1] <= TARGET_FAHR), key=lambda c: c[0][0], default=None)
+    (det, fa), thr = best if best else ((0.0, 0.0), math.inf)
+    with open(_EMIT, "a") as _f:
+        _f.write(f"domain7_value={det:.4f}\n")
+        _f.write(
+            f"domain7_config=in-regime MFCC-DTW detection @ <=0.5 FA/hr (achieved {fa:.2f} FA/hr), "
+            f"speaker {SPK}, LibriSpeech bg {bg_hours:.2f}h, per-window VAD {WIN_S}s/{HOP_S}s, "
+            f"off-device numpy MFCC (mirrors shipped none); in-regime proxy, optimistically biased\n"
+        )
+    print(f"[{arm}] emitted domain7_value={det:.4f} (det @ <=0.5 FA/hr, achieved {fa:.2f}) -> {_EMIT}", flush=True)
