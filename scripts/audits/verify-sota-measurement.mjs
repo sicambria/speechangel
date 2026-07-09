@@ -7,11 +7,18 @@
 // Checks (hard gates, block commit):
 //   1. Citation gate — any testing/experiment doc with a numerical accuracy claim must cite
 //      EVAL-002 (held-out thresholds), EVAL-003 (banked/exploratory label), and EVAL-005
-//      (replication or speaker breakdown).
+//      (replication or speaker breakdown). CITATION-level (keyword presence), not substance.
 //   2. Honesty-banner gate — generated eval reports under core/eval/build/ and scripts/eval/
 //      must carry caveats for SYNTHETIC data and simulated acoustic conditions.
-//   3. Fidelity-reproduction gate — any doc claiming a delta vs baseline without an explicit
-//      "baseline reproduced" fidelity statement triggers a hard violation (EVAL-004).
+//   3. Fidelity-reproduction gate (EVAL-004 SUBSTANCE) — a delta-vs-baseline claim must carry a
+//      fidelity statement that states a reproduced baseline NUMBER (within tolerance), not just the word.
+//   4. Banked-verdict gate (EVAL-003 SUBSTANCE) — a doc reporting an adjudicated result (McNemar /
+//      rel-reduction) must carry an explicit banked / NOT-banked verdict, not merely "exploratory".
+//
+// SOTA domain 15 (guardrail coverage) counts the EVAL rules with a SUBSTANCE gate: checks 3 and 4 make
+// EVAL-004 and EVAL-003 substance-enforcing → 2 of 5 rules hard-gated. EVAL-002/005 have only a citation
+// requirement (check 1) — their substance ("disjoint-data threshold", "≥2 speakers agree") is not
+// regex-verifiable — so they remain advisory until a substance gate exists. EVAL-001 has no check.
 //
 // Advisory warnings (informational, do not block commit):
 //   A. S-tier experiment staleness — any S-tier experiment (score >= 810 in SCORES.md) that is
@@ -173,14 +180,56 @@ function checkFidelityReproduction(triggered) {
 
     if (!hasDeltaClaim) continue;
 
-    const hasFidelity = /fidelity|reproduce.*baseline|baseline.*reproduce|EVAL-004|pipeline.*fidelity/i.test(content);
+    // Substance gate (EVAL-004): a fidelity statement must state a REPRODUCED BASELINE NUMBER (within
+    // tolerance), not merely mention the word "fidelity". A fidelity claim without a number is
+    // unverifiable — the rule's substance is "reproduce the committed number before trusting a delta".
+    const hasFidelityWord = /fidelity|reproduce.*baseline|baseline.*reproduce|EVAL-004|pipeline.*fidelity/i.test(content);
+    const hasReproducedNumber =
+      /(reproduc\w*|fidelity|baseline)[^.\n]{0,80}\d{1,3}(\.\d+)?\s*%/i.test(content) ||
+      /\d{1,3}(\.\d+)?\s*%[^.\n]{0,40}(reproduc\w*|baseline)/i.test(content);
+    const hasFidelity = hasFidelityWord && hasReproducedNumber;
 
     if (!hasFidelity) {
       violations.push(
-        `${f}: claims a delta vs baseline without fidelity-reproduction statement (EVAL-004).\n` +
+        `${f}: claims a delta vs baseline without a fidelity-reproduction statement carrying a reproduced baseline number (EVAL-004).\n` +
         `  → EVAL-004: "Reproduce whole pipeline before trusting deltas; decompose confounded comparisons."\n` +
         `  → Add: "## Fidelity: baseline reproduced — [method] confirmed [baseline value] before measuring delta."\n` +
         `  → The 2×2 decomposition (representation × matcher) must isolate the lever — see CP-1 ceiling doc.`
+      );
+    }
+  }
+
+  return violations;
+}
+
+// --- Check 4: Banked-verdict gate (hard, EVAL-003) ---
+// Substance gate: any doc that reports an ADJUDICATED result (a McNemar test or a rel-reduction delta)
+// must carry an explicit BANK VERDICT — "banked" or "NOT banked" — not merely the topic word
+// "exploratory". The verdict is EVAL-003's required output artifact (pre-register one hypothesis; label
+// the outcome banked-vs-not). This is the substance analogue of check 1's EVAL-003 citation.
+
+function checkBankedVerdict(triggered) {
+  const violations = [];
+  const testingDocPattern = /^docs\/(testing|research\/experiments)\/.*\.md$/;
+  const docs = triggered.filter(f => testingDocPattern.test(f));
+
+  for (const f of docs) {
+    const full = resolve(repoRoot, f);
+    if (!existsSync(full)) continue;
+    const content = readFileSync(full, "utf8");
+
+    // Fires only when an adjudicated result is present.
+    const hasAdjudicatedResult =
+      /McNemar/i.test(content) ||
+      /\d{1,3}(\.\d+)?\s*%?\s*(rel|relative)\s+(reduction|improvement)/i.test(content);
+    if (!hasAdjudicatedResult) continue;
+
+    // "banked" also matches "NOT banked" — the explicit decision must appear.
+    const hasVerdict = /\bbanked\b/i.test(content);
+    if (!hasVerdict) {
+      violations.push(
+        `${f}: reports an adjudicated result (McNemar / rel-reduction) without an explicit banked / NOT-banked verdict (EVAL-003).\n` +
+        `  → State the bank decision next to the result: "**Banked:** …" or "**NOT banked:** …" (not just "exploratory").`
       );
     }
   }
@@ -276,6 +325,7 @@ function main() {
   const violations = [
     ...checkEvalCitations(triggered),
     ...checkFidelityReproduction(triggered),
+    ...checkBankedVerdict(triggered),
     ...checkHonestyBanners(),
   ];
   const warnings = [
