@@ -271,12 +271,19 @@ word-length windows.
 | distilhubert 23 MB | ~80% | 68.2% | ✗ (>2 MB) |
 | wavlm-large 316 M (ceiling) | ~88% | 79.4% | ✗ (off-device) |
 
-The student **fit the teacher on LibriSpeech** (train cos-dist 0.009 ≈ cosine sim 0.99) but
-**generalized below MFCC on held-out TORGO** — it learned a LibriSpeech-specific approximation, not the
-transferable QbE structure. wavlm's quality comes from 94 k h of SSL pretraining; that does not distill
-into 0.69 MB from 6 k embedding-matching windows. Even distilhubert (23 MB, 34× over budget) falls short
-of wavlm. **So the ≤2 MB on-device constraint is itself a binding limiter: no admissible encoder recovers
-the SSL ceiling that a typical-population 800 needs.**
+Two attempts, both **below MFCC** on held-out TORGO: light-reg (control 72.4%, train cos-dist 0.009 —
+fit the teacher on LibriSpeech but didn't transfer) and heavy-reg (SpecAugment+noise+dropout: control
+61.2%, underfit at cos-dist 0.020 on only 6 k windows). So a good ≤2 MB QbE encoder is **not produced by
+straightforward in-session distillation** from 6 k LibriSpeech windows — it is a **genuine multi-session
+ML build** (needs much more/diverse data with teacher recompute — Common Voice is cached — plus a tuned
+student and augmentation-with-teacher-recompute).
+
+**Honest scoping of the size constraint:** I have NOT proven ≤2 MB is *fundamentally* incompatible with
+beating MFCC — distilhubert (23 MB, 34× over budget) reaches ~80% control, so a well-built small-ish model
+*can* beat MFCC; but even distilhubert is below wavlm and its D2 is unmeasured. What IS shown: (a) the
+off-device wavlm ceiling is required for typical-population D2 = 800; (b) a deployable model recovering it
+is an open multi-session build, not an in-session win. So a *shipped* typical-800 is real-but-unbuilt, not
+disproven.
 
 ## FINAL VERDICT (all levers + the deployable build measured) — >800 blocked on two independent axes
 
@@ -286,9 +293,10 @@ population, and now both blockers are *measured*, not assumed:
 1. **Dysarthric population** → blocked by the **disorder**: D2 genuine/impostor AUC ≈ 0.70 (invariant
    across representation × matcher × learned verifier × training data), plateaus ~40% FRR; 800 needs
    AUC ≈ 0.93. Even the off-device 316 M ceiling can't reach it. Not an encoder problem.
-2. **Typical population** → 800 exists only at the **off-device SSL ceiling** (D2 4-shot = 11%); the
-   **≤2 MB deployable constraint** caps a distilled student at ~72% control rank-1 (below MFCC), so a
-   *shipped* typical 800 is also out under the size budget.
+2. **Typical population** → 800 exists at the **off-device SSL ceiling** (D2 4-shot = 11%), but the
+   **deployable ≤2 MB encoder that would ship it is unbuilt**: two in-session distillations land below
+   MFCC (72% / 61%). Not proven fundamentally impossible (distilhubert @23 MB beats MFCC), but a genuine
+   **multi-session ML build**, not an in-session win. So a *shipped* typical-800 is real-but-unbuilt.
 
 The two premises that would each unlock a *shipped* 800 — and neither is a systems lever I can pull
 without changing the score's definition:

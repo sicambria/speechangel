@@ -67,11 +67,12 @@ class Student(nn.Module):
             nn.Conv1d(192, 192, 3, padding=2, dilation=2), nn.ReLU(), nn.BatchNorm1d(192),
             nn.Conv1d(192, d, 3, padding=1), nn.ReLU(),
         )
+        self.drop = nn.Dropout(0.2)
         self.proj = nn.Linear(d, out)  # match teacher dim for distillation
 
     def embed(self, mel):  # mel: (B, T, n_mel) -> (B, d) L2-normed (the deployable QbE vector)
         h = self.conv(mel.transpose(1, 2))            # (B, d, T)
-        v = h.mean(-1)                                 # (B, d)
+        v = self.drop(h.mean(-1))                      # (B, d)
         return v / (v.norm(dim=-1, keepdim=True) + 1e-8)
 
     def forward(self, mel):                            # distillation head -> teacher space
@@ -125,12 +126,27 @@ def build_teacher(n_windows=6000, layer=14):
     return mel, emb
 
 
-def train_student(mel, emb, epochs=60, bs=128, lr=2e-3):
+def spec_augment(m, nf=2, nt=2, fw=8, tw=12):
+    """SpecAugment on a (B,T,n_mel) batch — mask freq/time bands for robustness/transfer."""
+    m = m.clone()
+    B, T, F = m.shape
+    for _ in range(nf):
+        f0 = torch.randint(0, max(1, F - fw), (B,))
+        for b in range(B):
+            m[b, :, f0[b]:f0[b] + fw] = 0
+    for _ in range(nt):
+        t0 = torch.randint(0, max(1, T - tw), (B,))
+        for b in range(B):
+            m[b, t0[b]:t0[b] + tw, :] = 0
+    return m
+
+
+def train_student(mel, emb, epochs=120, bs=128, lr=2e-3):
     torch.set_grad_enabled(True)  # re-enable (teacher inference disabled it globally)
     g = Student()
     n, mb = g.param_mb()
     print(f"  student: {n} params = {mb:.2f} MB fp32 ({mb/4:.2f} MB INT8-equiv)", flush=True)
-    opt = torch.optim.Adam(g.parameters(), lr=lr, weight_decay=1e-4)
+    opt = torch.optim.Adam(g.parameters(), lr=lr, weight_decay=3e-4)
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, epochs)
     M = torch.from_numpy(mel); E = torch.from_numpy(emb)
     N = mel.shape[0]
@@ -138,12 +154,13 @@ def train_student(mel, emb, epochs=60, bs=128, lr=2e-3):
         g.train(); perm = torch.randperm(N); tot = 0.0
         for i in range(0, N, bs):
             idx = perm[i:i + bs]
-            z = g(M[idx])
-            loss = (1 - (z * E[idx]).sum(-1)).mean()  # cosine distillation
+            mb_in = spec_augment(M[idx]) + 0.05 * torch.randn_like(M[idx])  # +input noise
+            z = g(mb_in)
+            loss = (1 - (z * E[idx]).sum(-1)).mean()  # cosine distillation to clean teacher target
             opt.zero_grad(); loss.backward(); opt.step()
             tot += float(loss) * len(idx)
         sched.step()
-        if (ep + 1) % 15 == 0:
+        if (ep + 1) % 20 == 0:
             print(f"    epoch {ep+1}: cos-dist {tot/N:.4f}", flush=True)
     g.eval()
     return g
