@@ -28,7 +28,7 @@ survivors need fresh confirmation before banking. Dead-ends are first-class resu
 |----|-------|-----------|--------|-----------------|
 | A1 | Fixed-subset K-curve | ✅ cached | **done** | Lever real (K4=11.1% ≤15%, band-800 holds); variable curve inflated +23pp by word selection |
 | A2 | Deployment-real negatives vs dys wall | ✅ cached+embed | **done** | ⭐ 0.70 wall is negative-set artifact: dys AUC 0.68(confusors)→0.99(ambient); problem is in-vocab confusion only |
-| A3 | FAR%→FA/hr bridge (+A3b) | ✅ PV ambient | **done** | ⭐ A3b: wavlm-base+ L10 (94MB, band-800) → 0 FA/hr on real ambient — coherent single-encoder deployment claim |
+| A3 | FAR%→FA/hr bridge (+A3b) | ✅ PV ambient | **done** | ⭐ base+ (94MB, band-800 on GSC-24) → 0 FA/hr on real ambient (pt est; UB~6) — coherent on-device band-800; A3b |
 | A4 | Severe-dys scatter decomposition | ✅ cached | **done** | Structured: dys scatter dominated by duration(F03 r=.80)/loudness(F04 r=.66) axis → F29/F28 motivated |
 | A5 | K-curve replication, 2nd corpus | ✅ GSC (downloaded) | **done (24 spk)** | ⭐ ROBUST: GSC-24 K4=8.2% monotone; the ONE lever that replicated across corpora/populations |
 | B6 | Aggregation-rule sweep | ✅ cached | **done** | Conditional (not ⭐): mean2 helps high-variance (TORGO/dys) but −2.5pp on clean GSC-24; variance-dependent |
@@ -46,7 +46,7 @@ survivors need fresh confirmation before banking. Dead-ends are first-class resu
 | C18 | Relational KD | ◐ CPU proxy (cached teacher) | **done** | ⭐ RKD nearly doubles student QbE: 19.7→35.0% rank-1 (+15.3pp); distance-structure is what QbE consumes |
 | C19 | MSWC domain-gap audit | ◐ GSC proxy | **done** | Student excels at isolated words (GSC 85.7% vs TORGO 19.7%); citation-domain shift helps (vocab-size confound noted) |
 | C20 | Phrase-length generalization | ◐ TORGO multi-word | pending | — |
-| C21 | Deployable-gap decomposition | ✅ cached | **done** | gap +7.9pp (cap 3.4+distil 4.5); wavlm-base+ L10 (94MB) BEATS 316MB ceiling → skip distillation |
+| C21 | Deployable-gap decomposition (+C21b) | ✅ cached | **done** | 94MB base+ IS band-800 (skip distillation); but "beats 316MB ceiling" REFUTED on GSC-24 (large 7.5% < base+ 10.3%) |
 | C22 | D10 multilingual pilot | ◐ CV proxy (no MSWC) | pending | — |
 | D23 | Power-compliant ambient corpus | ⛔ corpus assembly | pending | — |
 | D24 | Stage-correlation audit | ✅ PV streams | **done** | Stages correlated ~2.2× (conditional≫marginal FAR2); compound-FAR independence optimistic — inflate 950 stage-2 budget |
@@ -80,10 +80,14 @@ refinements do not survive independent-corpus replication.*
   dys AUC is 0.89 (other-speaker) / 0.99 (ambient); the wall is *only* same-speaker in-vocab confusion.
   Materially upgrades the dysarthric outlook: the problem is command-set design (D14), not a separability ceiling.
 - **A3 + A3b — the FAR%/trial vs FA/hr mismatch reconciles favorably, on ONE coherent encoder.** wavlm-base+
-  L10 (94 MB, band-800 at 12.0% FRR) yields **0 FA/hr** on real ambient — a coherent band-800-at-94 MB
-  deployment claim. In-vocab confusors ≫ real ambient as negatives (the per-trial-FAR extrapolation was wrong).
-- **C21 — the deployable "capacity gap" is illusory.** wavlm-base+ L10 (94 MB) *beats* the 316 MB ceiling;
-  the real bottleneck is distilhubert's shallow depth → serve base+ L10 directly, skip lossy distillation.
+  (94 MB, band-800 on GSC-24) yields **0 FA/hr** on real ambient (point est; 95% UB ~6 on 0.5 h → D23 tightens)
+  — a coherent 94 MB-on-device band-800 claim. In-vocab confusors ≫ real ambient as negatives (the
+  per-trial-FAR extrapolation was wrong). NB the specific base+ *L10* pick was an n=3 artifact (C21b); the
+  94 MB *encoder* being band-800 survives on GSC-24 (deep layers 10–12%).
+- **C21 (softened by C21b) — a 94 MB on-device encoder reaches band-800.** wavlm-base+ (94 MB) is band-800
+  typical on GSC-24 (deep layers 10–12%), so the lossy <2 MB distillation is unnecessary. The stronger TORGO
+  reading — "base+ L10 *beats* the 316 MB ceiling" — was an **n=3 artifact, refuted on GSC-24** (there
+  wavlm-large 7.5–8.2% beats base+ 10.3%). Deployment story survives; "beats the ceiling" does not.
 
 **🔴 REFUTED / DEAD-ENDS (each a first-class result; several caught by GSC-24 replication):**
 - **C15 L21 layer win** — REFUTED on GSC-24 (layer choice flat 7.5–9.0%); was an n=3 TORGO artifact.
@@ -269,12 +273,38 @@ the honest read is "the tiny student is viable for small-vocab isolated-command 
 | distilhubert L2 | 23 MB | 21.7% | 21.7% |
 
 **Decomposition (min-agg):** total deployable gap **+7.9 pp** = capacity (large→base) +3.4 + distillation
-(base→distil) +4.5 (+INT8 residual ~1-2 pp, unmeasured). **REFRAMING WIN:** the "capacity gap" is illusory
-— **wavlm-base+ L10 (94 MB) beats the 316 MB ceiling (12.0% vs 13.8%)**. The real bottleneck is
-distilhubert's shallow 3-layer depth (21.7%), not parameter count. Under CONSTRAINT-001 a 94 MB encoder is
-trivially deployable on a 2026 phone → **the sweet spot may be wavlm-base+ L10 served directly, skipping the
-lossy distillation step (X1) entirely.** Also: mean-of-best-2's benefit is encoder/layer-specific (helps
-large L15 and base L12, no effect on base L10 or distilhubert). Feeds C15 (layer choice) and X1.
+(base→distil) +4.5 (+INT8 residual ~1-2 pp, unmeasured). The real bottleneck is distilhubert's shallow
+3-layer depth (21.7%), not parameter count.
+
+**⚠️ TORGO-n3 CLAIMS PARTLY REFUTED by C21b (GSC-24, advisor catch):** the on-TORGO reading "**base+ L10
+(94 MB) beats the 316 MB ceiling** (12.0% vs 13.8%)" was a **single-layer pick on 3 speakers** — the same
+methodology as the refuted C15/L21. On GSC-24 (`c21b_base_layers.py`): base+ L10 = 11.7%, **L12 = 10.3%**
+(L12 better, not L10), and **wavlm-large (7.5–8.2%) actually beats base+ (10.3%)** — so "base+ beats the
+ceiling" and "L10 specifically" are **REFUTED** cross-corpus. **What SURVIVES:** base+ (94 MB) *is* band-800
+typical on GSC-24 (deep layers L9–L12 = 10–12% ≤ 15%), so **a 94 MB on-device encoder reaches band-800 and
+the lossy <2 MB distillation is unnecessary** — the deployment recommendation holds in softened form (serve
+a 94 MB encoder; wavlm-large stays marginally better if the extra ~220 MB is affordable). See C21b + A3b.
+
+---
+
+### C21b — cross-corpus confirmation of the base+ deployment layer · ✅ DONE · `c21b_base_layers.py` (GSC-24, base+ all layers)
+
+Triggered by the advisor catch that C21/A3b's headline used a base+ L10 pick on n=3 TORGO speakers (the same
+methodology as the refuted C15/L21). base+ layer sweep, GSC-24, K=4 held-out FRR@FAR≤5%:
+
+| layer | GSC-24 D2 | | layer | GSC-24 D2 |
+|---|---|---|---|---|
+| L9 | 11.3% | | **L10** (deploy pick) | 11.7% |
+| **L11** | 10.6% | | **L12** | **10.3%** |
+
+**Result:** L10 does **not** keep its edge — L12 (10.3%) beats L10 (11.7%) on GSC-24 (TORGO-n3 had the
+opposite, L10=12.0 ≪ L12=17.2). And wavlm-large on GSC-24 (7.5–8.2%, from A5) **beats** base+ (10.3%). So
+the C21 claims "L10 specifically" and "base+ beats the ceiling / skip distillation because it's *better*"
+are **n=3 artifacts, refuted cross-corpus.** **What holds:** base+ (94 MB) is comfortably band-800 on GSC-24
+(every deep layer 10–12% ≤ 15%) — so the *94 MB-on-device-band-800* deployment story (with A3b's 0 FA/hr)
+**survives**, just not the "beats the ceiling" framing. Net: use a 94 MB encoder for band-800 on-device;
+wavlm-large is marginally better if you can afford it. This is the third n=3 layer-pick the GSC-24
+replication corrected — the campaign's consistency check working as intended.
 
 ---
 
