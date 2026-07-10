@@ -402,7 +402,14 @@ unreachable. **New insight:** unbiased separability is mediocre everywhere (all-
 lever = backend 0.72; frame-DTW lowers it) and AUC is a poor proxy for the FAR≤5% tail → new rule **EVAL-007**. Forward: 26 pre-registered W-series experiments
 (tail-direct + P5 reframe), and the deferred-backlog triage `docs/testing/2026-07-10_deferred-experiments-triage.md`
 (the other ~48 items subsumed / corpus-blocked / simulator-excluded). Harnesses `r1_frame_dtw_d2.py`,
-`r2_backend_d2.py`, `r3_scorenorm_d2.py`, `n1_stack_d2.py`, `extract_male_frames.py`.
+`r2_backend_d2.py`, `r3_scorenorm_d2.py`, `n1_stack_d2.py`, `extract_male_frames.py`, `auc_unbiased.py`.
+
+`docs/plans/2026-07/d2-wall-next-30-experiments.md` — 🔵 **ACTIVE** (design). The next **30** experiments
+ranked by EV/cost, 5 tiers: **A** reframe the target (task-success-with-confirm, SPRT, abstain+confirm —
+the highest payoff given the wall), **B** tail-direct decision/calibration (cheap; best raw-metric shot),
+**C** representation (limited shots; encoder-invariance prior), **D** enrollment & corpus acquisition
+(UASpeech required before banking), **E** complementary modality (severe tail). First-session set: #1/#2/#3/
+#6/#7/#8 (all runnable now, all attack/reframe the tail).
 
 ## Complete the SOTA scorecard — build the NOT_MEASURED domains (2026-07-09)
 
