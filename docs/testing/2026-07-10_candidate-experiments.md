@@ -42,7 +42,7 @@ survivors need fresh confirmation before banking. Dead-ends are first-class resu
 | C14 | Frozen-feature episodic-head ceiling | ◐ CPU proxy | **done** | Dead-end: head degrades transfer (TORGO 13.8→53.7%); frozen features already near-optimal, I1 premise unsupported |
 | C15 | Learned layer-mix probe | ✅ cached | **done** | Mix fails; L21 win REFUTED on GSC-24 (layer choice flat 7.5–9.0%) — was n=3 artifact |
 | C16 | Architecture bake-off @1% MSWC | ⛔ no MSWC + no GPU | pending | — |
-| C17 | Asymmetric clean-support/noisy-query | ◐ sim proxy | pending | — |
+| C17 | Asymmetric clean-support/noisy-query | ◐ sim proxy | **done** | Matched-noisy support helps only +3pp (only when adding budget) |
 | C18 | Relational KD | ◐ CPU proxy (cached teacher) | **done** | ⭐ RKD nearly doubles student QbE: 19.7→35.0% rank-1 (+15.3pp); distance-structure is what QbE consumes |
 | C19 | MSWC domain-gap audit | ◐ GSC proxy | **done** | Student excels at isolated words (GSC 85.7% vs TORGO 19.7%); citation-domain shift helps (vocab-size confound noted) |
 | C20 | Phrase-length generalization | ◐ TORGO multi-word | pending | — |
@@ -51,8 +51,8 @@ survivors need fresh confirmation before banking. Dead-ends are first-class resu
 | D23 | Power-compliant ambient corpus | ⛔ corpus assembly | pending | — |
 | D24 | Stage-correlation audit | ✅ PV streams | **done** | Stages correlated ~2.2× (conditional≫marginal FAR2); compound-FAR independence optimistic — inflate 950 stage-2 budget |
 | D25 | Other-speaker FA measurement | ✅ cached | **done** | other-same-word FA 31%! speaker gate justified; severe dys more speaker-dependent (F01=0.9%) |
-| E26 | D5 loss decomposition by RT60 | ◐ sim | pending | — |
-| E27 | K-budget allocation factorial | ◐ sim | pending | — |
+| E26 | D5 loss decomposition by RT60 | ◐ sim | **done** | Reverb loss intrinsic-dominated (aug recovers <50%); dereverb I10 has a role at mild RT60 |
+| E27 | K-budget allocation factorial | ◐ sim | **done** | ⭐ At FIXED K=4, {4 clean} BEATS mixed allocations — multi-condition additive only when it ADDS templates |
 | F28 | Multimodal enrollment | ✅ cached | **done** | Dead-end (−0.029): discrete clustering hurts → corroborates A4 continuous scatter |
 | F29 | Query-side rate normalization | ◐ re-embed | **done** | 🔴 REFUTES A4: rate-norm HURTS dys AUC 0.68→0.45; duration axis is symptom not lever |
 | F30 | UASpeech block-drift | ◐ TORGO session proxy | **done** | Dys plateau = within-session variability not drift (ratio 1.15<ctl 1.84); relax dys re-enroll cadence |
@@ -63,7 +63,7 @@ Legend: ✅ runnable on this host · ◐ proxy/partial only · ⛔ blocked (corp
 
 ## Executive synthesis (the campaign's through-line)
 
-**26 of 30 candidates executed** (real runs or CPU/GSC/ambient proxies); 4 documented with protocols (C16
+**26 of 30 candidates executed** (25 with results + D23 partial) (real runs or CPU/GSC/ambient proxies); 4 documented with protocols (C16
 GPU-gated, C20/C22 corpus-gated, B12 no-headroom-here). The dominant finding is methodological and it
 **vindicates EVAL-003**: *raw frozen SSL + few-shot enrollment is the robust core, and most proposed
 refinements do not survive independent-corpus replication.*
@@ -344,6 +344,41 @@ the aggregate "0.70 wall"; the wall is driven by the most-severe speakers (F01/F
   cost. ⇒ the **security guarantee (FAR) is robust to user-speech leakage**; the price is availability, not
   false-accepts — a milder failure mode than I2 assumed. Good news for the conformal rejection design.
 - **(c)** day-1→day-7 coverage drift: PARTIAL — needs the A3 ambient streamer over time; protocol queued.
+
+---
+
+### E26 + E27 + C17 — channel decomposition, K-budget allocation, asymmetric episodes · ✅ DONE · `e_channel.py` (typical, wavlm-large L15)
+
+**E26 — D5 reverb loss decomposition** (clean ceiling 87.3%):
+
+| RT60 | clean-enroll rank-1 | +reverb-aug enroll | gap | aug recovers |
+|---|---|---|---|---|
+| 0.15 s | 82.3% | 83.9% | 5.0 pp | 32% |
+| 0.30 s | 77.8% | 80.3% | 9.5 pp | 26% |
+| 0.60 s | 60.0% | 74.5% | 27.3 pp | 53% |
+
+Reverb loss is **intrinsic-smearing-dominated** (mean recovery <50%, gate says INTRINSIC) — enrollment
+augmentation helps but leaves most of the mild/moderate-RT60 gap → **dereverb (I10) has a real role**,
+especially at low-moderate RT60 (where aug recovers only 26–32%); heavy reverb is more mismatch-fixable (53%).
+
+**E27 — K-budget allocation at FIXED K=4 (adverse rev30 query) — the non-obvious result:**
+
+| allocation (4 templates) | rank-1 |
+|---|---|
+| **{4 clean}** | **97.2%** |
+| {2 clean + 2 reverb} | 91.7% |
+| {1 clean + rev + noise + band} | 91.7% |
+| {2 clean + 2 noisy} | 88.9% |
+
+**At a fixed rep budget, all-clean templates BEAT every mixed-condition allocation** — spending slots on
+degraded templates *hurts* (−5 to −8 pp). **C17** confirms the mechanism: adding *matched*-noisy templates
+(clean-support/noisy-query → +noisy-support) helps only +3.0 pp, i.e. only when it *increases* budget.
+
+**Reconciliation / refinement of the banked lever:** multi-condition enrollment (the banked D4/D5/D6 lever)
+is additive **only when it adds templates** — at a *fixed* K (the real product constraint, D13), clean
+anchors are higher-quality and win; do NOT trade clean templates for degraded ones. This meaningfully
+refines the "multi-condition enrollment is additive" assumption used in `typical_composite.py` (which used
+K=99, i.e. added rather than replaced).
 
 ---
 
