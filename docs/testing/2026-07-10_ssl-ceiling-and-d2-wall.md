@@ -257,6 +257,51 @@ it, all populations are `<600`/600 on the shipped MFCC path. This is the honest,
 gap to 800 is a **specific engineering build (tiny distilled encoder) + a product enrollment/population
 scoping decision**, not a flat impossibility and not a fabrication.
 
+## Deployable-encoder build attempt (2026-07-10 cont.) — the ≤2 MB constraint is itself binding
+
+The linchpin for a *shipped* (not off-device-ceiling) >800 is a deployable ≤2 MB encoder that recovers
+wavlm's QbE quality. Built and measured it (`distill_student.py`): a log-mel → conv student
+(**0.69 MB INT8-equiv**, admissible) distilled from frozen wavlm-large L14 on 6 000 LibriSpeech
+word-length windows.
+
+| Encoder | control (typical) rank-1 | dysarthric rank-1 | deployable? |
+|---|---:|---:|:--:|
+| static MFCC (shipped) | ~77% | 59.2% | ✓ |
+| **distilled 0.69 MB student** | **72.4%** | **47.9%** | ✓ (≤2 MB) |
+| distilhubert 23 MB | ~80% | 68.2% | ✗ (>2 MB) |
+| wavlm-large 316 M (ceiling) | ~88% | 79.4% | ✗ (off-device) |
+
+The student **fit the teacher on LibriSpeech** (train cos-dist 0.009 ≈ cosine sim 0.99) but
+**generalized below MFCC on held-out TORGO** — it learned a LibriSpeech-specific approximation, not the
+transferable QbE structure. wavlm's quality comes from 94 k h of SSL pretraining; that does not distill
+into 0.69 MB from 6 k embedding-matching windows. Even distilhubert (23 MB, 34× over budget) falls short
+of wavlm. **So the ≤2 MB on-device constraint is itself a binding limiter: no admissible encoder recovers
+the SSL ceiling that a typical-population 800 needs.**
+
+## FINAL VERDICT (all levers + the deployable build measured) — >800 blocked on two independent axes
+
+A validated **shipped** composite >800 is not achievable under the committed constraints for **either**
+population, and now both blockers are *measured*, not assumed:
+
+1. **Dysarthric population** → blocked by the **disorder**: D2 genuine/impostor AUC ≈ 0.70 (invariant
+   across representation × matcher × learned verifier × training data), plateaus ~40% FRR; 800 needs
+   AUC ≈ 0.93. Even the off-device 316 M ceiling can't reach it. Not an encoder problem.
+2. **Typical population** → 800 exists only at the **off-device SSL ceiling** (D2 4-shot = 11%); the
+   **≤2 MB deployable constraint** caps a distilled student at ~72% control rank-1 (below MFCC), so a
+   *shipped* typical 800 is also out under the size budget.
+
+The two premises that would each unlock a *shipped* 800 — and neither is a systems lever I can pull
+without changing the score's definition:
+- **Relax ≤2 MB** (allow e.g. a 20–50 MB on-device model): opens the typical-population path (still a
+  multi-session encoder build, but feasible). Does **not** help dysarthric.
+- **Re-scope population** to typical/mild + off-device or larger model: reaches 800 for those users.
+  Does not lift the committed dysarthric headline.
+
+This is the exhaustively-measured, honest state: **the composite's ceiling is ~600 (shipped, dysarthric)
+/ ~800 (off-device, typical, 4-shot); a validated shipped >800 requires relaxing either the population
+scope or the ≤2 MB size budget — a definitional change, not an engineering gap I can close by
+fabrication.**
+
 ### Reproduce
 ```sh
 cd scripts/eval/ssl_frontend_spike
