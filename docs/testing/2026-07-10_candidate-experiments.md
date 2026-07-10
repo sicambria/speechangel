@@ -37,18 +37,18 @@ survivors need fresh confirmation before banking. Dead-ends are first-class resu
 | B9 | SPRT sequential protocol | ✅ cached | **done** | Best 2-attempt: 34.6%→7.7% task-FRR at matched task-FAR; controls both by construction |
 | B10 | Margin-zone width optimization | ✅ cached | **done** | +11.5pp task-FRR (δ≈0.05), retry only near-misses |
 | B11 | Per-command-set confusability shaping | ✅ cached | **done** | Negative (−1.9pp) as pre-registered (tighten-only) |
-| B12 | Environment-conditioned conformal calib | ✅ cached+ambient | pending | — |
+| B12 | Environment-conditioned conformal calib | ✅ cached+ambient | **protocol** | Deferred: A3 shows ambient FA≈0 at global threshold → no headroom to beat here; value only under harder ambient (D23) |
 | B13 | Conformal validity engineering | ◐ partial | **done (partial)** | Coverage robust to block (4.7%<5%) & contamination (tightens not loosens); temporal drift queued |
 | C14 | Frozen-feature episodic-head ceiling | ◐ CPU proxy | **done** | Dead-end: head degrades transfer (TORGO 13.8→53.7%); frozen features already near-optimal, I1 premise unsupported |
 | C15 | Learned layer-mix probe | ✅ cached | **done** | Mix fails; L21 win REFUTED on GSC-24 (layer choice flat 7.5–9.0%) — was n=3 artifact |
-| C16 | Architecture bake-off @1% MSWC | ⛔ no MSWC + no GPU | pending | — |
+| C16 | Architecture bake-off @1% MSWC | ⛔ no MSWC + no GPU | **protocol** | GPU-gated; protocol documented for a GPU+MSWC session |
 | C17 | Asymmetric clean-support/noisy-query | ◐ sim proxy | **done** | Matched-noisy support helps only +3pp (only when adding budget) |
 | C18 | Relational KD | ◐ CPU proxy (cached teacher) | **done** | ⭐ RKD nearly doubles student QbE: 19.7→35.0% rank-1 (+15.3pp); distance-structure is what QbE consumes |
 | C19 | MSWC domain-gap audit | ◐ GSC proxy | **done** | Student excels at isolated words (GSC 85.7% vs TORGO 19.7%); citation-domain shift helps (vocab-size confound noted) |
-| C20 | Phrase-length generalization | ◐ TORGO multi-word | pending | — |
+| C20 | Phrase-length generalization | ◐ TORGO multi-word | **protocol** | Real test needs encoder retrain; thin proxy only, protocol documented |
 | C21 | Deployable-gap decomposition (+C21b) | ✅ cached | **done** | 94MB base+ IS band-800 (skip distillation); but "beats 316MB ceiling" REFUTED on GSC-24 (large 7.5% < base+ 10.3%) |
-| C22 | D10 multilingual pilot | ◐ CV proxy (no MSWC) | pending | — |
-| D23 | Power-compliant ambient corpus | ⛔ corpus assembly | pending | — |
+| C22 | D10 multilingual pilot | ◐ CV proxy (no MSWC) | **protocol** | Language-independence architecturally guaranteed; per-lang rank-1 needs MSWC (protocol documented) |
+| D23 | Power-compliant ambient corpus | ⛔ corpus assembly | **protocol** | A3/A3b cover the point estimate (0 FA/hr); ≥60h certification for UB<1 documented |
 | D24 | Stage-correlation audit | ✅ PV streams | **done** | Stages correlated ~2.2× (conditional≫marginal FAR2); compound-FAR independence optimistic — inflate 950 stage-2 budget |
 | D25 | Other-speaker FA measurement | ✅ cached | **done** | other-same-word FA 31%! speaker gate justified; severe dys more speaker-dependent (F01=0.9%) |
 | E26 | D5 loss decomposition by RT60 | ◐ sim | **done** | Reverb loss intrinsic-dominated (aug recovers <50%); dereverb I10 has a role at mild RT60 |
@@ -107,9 +107,16 @@ refinements do not survive independent-corpus replication.*
 - **A4** — dys scatter is structured (duration/loudness axis) but not actionably so (see F28/F29).
 
 **One-line takeaway for the SOTA-950 report:** the campaign strengthens the *typical* band-800 story on two
-independent axes (K-curve replicated on GSC-24; coherent 0-FA/hr at 94 MB) and **substantially improves the
-*dysarthric* outlook** (A2: the wall is a negative-set artifact, not a hard ceiling) — while retiring six
-proposed refinements that looked good on n=3 but failed to replicate.
+independent axes (K-curve replicated on GSC-24; coherent 0-FA/hr at 94 MB) and **sharpens the *dysarthric*
+picture** (A2: the *idle-reject* axis is band 900, not a hard ceiling) — while retiring six proposed
+refinements that looked good on n=3 but failed to replicate.
+
+**▶ Round-2 (dysarthric → 800):** the dysarthric composite was **re-scored with deployment-real negatives**
+and a 30-experiment Round-2 plan drafted — see **`docs/testing/2026-07-10_dysarthric-800-rescore-and-plan.md`**.
+Key result: idle-reject is solved (band 900 vs ambient) but the composite stays bound at **~500** by
+**in-vocab command confusion (68%)** and **other-speaker-same-word (87%)**; the lead scout (G3
+nuisance-subspace removal) **refuted under honest fold-held-out evaluation** (a leak artifact — the 5th such
+catch). Dysarthric-800 remains open research with a now well-characterized wall.
 
 ---
 
