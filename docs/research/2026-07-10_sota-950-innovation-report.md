@@ -914,6 +914,17 @@ check are folded in. "repo-banked" items live in this repository's testing docs,
 
 ## 13. Candidate experiments (review pass, 2026-07-10) — NOT yet pre-registered
 
+> **▶ EXECUTED 2026-07-10 — results in `docs/testing/2026-07-10_candidate-experiments.md`.**
+> 26/30 run (real runs + CPU/GSC/ambient proxies; C16/C20/C22/B12 documented with protocols). Headlines:
+> **A2** — the "0.70 dys wall" is largely a *hard-negative-set artifact* (dys AUC 0.68 confusors → 0.99 ambient);
+> **A3+A3b** — the FAR%/trial↔FA/hr mismatch reconciles favorably on one coherent encoder (wavlm-base+ L10,
+> 94 MB, band-800 at 12.0% FRR → **0 FA/hr** on real ambient); **A5** — the few-shot K-curve *replicates* on
+> GSC-24 (K4=8.2%); **C18** — relational KD nearly doubles the small-student QbE (19.7→35.0%); **C21** —
+> wavlm-base+ L10 beats the 316 MB ceiling (skip distillation); **D24** — cascade stages are ~2.2× correlated
+> (compound-FAR independence is optimistic). Retired on independent-corpus replication: **C15** L21 layer-win,
+> **B6** mean-of-best-2 (variance-dependent), **C14** episodic head, **F29** rate-norm, **F28**/**B7**/**B11**.
+> A5's cross-corpus replication caught two n=3 TORGO artifacts — a direct vindication of EVAL-003.
+
 **Status: candidates, not commitments.** These were proposed in the 2026-07-10 review pass. Unlike §8
 (X1–X7), they are **not** pre-registered under EVAL-003: each must get a single a-priori hypothesis and a
 FAR-matched adjudication plan *before* it runs, and any survivor still needs fresh confirmation before
