@@ -1,0 +1,54 @@
+{
+  "model": "wavlm-large",
+  "layer": 15,
+  "groups": {
+    "TYPICAL(control)": [
+      {
+        "K": 1,
+        "fixed_frr": 0.19444444444444442,
+        "fixed_far": 0.047021943573667714,
+        "fixed_n": 36,
+        "fixed_words": 7,
+        "var_frr": 0.42702702702702705,
+        "var_far": 0.04903125765194731,
+        "var_words": 91
+      },
+      {
+        "K": 2,
+        "fixed_frr": 0.16666666666666663,
+        "fixed_far": 0.050156739811912224,
+        "fixed_n": 36,
+        "fixed_words": 7,
+        "var_frr": 0.3008474576271186,
+        "var_far": 0.05157992212346391,
+        "var_words": 70
+      },
+      {
+        "K": 3,
+        "fixed_frr": 0.11111111111111116,
+        "fixed_far": 0.047021943573667714,
+        "fixed_n": 36,
+        "fixed_words": 7,
+        "var_frr": 0.1657142857142857,
+        "var_far": 0.046919071076706544,
+        "var_words": 20
+      },
+      {
+        "K": 4,
+        "fixed_frr": 0.11111111111111116,
+        "fixed_far": 0.047021943573667714,
+        "fixed_n": 36,
+        "fixed_words": 7,
+        "var_frr": 0.11111111111111116,
+        "var_far": 0.047021943573667714,
+        "var_words": 7
+      }
+    ],
+    "DYSARTHRIC": []
+  },
+  "gate": {
+    "k4_fixed_frr": 0.11111111111111116,
+    "k2_gap_pp": 13.418079096045199,
+    "pass_": false
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "F01": {
+    "in-vocab": 0.7267992424242424,
+    "other-spk(Libri)": 0.9609375,
+    "multiling(CV)": 0.958203125,
+    "ambient(DEMAND)": 1.0
+  },
+  "F03": {
+    "in-vocab": 0.66825839292207,
+    "other-spk(Libri)": 0.867072072072072,
+    "multiling(CV)": 0.890472972972973,
+    "ambient(DEMAND)": 0.9849099099099099
+  },
+  "F04": {
+    "in-vocab": 0.7892063492063492,
+    "other-spk(Libri)": 0.892,
+    "multiling(CV)": 0.91825,
+    "ambient(DEMAND)": 0.983
+  },
+  "_pooled": {
+    "in-vocab": 0.6815937908939127,
+    "other-spk(Libri)": 0.8917602996254682,
+    "multiling(CV)": 0.9150593008739076,
+    "ambient(DEMAND)": 0.9893778610070745
+  }
+}
