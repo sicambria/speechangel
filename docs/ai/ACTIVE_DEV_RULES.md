@@ -209,6 +209,24 @@ deployable.
   held-out replication + paired McNemar) is the reference. Standing bar for dysarthric levers: **F↔M
   cross-gender held-out** before any bank.
 
+### EVAL-007 — A central-separability (AUC) lift is not a tail (FRR@FAR) win; verify realized held-out FAR before banking any per-command/adaptive threshold
+The D2 wall is an **operating-point tail** phenomenon: the binding metric FRR@FAR≤5% is set by the *worst*
+in-vocab confusors (the 5th impostor percentile), **not** by mean genuine/impostor separation. Two
+consequences, both caught the hard way in Round-4 (`docs/testing/2026-07-10_d2-wall-p1p2p3-results.md`):
+1. **Do not adjudicate on AUC / d′.** A lever can raise pooled ROC-AUC (0.70→0.9+) while leaving FRR@FAR≤5%
+   unmoved or worse. The P2 LDA+WCCN backend and P3 frame-DTW both did exactly this on moderate TORGO. The
+   verdict metric must be the binding tail metric at matched FAR, per severity — AUC is a diagnostic only.
+2. **A per-command / adaptive / per-user threshold "win" is presumed FAR-invalid until its realized
+   held-out FAR is checked.** Allocating a FAR budget *per command* does **not** control the global held-out
+   FAR: R3's per-command lever looked like +15.7pp moderate FRR but its realized FAR was **23.8%** (a 5×
+   blow-out) — the "gain" was pure budget inflation. Any lever whose realized held-out FAR exceeds 5%+tol is
+   FAR-invalid and its FRR is not comparable to a FAR-valid baseline.
+- **Why:** `docs/testing/2026-07-10_d2-wall-p1p2p3-results.md` (P1/P2/P3 all raised central AUC or cut FRR
+  only by inflating FAR; none moved the FAR-matched moderate tail).
+- **Gate:** advisory; `scripts/eval/ssl_frontend_spike/r3_scorenorm_d2.py` (prints realized FAR per lever and
+  flags FAR-invalid ones) and `r1_frame_dtw_d2.py` / `r2_backend_d2.py` (report AUC as secondary, FRR@FAR as
+  verdict) are the reference implementations.
+
 ### WORKFLOW-001 — Fix the measurement criterion before you look at the target
 When banking any **count / coverage / score** metric (e.g. SOTA domain 15 guardrail coverage), state the
 criterion **before** computing the value, apply it **uniformly to every item**, and report where it lands —

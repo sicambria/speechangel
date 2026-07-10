@@ -96,3 +96,20 @@ modality," not "dysarthric is uniformly hard."
 > **Honest bottom line:** Round-3 did not reach 900, but it converted the Round-2 directional G1 win into a
 > properly-refuted negative using real male speakers, confirmed the wall on n=8, and reframed it as a
 > *severity* problem. The real 2nd population — not simulation — was the decisive asset.
+
+---
+
+## Round-4 update (2026-07-10) — the R-series (this doc's "next lever") ran; it is NULL
+
+The R-series (per-command / per-user adaptive thresholds, T-norm/Z-norm) called out above as "structurally
+more likely to survive" was run as **R3** alongside the two other deep-research bets (P2 backend = R2, P3
+frame-DTW = R1) and the never-run Round-3 primary **N1** (best-admissible stack). Results:
+`docs/testing/2026-07-10_d2-wall-p1p2p3-results.md`. **All four fail the binding metric on moderate.** The
+R-series is NULL at matched FAR (S-norm −1.5pp; the per-command "gain" was FAR-inflation to 24% — a caught
+false positive). N1 confirms **band-900 unreachable** by any admissible stack.
+
+Round-4 also **sharpens the root cause**: the "next lever" premise (attack the *threshold* gap without
+requiring the representation to generalize) was reasonable but wrong — the wall is a **tail** phenomenon.
+P2/P3 both raised central AUC (0.70→0.9+) yet left the FAR≤5% operating point unmoved, because that point is
+set by the worst confusors, not the mean. Forward program pivots to tail-direct + reframe levers:
+`docs/plans/2026-07/d2-wall-followup-experiments.md` (W-series), governed by new rule **EVAL-007**.

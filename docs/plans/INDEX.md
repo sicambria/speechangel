@@ -390,6 +390,20 @@ out: **typical composite 800** (D1 900/D2 13.8%→800/D4 900/D5 800/D6 900; D3~8
 the artificial size cap + banding only the 3 hardest severe speakers. Harnesses `held_out_d2.py --distinct`,
 `typical_composite.py`. Follow-up: re-validate carried D3/D13 + INT8 on-device.
 
+## D2-wall follow-up — deep-research bets P1/P2/P3 + N1 (2026-07-10)
+
+`docs/plans/2026-07/d2-wall-followup-experiments.md` — 🔵 **ACTIVE** (design; 4 executed). Runs the three
+top-ranked untried attacks from the deep-research report `docs/research/2026-07-10-move-d2-wall.md` on real
+TORGO (3F+5M), plus the never-run Round-3 primary DoD **N1**. **All four fail the binding metric on moderate
+severity** (`docs/testing/2026-07-10_d2-wall-p1p2p3-results.md`): **P3** frame-trajectory DTW NOT-BANKED
+(−1.7pp), **P2** LDA+WCCN backend KILLED (+0.6/+1.3pp, same family as G1/G3), **P1/R-series** score-norm NULL
+at matched FAR (per-command "gain" was FAR-inflation to 24% — caught), **N1** best-stack CONFIRMS band-900
+unreachable. **New insight:** the wall is a **tail** phenomenon — P2/P3 raised central AUC (0.70→0.9+) but not
+the FAR≤5% operating point → new rule **EVAL-007**. Forward: 26 pre-registered W-series experiments
+(tail-direct + P5 reframe), and the deferred-backlog triage `docs/testing/2026-07-10_deferred-experiments-triage.md`
+(the other ~48 items subsumed / corpus-blocked / simulator-excluded). Harnesses `r1_frame_dtw_d2.py`,
+`r2_backend_d2.py`, `r3_scorenorm_d2.py`, `n1_stack_d2.py`, `extract_male_frames.py`.
+
 ## Complete the SOTA scorecard — build the NOT_MEASURED domains (2026-07-09)
 
 `docs/plans/2026-07/complete-sota-measurement.md` — ✅ **DONE 2026-07-09** (advisor-gated; self-scored
