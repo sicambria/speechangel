@@ -1,5 +1,13 @@
 # Dysarthric composite re-score (deployment-real negatives) + Round-2 plan to push dysarthric > 800
 
+> **Status: Round-2 STARTED 2026-07-10.** Threat-model decision (user): cohabitant-rejection **OUT OF
+> SCOPE** → drops the 87% other-speaker wall + L27/L29/K22-speaker/L28-security; binding wall = in-vocab
+> confusion only. Diagnostic (L26) + pre-registered primary (G1) + upper bound (H6) executed; results in
+> **`2026-07-10_dysarthric-round2-results.md`**. G1 per-user within-word whitening = **directional positive**
+> (dys in-vocab −10.6pp, 57→45%, p=0.004, gate-able on scatter≥0.03), NOT banked pending UASpeech. Small
+> vocab (N≈5) → band 700 (H6). Remaining 26 experiments = next-iteration hypotheses. No banked dys-800 on
+> n=3 TORGO — UASpeech confirmation is the pre-registered critical-path step.
+
 **2026-07-10.** Follow-through on A2 (the "0.70 wall" is a negative-set artifact) — re-score the dysarthric
 D2 axis under deployment-real negatives, locate the true binding wall, then a 30-experiment Round-2 plan
 targeting it. Harness: `scripts/eval/ssl_frontend_spike/dys_d2_redux.py`, `g3_nuisance_subspace.py`.
