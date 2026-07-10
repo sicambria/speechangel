@@ -195,10 +195,20 @@ After the representation/matcher/training ladder, the remaining *operating-point
 **Why no operating-point lever can reach 800 — the ROC floor.** Every D2 result is a point on a fixed
 ROC whose area is the measured **dysarthric genuine/impostor AUC ≈ 0.70** (invariant across MFCC →
 wavlm-large 316 M → learned head → frame-DTW → T-norm). At FAR = 5% the empirical ROC gives
-FRR ≈ 51–57%. FRR ≤ 15% @ FAR ≤ 5% requires **AUC ≈ 0.93** — a +0.23 AUC jump in same-word-vs-different-word
+FRR ≈ 51–57%. FRR ≤ 15% @ FAR ≤ 5% requires **AUC ≈ 0.97** — a +0.27 AUC jump in same-word-vs-different-word
 *rank-ordering* for severe dysarthric speech that no admissible representation, matcher, scoring rule, or
 in-domain training produces. Threshold/normalization tricks slide along the ROC; they cannot raise its
 area. This makes the D2 wall representation-, matcher-, and operating-point-invariant.
+
+> **Correction (2026-07-10, review pass).** Earlier drafts stated the 800-rung requirement as
+> **AUC ≈ 0.93** (here and in the two downstream references below — the "True attainable composite"
+> paragraph and the D2 summary). That 0.93 is the **EER = 15%** value; the rung is
+> **FRR = 15% @ FAR = 5%**, a *different* operating point. Under the same equal-variance binormal model
+> the correct value is **AUC ≈ 0.97** — d′ = Φ⁻¹(0.95) − Φ⁻¹(0.15) = 1.645 + 1.036 = 2.68, so
+> AUC = Φ(2.68/√2) = 0.971 — i.e. a **+0.27** jump from the measured 0.70, not +0.23. The correction
+> *raises* the required jump: it **strengthens, never weakens, the wall.** The 950-rung (AUC ≈ 0.99,
+> FRR ≤ 2% @ FAR ≤ 5%) and K = 4 (AUC ≈ 0.98) figures elsewhere were already computed the FRR@FAR way
+> and are unchanged.
 
 **True attainable composite — even the friendliest honest framing tops out at band 600.** With the SSL
 encoder + deployment slice + all levers: D1 ~800, D3 ~800 (dual-cascade), D4/D5/D6 SSL-liftable, D13 950,
@@ -248,7 +258,7 @@ untried lever). A simulated many-shot dysarthric number would be a PROXY and can
 - **Typical / mild-dysarthric users + few-shot enrollment + SSL encoder:** D2 → 800 (validated at the
   off-device ceiling; needs the deployable ≤2 MB student for a *shipped* green 800).
 - **Severe dysarthric (F01/F03) + available reps:** D2 plateaus ~40% → band 600–700; 800 (≤15%,
-  AUC ≈0.93) is beyond reach on this data under the constraints.
+  AUC ≈0.97) is beyond reach on this data under the constraints.
 
 So a **validated shipped composite >800 still hinges on the deployable ≤2 MB SSL-quality encoder**
 (the CP-1/L1 build) — the linchpin for D2/D3/D4 on *any* population. With it, typical-user 800 is
@@ -292,7 +302,7 @@ population, and now both blockers are *measured*, not assumed:
 
 1. **Dysarthric population** → blocked by the **disorder**: D2 genuine/impostor AUC ≈ 0.70 (invariant
    across representation × matcher × learned verifier × training data), plateaus ~40% FRR; 800 needs
-   AUC ≈ 0.93. Even the off-device 316 M ceiling can't reach it. Not an encoder problem.
+   AUC ≈ 0.97. Even the off-device 316 M ceiling can't reach it. Not an encoder problem.
 2. **Typical population** → 800 exists at the **off-device SSL ceiling** (D2 4-shot = 11%), but the
    **deployable ≤2 MB encoder that would ship it is unbuilt**: two in-session distillations land below
    MFCC (72% / 61%). Not proven fundamentally impossible (distilhubert @23 MB beats MFCC), but a genuine
