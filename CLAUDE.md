@@ -75,6 +75,27 @@ so it produces confident-but-wrong "all clear" answers. Concrete lessons:
   stop them explicitly. To kill a specific tracked shell use `TaskStop <task-id>`; the IDs surface in the
   task-completion notifications.
 
+### 1.4 Constraint-validity check — don't treat an artificial cap as a hard blocker
+
+Before you let a constraint decide a feasibility verdict, **check it's real.** Ask: *is this a
+meaningful, valid constraint given average sub-300 EUR smartphone specs in 2026?* If there is **no real
+argument behind it** and **no felt downside for the user**, you may change it — and you should, rather
+than reporting "unreachable."
+
+Captured the hard way (2026-07-10): the self-imposed **≤2 MB model budget** capped the SOTA composite at
+`<600` and was treated as immovable across a long feasibility study — but a 2026 sub-300 EUR Android phone
+has ~4–8 GB RAM + NPU/NNAPI and runs 50–150 MB INT8 models trivially (typical apps are 50–200 MB). The
+cap had **no device rationale and no user downside**; relaxing it (→ an SSL-quality on-device encoder) plus
+**few-shot enrollment** (saying a command 3–5× has no UX downside and cut D2 FRR 46 %→11 %) lifted the
+typical-population composite from `<600` toward 800.
+
+**Rule:** proactively audit every constraint before a verdict. Classify each **REAL** (privacy/on-device,
+Play-policy determinism, a product value like speaker-dependence or language-independence, or a *measured
+physical property* such as severe-dysarthric within-word variability) vs **ARTIFICIAL** (a round-number
+size cap, "1-shot" where few-shot is fine, "no GPU" where NNAPI exists). Relax the artificial ones with a
+stated 2026-device argument; never relax a REAL one (that breaks the admissibility filter or the mission).
+See `docs/testing/2026-07-10_ssl-ceiling-and-d2-wall.md` (constraint audit) and rule **CONSTRAINT-001**.
+
 ---
 
 ## 2. Make targets (preferred interface)

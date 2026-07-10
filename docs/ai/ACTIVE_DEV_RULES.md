@@ -203,3 +203,19 @@ artifact** proven to **bite on a fixture**, never a keyword/citation check and n
 - **Gate:** advisory; `scripts/audits/verify-sota-measurement.mjs` checks 3/4 (the substance gates) and
   `core/eval/src/main/kotlin/com/speechangel/core/eval/SotaScorecard.kt` (`countHardGatedEvalRules`) are the
   reference implementations.
+
+### CONSTRAINT-001 — Audit a constraint's validity before it decides a feasibility verdict
+Before reporting a target as "unreachable" because of a constraint, **check the constraint is real, not
+artificial.** For each constraint ask: *is it meaningful and valid given an average sub-300 EUR smartphone
+in 2026 (≈4–8 GB RAM, NPU/NNAPI)?* If it has **no real argument** and **no felt user downside**, relax it
+(with the device/UX argument stated) rather than concluding impossibility. Classify: **REAL** = privacy /
+on-device, Play-policy determinism, a product value (speaker-dependence, language-independence), or a
+*measured physical property* (severe-dysarthric within-word variability, AUC~0.70). **ARTIFICIAL** = a
+round-number size cap (the old **≤2 MB**), **1-shot** where few-shot has no UX cost, **no-GPU** where NNAPI
+exists. Never relax a REAL constraint (breaks the admissibility filter / mission); always re-examine an
+artificial one.
+- **Why:** the ≤2 MB budget held the composite at `<600` for a whole feasibility study as if immovable;
+  it had no device rationale. Relaxing it (SSL encoder) + few-shot enrollment lifted the typical-population
+  composite from `<600` toward 800. `docs/testing/2026-07-10_ssl-ceiling-and-d2-wall.md` (§ constraint audit).
+- **Gate:** advisory (judgment rule); pairs with the honesty contract — a *justified* relaxation with a
+  stated argument is not goalpost-moving, but silently dropping a REAL constraint to pass a target is.
