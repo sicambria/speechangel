@@ -27,8 +27,9 @@ moderate population.** Two coupled findings:
 > in-vocab confusors (5th impostor percentile), not the mean. **Adjudicate on FRR@FAR, never on AUC.**
 
 (The per-speaker AUC columns in the P2/P3 tables below are a *winner-correct-only* estimator — optimistic,
-because dysarthric rank-1 is ~24% so it drops ~70% of the hard genuine trials. Use `auc_unbiased.json` for
-the true separability; the biased columns are kept only to show the within-run backend/pool ordering.)
+because dysarthric rank-1 is ~24% so it drops ~70% of the hard genuine trials. Use `auc_unbiased.json` for the
+true separability; the biased columns are kept for transparency only — **do not interpret them**: for P3 they
+even *invert* the ordering (biased fdtw 0.89 > pool 0.83; unbiased fdtw 0.61 < pool 0.66).)
 
 | Bet | Lever | Moderate D2 result (binding) | Unbiased AUC (moderate) | Verdict |
 |---|---|---|---|---|

@@ -77,9 +77,15 @@ success and kill threshold expressed against the binding FRR@FAR metric.
 - **W23 — Severity auto-detection at enrollment** (within-word scatter / fisher ratio). *Success:* ≥80%
   agreement with the D2-band label on held-out speakers.
 
-### Cluster P2' — trainable backends (HIGH self-deception risk; LDA+WCCN killed)
+### Cluster P2' — trainable backends (LDA+WCCN killed on MAGNITUDE, not transfer)
 
-- **W7 — LDA+WCCN.** ✅ DONE (R2) — KILLED.
+> **Correct kill-guard (Round-4 correction):** unlike G1, the LDA+WCCN backend's central-AUC gain *does*
+> transfer cross-gender (F→M, +0.07 on every held-out speaker) — it dies because 0.72 ≪ the ~0.95 AUC needed
+> for the tail to move, i.e. **insufficiency, not the G1 transfer artifact**. So for W8–W11 the binding
+> kill-criterion is "did FRR@FAR≤5% move ≥8pp on moderate," NOT "did it survive cross-gender" (it will).
+> Keep the cross-gender report as a diagnostic, but do not let a passing transfer test read as a win.
+
+- **W7 — LDA+WCCN.** ✅ DONE (R2) — KILLED (transfer passed; magnitude/tail failed).
 - **W8 — Two-covariance / constrained PLDA** (Wang IS2022). *Success:* ≥8pp moderate ΔFRR @ FAR≤5%,
   transfer-preserved. *Kill:* <3pp or transfer-vanish.
 - **W9 — Neural PLDA (NPLDA)** (Ramoji 2020) on a DCF surrogate (targets the tail). *Success/kill:* as W8.
