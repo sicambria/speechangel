@@ -1,0 +1,59 @@
+{
+  "F01": {
+    "modal_conc": 0.5,
+    "rank1err": 0.1875,
+    "nwords": 15,
+    "random_baseline": 0.07142857142857142,
+    "n5_floor": 0.1659090909090909,
+    "n5_pairaware": 0.04886363636363636,
+    "multiattempt": {
+      "1": 0.125,
+      "2": NaN,
+      "3": NaN
+    }
+  },
+  "F03": {
+    "modal_conc": 0.5777777777777778,
+    "rank1err": 0.24864864864864866,
+    "nwords": 77,
+    "random_baseline": 0.013157894736842105,
+    "n5_floor": 0.05,
+    "n5_pairaware": 0.0125,
+    "multiattempt": {
+      "1": 0.17083333333333334,
+      "2": 0.16666666666666669,
+      "3": NaN
+    }
+  },
+  "F04": {
+    "modal_conc": 0.8333333333333334,
+    "rank1err": 0.18,
+    "nwords": 21,
+    "random_baseline": 0.05,
+    "n5_floor": 0.059815184815184816,
+    "n5_pairaware": 0.19583333333333336,
+    "multiattempt": {
+      "1": 0.05,
+      "2": 0.0,
+      "3": NaN
+    }
+  },
+  "FC01": {
+    "modal_conc": NaN,
+    "rank1err": 0.0,
+    "nwords": 16,
+    "random_baseline": 0.06666666666666667
+  },
+  "FC02": {
+    "modal_conc": 0.880952380952381,
+    "rank1err": 0.07120743034055728,
+    "nwords": 121,
+    "random_baseline": 0.008333333333333333
+  },
+  "FC03": {
+    "modal_conc": 0.75,
+    "rank1err": 0.185378590078329,
+    "nwords": 136,
+    "random_baseline": 0.007407407407407408
+  }
+}
