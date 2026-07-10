@@ -108,8 +108,8 @@ frame-DTW = R1) and the never-run Round-3 primary **N1** (best-admissible stack)
 R-series is NULL at matched FAR (S-norm −1.5pp; the per-command "gain" was FAR-inflation to 24% — a caught
 false positive). N1 confirms **band-900 unreachable** by any admissible stack.
 
-Round-4 also **sharpens the root cause**: the "next lever" premise (attack the *threshold* gap without
-requiring the representation to generalize) was reasonable but wrong — the wall is a **tail** phenomenon.
-P2/P3 both raised central AUC (0.70→0.9+) yet left the FAR≤5% operating point unmoved, because that point is
-set by the worst confusors, not the mean. Forward program pivots to tail-direct + reframe levers:
+Round-4 also **sharpens the root cause**: on the unbiased all-genuine estimator, separability is mediocre
+everywhere (moderate AUC ~0.65; best lever = backend 0.72; frame-DTW *lowers* it), so no admissible lever
+lifts it — and AUC is a poor proxy for the FAR≤5% tail (the backend's +0.07 central-AUC gain bought only
+~+1pp FRR). Forward program pivots to tail-direct + reframe levers:
 `docs/plans/2026-07/d2-wall-followup-experiments.md` (W-series), governed by new rule **EVAL-007**.

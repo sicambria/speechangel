@@ -398,8 +398,8 @@ TORGO (3F+5M), plus the never-run Round-3 primary DoD **N1**. **All four fail th
 severity** (`docs/testing/2026-07-10_d2-wall-p1p2p3-results.md`): **P3** frame-trajectory DTW NOT-BANKED
 (−1.7pp), **P2** LDA+WCCN backend KILLED (+0.6/+1.3pp, same family as G1/G3), **P1/R-series** score-norm NULL
 at matched FAR (per-command "gain" was FAR-inflation to 24% — caught), **N1** best-stack CONFIRMS band-900
-unreachable. **New insight:** the wall is a **tail** phenomenon — P2/P3 raised central AUC (0.70→0.9+) but not
-the FAR≤5% operating point → new rule **EVAL-007**. Forward: 26 pre-registered W-series experiments
+unreachable. **New insight:** unbiased separability is mediocre everywhere (all-genuine AUC ~0.65 moderate; best
+lever = backend 0.72; frame-DTW lowers it) and AUC is a poor proxy for the FAR≤5% tail → new rule **EVAL-007**. Forward: 26 pre-registered W-series experiments
 (tail-direct + P5 reframe), and the deferred-backlog triage `docs/testing/2026-07-10_deferred-experiments-triage.md`
 (the other ~48 items subsumed / corpus-blocked / simulator-excluded). Harnesses `r1_frame_dtw_d2.py`,
 `r2_backend_d2.py`, `r3_scorenorm_d2.py`, `n1_stack_d2.py`, `extract_male_frames.py`.

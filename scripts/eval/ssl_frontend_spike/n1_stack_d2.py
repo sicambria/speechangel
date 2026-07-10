@@ -6,9 +6,14 @@ FAR-matched per-command centering (P1), LOSO-trained, per severity. If the stack
 baseline at matched FAR<=5%, band 900 is unreachable by any admissible composition and the program pivots
 to P5 (reframe).
 
-Verdict metric: FRR@FAR<=5% held-out LOFO, per severity, FAR-matched. Reuses r2/r3 machinery.
+Verdict metric: FRR@FAR<=5% held-out LOFO, per severity. Reuses r2/r3 machinery.
 Pre-registered: stack beats A0 by >=8pp on moderate at matched FAR => band-900 track live. Else CONFIRMED
 unreachable.
+
+FAR caveat: both arms use per-command centering, which on n=8 overfits and does NOT hold held-out FAR<=5%
+(realized ~8-12%). A looser FAR gives OPTIMISTIC FRR, so 'unreachable' is a CONSERVATIVE bound — even helped
+by inflated FAR the stack lands band 500-600 on every severity. (For a clean FAR<=5% baseline see d2_ceiling
+A0 / r3 A0 at ~4.9% FAR.)
 """
 import os, json
 import numpy as np

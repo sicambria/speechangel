@@ -23,9 +23,11 @@ Round-3 primary N1 and found **all four fail** the binding metric on moderate se
 - **Corpus discipline:** real dysarthric only (TORGO now; UASpeech/EasyCall/Nemours on acquisition, W25/W26);
   no simulator (S22 unfit). Held-out **speaker**; for any learned linear transform a **cross-gender transfer**
   guard (train F → test M) — the condition that refuted G1 (EVAL-006).
-- **Governing insight (Round-4, EVAL-007):** the wall is a **tail** phenomenon — central AUC is not the
-  binding quantity. Every representation/score lever that raised mean separability (0.70→0.9+) left the FAR≤5%
-  operating point unmoved. **Prioritize tail-direct levers (T-cluster) and the P5 reframe.**
+- **Governing insight (Round-4, EVAL-007):** separability is mediocre everywhere (unbiased all-genuine AUC
+  ~0.65 moderate; best lever = backend at 0.72; frame-DTW *lowers* it) and **AUC is a poor proxy for the
+  binding tail** — the backend's real +0.07 central-AUC gain bought only +0.6/+1.3pp FRR@FAR≤5%, because the
+  operating point is set by the worst confusors, not the mean. **Prioritize tail-direct levers (T-cluster) and
+  the P5 reframe; adjudicate on FRR@FAR (all-genuine AUC only as a diagnostic).**
 
 ### What is already settled — DO NOT re-run
 
@@ -36,8 +38,8 @@ Round-3 primary N1 and found **all four fail** the binding metric on moderate se
 | Per-user within-word whitening (G1) | round-2/3 | refuted on held-out males p=0.63 |
 | Nuisance-subspace projection (G3) | round-2 | train/test leakage artifact |
 | Confusion-aware vocab (N2) | round-3 | rep-limited negative |
-| **LDA+WCCN backend (P2 = W7)** | **Round-4 R2** | **killed +0.6/+1.3pp; central AUC↑ tail flat** |
-| **frame-trajectory DTW (P3 = W0)** | **Round-4 R1** | **not-banked −1.7pp; central AUC↑ tail flat** |
+| **LDA+WCCN backend (P2 = W7)** | **Round-4 R2** | **killed +0.6/+1.3pp; unbiased AUC 0.65→0.72 but tail flat** |
+| **frame-trajectory DTW (P3 = W0)** | **Round-4 R1** | **not-banked −1.7pp; unbiased AUC 0.65→0.61 (lower)** |
 | **AS/S-norm + per-cmd thresholds (P1 = W12)** | **Round-4 R3** | **null at matched FAR; per-cmd "gain" was FAR-inflation to 24%** |
 
 ## Approach

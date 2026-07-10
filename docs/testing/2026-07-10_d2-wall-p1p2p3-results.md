@@ -15,18 +15,25 @@ Evidence JSON: `_ceiling_cache/{r1_frame_dtw_d2,r2_backend_d2,r3_scorenorm_d2}.j
 
 All three top-ranked untried attacks on the D2 wall were run on real dysarthric data with the
 leakage/FAR/held-out controls the refuted G1/G3 taught us. **None moves the binding metric on the live
-moderate population.** The unifying finding is mechanistically new and sharper than "the wall is real":
+moderate population.** Two coupled findings:
 
-> **The D2 wall is a TAIL phenomenon, not a central-separability one.** Every lever that raised central
-> separability (pooled ROC-AUC rose 0.70 → 0.88–0.96 under P2 and P3) left the **FRR @ FAR≤5% operating
-> point unmoved or worse**, because that operating point is set by the *worst* in-vocab confusors (the 5th
-> impostor percentile), not by the mean. Raising average genuine/impostor separation does not thin the
-> confusor tail.
+> **(1) Separability is mediocre everywhere and no lever meaningfully improves it.** On the correct
+> *all-genuine* estimator (`auc_unbiased.py`; genuine = distance to the query's truth word, not only when it
+> wins), moderate ROC-AUC is **0.654 baseline → 0.724 backend → 0.608 frame-DTW**. The backend gives a small
+> *real* central-AUC lift (+0.07); frame-DTW *lowers* it. None reaches the ≳0.95 needed for FRR≤15%@FAR≤5%.
+>
+> **(2) AUC is a poor proxy for the binding tail metric.** Even the backend's real +0.07 central-AUC gain
+> buys only ~+1pp on FRR@FAR≤5% (moderate +0.6/+1.3pp), because that operating point is set by the *worst*
+> in-vocab confusors (5th impostor percentile), not the mean. **Adjudicate on FRR@FAR, never on AUC.**
 
-| Bet | Lever | Moderate D2 result (binding) | Central AUC | Verdict |
+(The per-speaker AUC columns in the P2/P3 tables below are a *winner-correct-only* estimator — optimistic,
+because dysarthric rank-1 is ~24% so it drops ~70% of the hard genuine trials. Use `auc_unbiased.json` for
+the true separability; the biased columns are kept only to show the within-run backend/pool ordering.)
+
+| Bet | Lever | Moderate D2 result (binding) | Unbiased AUC (moderate) | Verdict |
 |---|---|---|---|---|
-| **P3** | frame-trajectory DTW vs pooled cosine | fdtw **−1.7pp** (worse) | 0.83→0.89 (↑) | **NOT-BANKED** |
-| **P2** | LDA+WCCN backend on frozen WavLM | +0.6pp (loso) / +1.3pp (xgender) | +0.02…+0.07 (↑) | **KILLED** (same family as G1/G3) |
+| **P3** | frame-trajectory DTW vs pooled cosine | fdtw **−1.7pp** (worse) | 0.654→0.608 (↓) | **NOT-BANKED** |
+| **P2** | LDA+WCCN backend on frozen WavLM | +0.6pp (loso) / +1.3pp (xgender) | 0.654→0.724 (+0.07, no tail) | **KILLED** (same family as G1/G3) |
 | **P1** | AS/S-norm + per-command thresholds | snorm −1.5pp; per-cmd "gain" = FAR artifact | invariant (monotone) | **NULL** at matched FAR |
 
 ---
@@ -47,8 +54,10 @@ best-of-exemplars (min over templates), so the isolated variable is **trajectory
 | M05 | very severe | 151 | 60 | 90.7% | 0.767 | 88.7% | 0.750 | +2.0pp |
 
 **Verdict:** moderate (M01/M02) pooled 58.6% → frame-DTW 60.4% = **−1.7pp (worse)**; mild+moderate (M01/M02/M03)
-−3.7pp (committed JSON verdict). Pre-registered success was ≥8pp *better*. **NOT-BANKED.** Frame-DTW lifts central AUC (M01 +0.06, M02 +0.04,
-M03 +0.06) yet the tail FRR is equal-or-worse — the tail/central split again. This is the strongest
+−3.7pp (committed JSON verdict). Pre-registered success was ≥8pp *better*. **NOT-BANKED.** On the unbiased
+all-genuine estimator frame-DTW *lowers* moderate AUC (0.654→0.608), and the tail FRR is equal-or-worse.
+(The `fdtw AUC` column above is winner-correct-only — optimistic; ignore its apparent rise, see the estimator
+caveat.) This is the strongest
 dysarthria-validated candidate in the literature (LPM, Apple IS2023), and it does not transfer to the
 FRR@FAR≤5% in-vocab-confusor task on TORGO. (Females carry no D2 here — the female frame cache holds command
 wavs only, no negatives — so males, which include the live moderate cell, carry the verdict.)
@@ -62,8 +71,9 @@ leakage artifact). Backend trained **leave-one-speaker-out** on (speaker,word) c
 
 Moderate mean ΔFRR (positive = improvement): **loso +0.6pp, xgender +1.3pp** — both below the 3pp kill line.
 Per-speaker the only real FRR gains land on **mild** speakers already at band 700 (F04 +6pp, M03 +7–10pp),
-not where the wall lives; F01 (severe) got *worse* (−6.2pp). Meanwhile pooled AUC rose everywhere
-(+0.02…+0.07). **KILLED** — a central-AUC lift that does not reach the FAR≤5% tail on the live population;
+not where the wall lives; F01 (severe) got *worse* (−6.2pp). The backend gives a small *real* unbiased
+central-AUC lift (moderate 0.654→0.724, +0.07 — the largest of any lever). **KILLED** — that central-AUC
+lift does not reach the FAR≤5% tail on the live population;
 any positive is **NOT-BANKED** as it fails the same transfer test that sank G1.
 
 ## P1 — score normalization + per-command thresholds (the deferred R-series) — NULL at matched FAR
@@ -91,12 +101,20 @@ the moderate tail does not move.
 ## Why this is a stronger result than "the wall is real"
 
 The Round-3 characterization was "within-word variance ≳ between-command distance ⇒ AUC≈0.70 ⇒ wall." This
-round shows AUC is **not** the binding quantity: P2 and P3 both *raised* central AUC to 0.88–0.96 on the
-moderate speakers while the FRR@FAR≤5% tail stayed at 58–63%. The wall is set by the **worst-case confusor
-mass at the 5th impostor percentile**, and none of the admissible representation/score levers thins that
-mass. Corollary: future work should target the **tail directly** (per-confusor abstain, tail-loss training,
-worst-case-confusor enrollment) or reframe (P5), not chase mean separability. See the follow-up plan
-`docs/plans/2026-07/d2-wall-followup-experiments.md`.
+round confirms that unbiased AUC (~0.65 moderate) and adds two things. First, **no admissible lever
+meaningfully improves separability**: the best (LDA+WCCN backend) reaches only 0.724 unbiased, frame-DTW
+*lowers* it to 0.608, and score normalization is separability-invariant. Second, **AUC is a poor proxy for
+the binding metric**: the backend's real +0.07 central-AUC gain does not reach the FAR≤5% tail (moderate
+FRR +0.6/+1.3pp) because the operating point is set by the worst-case confusor mass at the 5th impostor
+percentile, not the mean. Corollary: future work should target the **tail directly** (per-confusor abstain,
+tail-loss training, worst-case-confusor enrollment) or reframe (P5), not chase mean separability. See the
+follow-up plan `docs/plans/2026-07/d2-wall-followup-experiments.md`.
+
+> **Estimator caveat (why the earlier draft overstated central AUC).** The r1/r2 harnesses collect genuine
+> scores only on winner-correct trials, which excludes the ~70% hard genuine trials and inflates AUC to
+> 0.83–0.96. The all-genuine recompute (`auc_unbiased.py` → `auc_unbiased.json`) is the correct estimator and
+> gives ~0.65–0.72. The verdict (all four levers fail the FRR@FAR tail) is unchanged either way, but the
+> *central-AUC-rose-to-0.9* framing was an artifact and has been removed.
 
 ## Method integrity notes (what makes these bankable negatives)
 

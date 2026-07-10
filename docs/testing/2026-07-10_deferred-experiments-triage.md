@@ -35,7 +35,7 @@ live moderate population).
 
 | Item(s) | Disposition | Rationale |
 |---|---|---|
-| **N1** | **RUN** (this session) | band-900 stack — CONFIRMED UNREACHABLE. |
+| **N1** | **RUN** (this session) | band-900 stack — CONFIRMED UNREACHABLE (all severities land band 500–600). *FAR caveat:* both N1 arms run through per-command centering, so realized held-out FAR is ~8–12%, not ≤5% — a looser FAR gives *optimistic* FRR, so the unreachable conclusion is a **conservative bound** (even helped by inflated FAR the stack cannot reach band 900). |
 | N3–N5 | **SUBSUMED** | downstream of N1/N2; the stack does not reach band 900. |
 | **P8–P10** | **SUBSUMED** by R2 | P-series backends = the killed P2 family. |
 | **Q11–Q15** | **SUBSUMED / P5** | high-overlap decision variants → R3 null; multi-attempt → W20. |

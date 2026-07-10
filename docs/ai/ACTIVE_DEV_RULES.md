@@ -213,9 +213,13 @@ deployable.
 The D2 wall is an **operating-point tail** phenomenon: the binding metric FRR@FAR≤5% is set by the *worst*
 in-vocab confusors (the 5th impostor percentile), **not** by mean genuine/impostor separation. Two
 consequences, both caught the hard way in Round-4 (`docs/testing/2026-07-10_d2-wall-p1p2p3-results.md`):
-1. **Do not adjudicate on AUC / d′.** A lever can raise pooled ROC-AUC (0.70→0.9+) while leaving FRR@FAR≤5%
-   unmoved or worse. The P2 LDA+WCCN backend and P3 frame-DTW both did exactly this on moderate TORGO. The
-   verdict metric must be the binding tail metric at matched FAR, per severity — AUC is a diagnostic only.
+1. **Do not adjudicate on AUC / d′ — and compute AUC on ALL genuine trials.** AUC is a weak proxy for the
+   tail: the P2 LDA+WCCN backend gave a real but small unbiased central-AUC lift (moderate all-genuine ROC-AUC
+   0.654→0.724) that bought only +0.6/+1.3pp on FRR@FAR≤5%; frame-DTW *lowered* unbiased AUC (0.654→0.608).
+   The verdict metric must be the binding tail metric at matched FAR, per severity. **Estimator trap:** an AUC
+   that collects genuine scores only when the winner is correct excludes the hard genuine trials (dysarthric
+   rank-1 ~24% ⇒ ~70% dropped) and reads 0.83–0.96 — a pure artifact. Always use the all-genuine estimator
+   (`auc_unbiased.py`); genuine = distance to the query's *truth* word regardless of who wins.
 2. **A per-command / adaptive / per-user threshold "win" is presumed FAR-invalid until its realized
    held-out FAR is checked.** Allocating a FAR budget *per command* does **not** control the global held-out
    FAR: R3's per-command lever looked like +15.7pp moderate FRR but its realized FAR was **23.8%** (a 5×
