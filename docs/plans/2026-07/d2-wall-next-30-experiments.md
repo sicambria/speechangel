@@ -1,6 +1,11 @@
 # D2-wall — next 30 most-promising experiments (ranked by EV/cost)
 
-**Status:** active (design; ranking companion to `d2-wall-followup-experiments.md`)
+**Status:** done (executed 2026-07-11 — all ▶ runnable experiments adjudicated; ◐ feasibility-gated; ⛔
+reported blocked. See `docs/testing/2026-07-11_d2-wall-30-experiment-program.md`. **Program decision: no Tier-B
+lever clears ≥8pp moderate @ matched FAR ⇒ voice-only moderate D2 wall is information-theoretic; program commits
+to Tier A reframe + Tier E modality.** Tier-A reframe lifts moderate 33–37% single-shot task-success → ~65–73%
+(confirm+retry / SPRT k=2), short of the 85% shippable bar (rejection-tail limited); vocab co-design +5.4pp
+held-out (directional, sub-8pp). All positives NOT-BANKED pending UASpeech #24.)
 
 ## Goal
 

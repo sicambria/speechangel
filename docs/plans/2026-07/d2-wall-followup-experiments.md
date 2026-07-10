@@ -1,6 +1,11 @@
 # D2-wall follow-up — 26 pre-registered experiments (W-series)
 
-**Status:** active (design; W0/W7/W12/N1 executed 2026-07-10 as R1/R2/R3/N1 — see Steps)
+**Status:** done (2026-07-11 — T-cluster + P5 + P4 executed via the 30-experiment program; W0/W7/W12/N1 on
+2026-07-10 as R1/R2/R3/N1. **T-cluster verdict: no tail-direct lever clears ≥8pp moderate @ matched FAR** (12
+levers now dead), so per the Execution-policy pivot the program commits to **P5 (Tier-A reframe) + complementary
+modality**. W1/W4→#10/#4 FAR-invalid; W5→#3/#5 abstain; W13→#9 QMF null; W24→#21/#22 null; W16–W19/W8–W11
+(P2'/P3' representation axis) deferred — prior-closed by Round-4 + #8 fusion, and gated on UASpeech (W25/#24).
+See `docs/testing/2026-07-11_d2-wall-30-experiment-program.md`.)
 
 ## Goal
 

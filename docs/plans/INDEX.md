@@ -392,7 +392,8 @@ the artificial size cap + banding only the 3 hardest severe speakers. Harnesses 
 
 ## D2-wall follow-up — deep-research bets P1/P2/P3 + N1 (2026-07-10)
 
-`docs/plans/2026-07/d2-wall-followup-experiments.md` — 🔵 **ACTIVE** (design; 4 executed). Runs the three
+`docs/plans/2026-07/d2-wall-followup-experiments.md` — ✅ **DONE 2026-07-11** (T-cluster+P5+P4 executed via the
+30-experiment program; pivots to P5 reframe — no tail-direct lever cleared 8pp). Runs the three
 top-ranked untried attacks from the deep-research report `docs/research/2026-07-10-move-d2-wall.md` on real
 TORGO (3F+5M), plus the never-run Round-3 primary DoD **N1**. **All four fail the binding metric on moderate
 severity** (`docs/testing/2026-07-10_d2-wall-p1p2p3-results.md`): **P3** frame-trajectory DTW NOT-BANKED
@@ -404,12 +405,16 @@ lever = backend 0.72; frame-DTW lowers it) and AUC is a poor proxy for the FAR�
 (the other ~48 items subsumed / corpus-blocked / simulator-excluded). Harnesses `r1_frame_dtw_d2.py`,
 `r2_backend_d2.py`, `r3_scorenorm_d2.py`, `n1_stack_d2.py`, `extract_male_frames.py`, `auc_unbiased.py`.
 
-`docs/plans/2026-07/d2-wall-next-30-experiments.md` — 🔵 **ACTIVE** (design). The next **30** experiments
-ranked by EV/cost, 5 tiers: **A** reframe the target (task-success-with-confirm, SPRT, abstain+confirm —
-the highest payoff given the wall), **B** tail-direct decision/calibration (cheap; best raw-metric shot),
-**C** representation (limited shots; encoder-invariance prior), **D** enrollment & corpus acquisition
-(UASpeech required before banking), **E** complementary modality (severe tail). First-session set: #1/#2/#3/
-#6/#7/#8 (all runnable now, all attack/reframe the tail).
+`docs/plans/2026-07/d2-wall-next-30-experiments.md` — ✅ **DONE 2026-07-11** (all ▶ runnable adjudicated; ◐
+feasibility-gated; ⛔ reported blocked — `docs/testing/2026-07-11_d2-wall-30-experiment-program.md`). **Program
+decision: no Tier-B tail-direct lever clears ≥8pp moderate @ matched FAR** (6 score/calibration levers null-or-
+worse, 2 already-refuted — 12 dead levers total across Rounds 4–5) ⇒ **voice-only moderate D2 wall is
+information-theoretic; commit to Tier A reframe + Tier E modality.** Tier-A (#1/#2/#3) lifts moderate 33–37%
+single-shot task-success → **~65–73%** (confirm+retry / SPRT k=2, ~2.3 turns) — a large gain but short of the 85%
+shippable bar (rejection-tail limited, all reframe numbers optimistic upper bounds). Tier-D **#22 K-curve is flat
+(65→63%)** — more reps don't help moderate. Tier-E **#28** voice is a ~16% fast-path; **#29 vocab co-design +5.4pp
+held-out** (in-sample +9.0pp was selection-on-test, demoted). **All positives NOT-BANKED pending UASpeech #24.**
+Harnesses `x1_task_success_confirm.py`, `x23_reframe.py`, `x_taildirect.py`, `x8_fusion.py`, `x_deploy.py`.
 
 ## Complete the SOTA scorecard — build the NOT_MEASURED domains (2026-07-09)
 
