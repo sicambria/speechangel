@@ -191,6 +191,24 @@ the ~0-FA/hr lift was likewise underpowered (F01 b=1/c=3, p=0.62).
 - **Gate:** advisory; `scripts/eval/ssl_frontend_spike/in_regime.py` (extreme operating points) and
   `inregime_paired.py` (paired McNemar + exact-binomial that quantified the fragility) are the references.
 
+### EVAL-006 — Same-demographic control replication ≠ generalization; a personalization lever needs cross-demographic held-out before banking
+A per-user/personalization lever that helps on a target sub-population **and** on a *control* drawn from the
+**same demographic and same corpus** has **not** been shown to generalize — that second population gives
+**false confidence**, because it shares the very axes (gender, channel, recording protocol, speaker pool)
+that the lever may be exploiting. Before banking such a lever, confirm it on a **cross-demographic held-out**
+population (here: cross-gender), adjudicated by a paired test at matched FAR. Non-transfer there refutes the
+generalization claim even when the within-demographic result was significant. This caught the campaign's
+lead lever: **G1** per-user within-word whitening was a Round-2 directional positive on n=3 **female** TORGO
+(in-vocab D2 −10.6pp, p=0.004) that *also* replicated on female **control** (−8.7pp) — read at the time as a
+confidence-boosting 2nd population. On real held-out **male** dysarthric speakers (M01–M05) it was **null**
+(pooled −1.4pp, p=0.63; 1 up / 1 down / 3 flat). Had the female result been banked it would have been wrong;
+near-identical within-word scatter gave opposite signs across genders, so no gating variable made it
+deployable.
+- **Why:** `docs/errors/2026-07/2026-07-10_g1-female-control-false-confidence.md`.
+- **Gate:** advisory; `scripts/eval/ssl_frontend_spike/p7_male_g1_confirm.py` (frozen-config cross-gender
+  held-out replication + paired McNemar) is the reference. Standing bar for dysarthric levers: **F↔M
+  cross-gender held-out** before any bank.
+
 ### WORKFLOW-001 — Fix the measurement criterion before you look at the target
 When banking any **count / coverage / score** metric (e.g. SOTA domain 15 guardrail coverage), state the
 criterion **before** computing the value, apply it **uniformly to every item**, and report where it lands —

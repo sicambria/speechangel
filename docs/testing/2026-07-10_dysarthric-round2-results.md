@@ -1,5 +1,11 @@
 # Dysarthric Round-2 results — L26 diagnostic + G1 (pre-registered primary) + H6 upper bound
 
+> **⚠️ SUPERSEDED IN PART (Round-3, 2026-07-10):** the G1 "directional positive, gate-able, pending
+> UASpeech" verdict below **did NOT survive held-out real-male replication** — G1 is null on M01–M05
+> (pooled −1.4pp, p=0.63) and is **not a speaker-general lever**. The female-*control* replication cited
+> below was same-gender/same-corpus false confidence (→ rule EVAL-006). See
+> `2026-07-10_dysarthric-round3-results.md`. The L26/H6 characterizations below still hold.
+
 **2026-07-10.** Execution of the Round-2 plan (`2026-07-10_dysarthric-800-rescore-and-plan.md`) under
 `/journey` discipline. Threat-model decision this session (user): **cohabitant-rejection is OUT OF SCOPE**
 (mainstream-assistant model). That drops the 87% other-speaker-same-word wall and the L27/L29/K22-speaker/

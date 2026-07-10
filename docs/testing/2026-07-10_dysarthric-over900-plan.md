@@ -1,5 +1,13 @@
 # Round-3 plan — 30 experiments to push dysarthric in-vocab over band 900 (FRR ≤ 10% @ FAR ≤ 5%)
 
+> **Status: Round-3 EXECUTED 2026-07-10 (partial — first wave).** Real male dysarthric M01–M05 acquired
+> (n=3→8). Results: `2026-07-10_dysarthric-round3-results.md`. Ran M1 (feasibility), N2 (rep-limited
+> negative), S22 (simulator unfit), P6 (male baseline — wall confirmed on n=8, **severity-graded**), P7
+> (**G1 REFUTED on held-out male, p=0.63** — rule EVAL-006). **>900 NOT reached** — the wall survives every
+> lever on n=8. Next session leads the **R-series** (adaptive thresholds / T-norm — attacks the
+> operating-point gap without needing the representation to generalize); F↔M cross-gender held-out is the
+> standing bank bar. Q/T-series and the remaining P/S/N items carry forward.
+
 **2026-07-10.** Continuation under `/journey`. Round-2 established: cohabitant-rejection out-of-scope →
 binding wall = **dysarthric in-vocab confusion** (57% FRR@FAR≤5%, band 500); G1 within-word whitening is a
 directional +10.6pp lever (band 500→600), small vocab N≈5 → band 700; blocked from banking by **n=3 TORGO**.
