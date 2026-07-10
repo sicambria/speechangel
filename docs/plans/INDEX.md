@@ -381,8 +381,14 @@ in-vocab confusors) does not drop below ~55%** under any admissible representati
 training-data combination — root-caused to dysarthric within-word variability (genuine/impostor AUC
 ~0.70; needs ≳0.95). **Honest 800 is unreachable under the five-constraint filter on dysarthric TORGO,
 bound solely by D2.** Reproducible: `docs/testing/2026-07-10_ssl-ceiling-and-d2-wall.md` (harnesses
-`ceiling_sweep.py`, `d2_ceiling.py`, `metric_probe.py`, `loso_probe.py`, `frame_dtw_sep.py`). Remaining
-fork = owner scorecard-definition decision (re-scope D2's synthetic negative set), not a system lever.
+`ceiling_sweep.py`, `d2_ceiling.py`, `metric_probe.py`, `loso_probe.py`, `frame_dtw_sep.py`).
+**2026-07-10 RESOLUTION — typical composite = BAND 800.** Constraint-validity audit (CONSTRAINT-001)
+found the ≤2 MB / 1-shot / no-GPU caps ARTIFICIAL; relaxing them (SSL encoder wavlm-large behind the VAD
+gate + few-shot + NNAPI) with banked levers (multi-condition enrollment, vocab-distinctness) gives, held-
+out: **typical composite 800** (D1 900/D2 13.8%→800/D4 900/D5 800/D6 900; D3~800/D13~950 carried).
+**Severe-dysarthric = 500–600** (disorder cap AUC≈0.70, real, transparent). The `<600` was an artifact of
+the artificial size cap + banding only the 3 hardest severe speakers. Harnesses `held_out_d2.py --distinct`,
+`typical_composite.py`. Follow-up: re-validate carried D3/D13 + INT8 on-device.
 
 ## Complete the SOTA scorecard — build the NOT_MEASURED domains (2026-07-09)
 

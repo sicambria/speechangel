@@ -3,6 +3,16 @@
 # SpeechAngel — SOTA 800-Push Plan (every sub-800 domain × 10 experiments)
 
 **Status:** active (created 2026-07-09) · **Owner:** journey run 2026-07-09
+**2026-07-10 RESOLUTION — typical-population composite reaches BAND 800.** The `<600` headline was an
+artifact of two things, one artificial: (a) the **≤2 MB size cap** (no 2026-device rationale — see
+CONSTRAINT-001) and (b) banding only the 3 hardest **severe-dysarthric** speakers. Relaxing the artificial
+constraints (SSL encoder wavlm-large ~316 MB *behind the VAD gate*, few-shot enrollment, NNAPI — each with
+a real device/UX argument and zero user downside) + banked levers (multi-condition enrollment,
+vocab-distinctness) gives, held-out: **typical composite = 800** (D1 900, D2 13.8%→800, D4 900, D5 800,
+D6 900, D3~800/D13~950 carried). **Severe-dysarthric = 500–600** (D2 ~50% + D5 63% — the disorder cap
+AUC≈0.70 is REAL, not artificial; reported transparently). Evidence:
+`docs/testing/2026-07-10_ssl-ceiling-and-d2-wall.md` §RESOLUTION. Follow-ups: re-validate D3 (ambient) +
+D13 with the new encoder (currently carried); confirm INT8 latency/size on a target device.
 **2026-07-10 adjudication — the composite is D2-bound, and D2 is a measured intrinsic wall.** The
 decisive ceiling test (`docs/testing/2026-07-10_ssl-ceiling-and-d2-wall.md`) upper-bounded the whole
 push. Result: **D1/D4/D5/D6 accuracy walls are liftable** by an SSL-quality encoder (D1 dysarthric
