@@ -30,7 +30,8 @@ FAR = 0.05
 
 # ---------------------------------------------------------------- frame cache (frames_norm)
 
-MODELS = {"wavlm_large": "microsoft/wavlm-large", "distilhubert": "ntu-spml/distilhubert"}
+MODELS = {"wavlm_large": "microsoft/wavlm-large", "distilhubert": "ntu-spml/distilhubert",
+          "wavlm-base-plus": "microsoft/wavlm-base-plus", "hubert-base": "facebook/hubert-base-ls960"}
 
 
 def frame_path(layer, tag="wavlm_large"):
@@ -389,6 +390,26 @@ def pool_vec(frames, mode):
         p = 3.0
         s = np.sign(frames.mean(0))
         v = s * (np.abs(frames) ** p).mean(0) ** (1.0 / p)
+    elif mode in ("skew", "meanstdskew", "meanstdskewkurt"):  # #12 multi-order moments
+        mu = frames.mean(0); sd = frames.std(0) + 1e-6
+        z = (frames - mu) / sd
+        sk = (z ** 3).mean(0)                        # per-dim skewness (3rd standardized moment)
+        if mode == "skew":
+            v = sk
+        elif mode == "meanstdskew":
+            v = np.concatenate([mu, frames.std(0), sk])
+        else:
+            ku = (z ** 4).mean(0) - 3.0               # per-dim excess kurtosis (4th)
+            v = np.concatenate([mu, frames.std(0), sk, ku])
+    elif mode.startswith("seg"):                     # #13 segment-wise statistics pooling
+        nseg = int(mode[3])                          # seg2 / seg3: temporal split, mean⊕std per segment
+        T = frames.shape[0]
+        parts = []
+        for si in range(nseg):
+            a, b = si * T // nseg, (si + 1) * T // nseg
+            seg = frames[a:b] if b > a else frames[a:a + 1]
+            parts += [seg.mean(0), seg.std(0)]
+        v = np.concatenate(parts)
     else:
         raise ValueError(mode)
     return (v / (np.linalg.norm(v) + 1e-8)).astype(np.float32)
@@ -403,7 +424,9 @@ def e4(layer=12):
     spks = list(man.keys())
     print(f"\nE4 FRAME-AWARE POOLING  wavlm-large L{layer} K{K}  (vs mean-pool baseline 5.81%)")
     res = {}
-    for mode in ["mean", "std", "meanstd", "max", "gem"]:
+    modes = sys.argv[3].split(",") if len(sys.argv) > 3 else \
+        ["mean", "std", "meanstd", "meanstdskew", "meanstdskewkurt", "seg2", "seg3"]
+    for mode in modes:
         emb_flat = {p: pool_vec(fr_all[p], mode) for s in spks
                     for p in ([q for w in man[s]["fixed"] for q in man[s]["fixed"][w]] + list(man[s]["neg"]))}
         num = den = fnum = fden = 0
