@@ -417,6 +417,18 @@ caps below cosine (7.57%, t9), 98ea0818 hardest on 6 encoders (t11), augmentatio
 axes closed (layer/vocab/decision-fn/encoder/augmentation, all mean-pooled); **frame-level pooling untested**
 = honest next. Still milder than the dysarthric wall (AUC 0.988). Harnesses `t8`–`t12`; report
 `docs/testing/2026-07-11_typical-900-c3-and-wall-kill.md`.
+**2026-07-11 FRAME-POOLING = the untested axis BROKE the wall (still 🔵 active — a banked lever).** Ran the
+frame-level-pooling journey (`frame_qbe.py`, GSC-19, 3 fidelity anchors reproduce 5.81%/912). **H1
+frame-QbE-DTW REFUTED** (band 800 at L6/9/12/15; matched-FAR McNemar b=54-82/c=0-1, p<1e-11 wrong-direction;
+below-threshold split unmoved). **But frame-level second-moment (std) pooling WINS:** mean⊕std of the L12
+frames (parameter-free, deploy-free) lifts teacher **5.81→4.71%** (53→43 FR, −19%, McNemar b=1/c=19 p=1.4e-4,
+curve-dominant FAR 2-5%) and the deployable distilhubert student **9.32→8.22%** (McNemar b=1/c=34 p=6e-8).
+Ablation = **moment not dims** (std-alone at same dim beats mean; max/gem lose). **EVAL-008 vindicated** (a
+different pooling of the same frames broke the mean-pooled wall). **BANKED: the second-moment lever + the
+improvement**, scoped GSC-19 × 2 encoders; **composite STAYS 800** (student band 800; teacher 4.71% clears
+the 900 line by only ~3 FR on one cohort — label provisional). Next = attentive statistics pooling +
+cross-cohort + production-Kotlin std pooling. Harness `frame_qbe.py`; report
+`docs/testing/2026-07-11_frame-pooling-second-moment.md`.
 
 ## D2-wall follow-up — deep-research bets P1/P2/P3 + N1 (2026-07-10)
 

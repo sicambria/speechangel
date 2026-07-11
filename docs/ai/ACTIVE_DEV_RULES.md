@@ -265,9 +265,17 @@ twice on typical D2: the layer-route report first over-reached ("layer axis clos
 encoder-objective, enrollment-augmentation) — but **all five operate on mean-pooled embeddings**, so the honest
 bank is a "**mean-pooled-embedding wall** with frame-level pooling untested," not a "representation wall." The
 tell you're about to over-scope: every lever you killed shares one architectural assumption you never varied.
-- **Why:** `docs/testing/2026-07-11_typical-d2-layer-route-closed.md` (§6 scope) and
+**VINDICATED empirically (2026-07-11):** the untested axis was then run — and the "mean-pooled-embedding wall"
+**broke**. Frame-level *second-moment (std) pooling* of the same frames lifts teacher typical D2 5.81→4.71%
+and the deployable student 9.32→8.22% (FAR-matched McNemar p≤1e-4, both encoders). Had the earlier reports
+banked a "representation wall," it would have been a false negative closing a productive axis. The substrate
+*was* the wall — exactly what the rule warns. Refined corollary: **a negative across N levers that share a
+pooling bounds only that pooling** — and a different pooling of identical features is the cheapest untested
+axis to try before ever writing "walled."
+- **Why:** `docs/testing/2026-07-11_typical-d2-layer-route-closed.md` (§6 scope),
   `docs/testing/2026-07-11_typical-900-c3-and-wall-kill.md` (§6 — five mean-pooled axes, frame-pooling named
-  as the untested next).
+  as the untested next), and `docs/testing/2026-07-11_frame-pooling-second-moment.md` (§8 — the untested
+  axis broke the wall; the vindication).
 - **Gate:** advisory; the wall-kill harnesses `t9_verifier_gsc.py` / `t11_altencoder_tail.py` /
   `t12_aug_enroll.py` each vary one axis over the shared mean-pooled substrate and report the hard-speaker
   side-by-side, making the shared assumption visible.
