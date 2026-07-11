@@ -1,0 +1,48 @@
+{
+  "D1_clean": {
+    "rank1": 0.9824561403508771,
+    "band": 900
+  },
+  "D5_reverb250": {
+    "rank1": 0.9583333333333334,
+    "band": 900,
+    "paired_vs_clean": {
+      "n_pairs": 912,
+      "clean_only_hit": 25,
+      "cond_only_hit": 3,
+      "p_exact": 2.744048833847046e-05
+    },
+    "delta_pp": 2.412280701754377
+  },
+  "D4_noise20": {
+    "rank1": 0.9835526315789473,
+    "band": 900,
+    "paired_vs_clean": {
+      "n_pairs": 912,
+      "clean_only_hit": 4,
+      "cond_only_hit": 5,
+      "p_exact": 1.0
+    },
+    "delta_pp": -0.10964912280702066
+  },
+  "D6_band": {
+    "rank1": 0.9824561403508771,
+    "band": 900,
+    "paired_vs_clean": {
+      "n_pairs": 912,
+      "clean_only_hit": 6,
+      "cond_only_hit": 6,
+      "p_exact": 1.0
+    },
+    "delta_pp": 0.0
+  },
+  "_meta": {
+    "layer": 15,
+    "n_spk": 19,
+    "conds": [
+      "reverb250",
+      "noise20",
+      "band"
+    ]
+  }
+}

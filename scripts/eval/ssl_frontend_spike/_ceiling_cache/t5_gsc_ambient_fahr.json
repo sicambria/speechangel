@@ -1,0 +1,206 @@
+{
+  "hours": 6.001891232638894,
+  "n_windows": 15664,
+  "n_spk": 19,
+  "agg_fa_hr": 0.07015332588655064,
+  "fa_hrs": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.16661414898055774,
+    0.16661414898055774,
+    0.16661414898055774,
+    0.33322829796111547,
+    0.49984244694167324
+  ],
+  "ub95_ruleof3": 0.49984244694167324,
+  "band": 900,
+  "per_spk": {
+    "b5cf6ea8": {
+      "accepts": 0,
+      "fa_hr": 0.0,
+      "thr": 0.0288507342338562,
+      "by_src_accepts": {
+        "DEMAND": 0,
+        "LibriSpeech": 0
+      }
+    },
+    "2aca1e72": {
+      "accepts": 0,
+      "fa_hr": 0.0,
+      "thr": 0.0206526517868042,
+      "by_src_accepts": {
+        "DEMAND": 0,
+        "LibriSpeech": 0
+      }
+    },
+    "c50f55b8": {
+      "accepts": 0,
+      "fa_hr": 0.0,
+      "thr": 0.031142055988311768,
+      "by_src_accepts": {
+        "DEMAND": 0,
+        "LibriSpeech": 0
+      }
+    },
+    "5ebc1cda": {
+      "accepts": 0,
+      "fa_hr": 0.0,
+      "thr": 0.04190701246261597,
+      "by_src_accepts": {
+        "DEMAND": 0,
+        "LibriSpeech": 0
+      }
+    },
+    "5f9cd2eb": {
+      "accepts": 0,
+      "fa_hr": 0.0,
+      "thr": 0.02787601947784424,
+      "by_src_accepts": {
+        "DEMAND": 0,
+        "LibriSpeech": 0
+      }
+    },
+    "893705bb": {
+      "accepts": 0,
+      "fa_hr": 0.0,
+      "thr": 0.03960371017456055,
+      "by_src_accepts": {
+        "DEMAND": 0,
+        "LibriSpeech": 0
+      }
+    },
+    "ef3367d9": {
+      "accepts": 2,
+      "fa_hr": 0.33322829796111547,
+      "thr": 0.032507121562957764,
+      "by_src_accepts": {
+        "DEMAND": 0,
+        "LibriSpeech": 2
+      }
+    },
+    "4c6167ca": {
+      "accepts": 3,
+      "fa_hr": 0.49984244694167324,
+      "thr": 0.02979421615600586,
+      "by_src_accepts": {
+        "DEMAND": 0,
+        "LibriSpeech": 3
+      }
+    },
+    "b66f4f93": {
+      "accepts": 0,
+      "fa_hr": 0.0,
+      "thr": 0.027705907821655273,
+      "by_src_accepts": {
+        "DEMAND": 0,
+        "LibriSpeech": 0
+      }
+    },
+    "c1d39ce8": {
+      "accepts": 0,
+      "fa_hr": 0.0,
+      "thr": 0.03322654962539673,
+      "by_src_accepts": {
+        "DEMAND": 0,
+        "LibriSpeech": 0
+      }
+    },
+    "cce7416f": {
+      "accepts": 1,
+      "fa_hr": 0.16661414898055774,
+      "thr": 0.03351736068725586,
+      "by_src_accepts": {
+        "DEMAND": 0,
+        "LibriSpeech": 1
+      }
+    },
+    "ddedba85": {
+      "accepts": 0,
+      "fa_hr": 0.0,
+      "thr": 0.028469979763031006,
+      "by_src_accepts": {
+        "DEMAND": 0,
+        "LibriSpeech": 0
+      }
+    },
+    "b4ea0d9a": {
+      "accepts": 0,
+      "fa_hr": 0.0,
+      "thr": 0.03431558609008789,
+      "by_src_accepts": {
+        "DEMAND": 0,
+        "LibriSpeech": 0
+      }
+    },
+    "de89e2ca": {
+      "accepts": 0,
+      "fa_hr": 0.0,
+      "thr": 0.031362295150756836,
+      "by_src_accepts": {
+        "DEMAND": 0,
+        "LibriSpeech": 0
+      }
+    },
+    "ab46af55": {
+      "accepts": 1,
+      "fa_hr": 0.16661414898055774,
+      "thr": 0.03558790683746338,
+      "by_src_accepts": {
+        "DEMAND": 0,
+        "LibriSpeech": 1
+      }
+    },
+    "25e95412": {
+      "accepts": 0,
+      "fa_hr": 0.0,
+      "thr": 0.023997485637664795,
+      "by_src_accepts": {
+        "DEMAND": 0,
+        "LibriSpeech": 0
+      }
+    },
+    "4c6944d6": {
+      "accepts": 0,
+      "fa_hr": 0.0,
+      "thr": 0.02515941858291626,
+      "by_src_accepts": {
+        "DEMAND": 0,
+        "LibriSpeech": 0
+      }
+    },
+    "98ea0818": {
+      "accepts": 0,
+      "fa_hr": 0.0,
+      "thr": 0.032351791858673096,
+      "by_src_accepts": {
+        "DEMAND": 0,
+        "LibriSpeech": 0
+      }
+    },
+    "c120e80e": {
+      "accepts": 1,
+      "fa_hr": 0.16661414898055774,
+      "thr": 0.03250700235366821,
+      "by_src_accepts": {
+        "DEMAND": 0,
+        "LibriSpeech": 1
+      }
+    }
+  },
+  "mix": {
+    "DEMAND": 1383,
+    "LibriSpeech": 14281
+  }
+}
