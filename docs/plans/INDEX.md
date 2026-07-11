@@ -435,3 +435,20 @@ the reproducible evidence. Net (merged with the 800-push D15 auto-measure): **14
 data lands, + D11/D12/D13, + D15 via `-Dsota.rules`), **D10** the sole first-principles-argued domain;
 composite still wall-dominated `<600` (FRR 75.7% @ FAR≤5% + ambient FA/hr). `run-all.mjs` 11/11;
 `:core:eval` detekt/spotless/test green; measure-only (no runtime change).
+
+## SOTA toward 900 — population split (typical vs dysarthric) (2026-07-11)
+
+`docs/plans/2026-07/uaspeech-acquisition.md` — **blocked (user-initiated)**: the UASpeech request email +
+on-arrival banking plan; UASpeech (#24) gates the dysarthric *positives* (vocab +5.4pp, Tier-A operating
+points) — the voice-only D2 *negative* is already bankable on TORGO in hand. Testing report:
+`docs/testing/2026-07-11_population-split-800-900.md`. **User chose to report the composite as an explicit
+population split.** **Typical:** composite stays **band 800**. This session cut D2 from a fragile TORGO-n3
+13.8% to a robust GSC-19 **K5 = 5.6% @ FAR 4.2%, AUC 0.988** (monotone; plateaus at ~5% by K6/K7, gated by a
+2–3-speaker hard tail) — un-walled and no longer the single worst domain, but **still band 800, now tied at
+the 800 floor with D5-reverb (81.4%) and D3-ambient (carried)**; composite-900 needs **all three** at 900.
+D5/D3 are **candidate** co-blockers only — cross-corpus confound (EVAL-004: they're TORGO-n3 / carried),
+re-measure on GSC-scale before ranking; deferred under host load. Harnesses `t1_typical_d2_900.py` / `t2_typical_d2_negrich.py` / `t3_typical_d2_k67.py`
+(+ `_ceiling_cache/t{1,2,3}_*.json`). **Dysarthric:** restates the banked voice-only information-theoretic
+negative (`2026-07-11_d2-wall-30-experiment-program.md`); product = Tier-A+E, **explicitly NOT a scorecard-900** (modality
+fallback's reliability is not a SpeechAngel voice capability). FAR-matched throughout; NOT-BANKED (typical
+needs independent-corpus confirm; dysarthric positives need UASpeech).
