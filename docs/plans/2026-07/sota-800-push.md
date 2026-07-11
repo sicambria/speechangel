@@ -2,7 +2,19 @@
 
 # SpeechAngel — SOTA 800-Push Plan (every sub-800 domain × 10 experiments)
 
-**Status:** active (created 2026-07-09) · **Owner:** journey run 2026-07-09
+**Status:** active (created 2026-07-09; 2026-07-11 — typical 800 floor confound resolved, now
+D2-gated by a single un-walled domain) · **Owner:** journey run 2026-07-09
+**2026-07-11 CONFOUND RESOLUTION — the typical 800 floor is D2 ALONE, not a three-way tie.** The carried
+800 floor tied D2 (~5.6 %) with **D5-reverb (81.4 %, TORGO n=3)** and **D3-ambient (~800, a hard-coded
+literal, off-encoder)**. Re-measured on the robust basis (the cross-corpus confound, EVAL-004 pt 3):
+**D5 = 95.8 % → band 900** (81.4 % was a TORGO-n3 artifact) and **D3 = 0.07 FA/hr over a real 6 h
+DEMAND+LibriSpeech stream → band 900** (the wavlm-large few-shot speaker-dependent recognizer rejects
+real ambient far better than the naive ~82 FA/hr bridge; worst-of-19 speaker at the 0.5 bar). Composite
+stays **800** but the diagnosis collapses to **one un-walled blocker (D2, verified at one layer L15 =
+5.5 %)** — typical-900 = closing D2's 2–3 hard-voice tail, not channel/rejection. Real-RIR (D5, on
+synthetic IR only) + single-continuous-room D3 are acknowledged low-priority fidelity levers.
+Evidence: `docs/testing/2026-07-11_d5d3-gsc-confound-resolution.md`; harnesses `t4_gsc_channel.py`,
+`t5_gsc_ambient_fahr.py`.
 **2026-07-10 RESOLUTION — typical-population composite reaches BAND 800.** The `<600` headline was an
 artifact of two things, one artificial: (a) the **≤2 MB size cap** (no 2026-device rationale — see
 CONSTRAINT-001) and (b) banding only the 3 hardest **severe-dysarthric** speakers. Relaxing the artificial

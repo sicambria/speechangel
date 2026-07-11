@@ -133,7 +133,19 @@ Two rules for any **off-device / cross-implementation** accuracy comparison:
    the lever is the **embedding+cosine** interaction (WavLM-under-DTW *ties* MFCC; MFCC-under-pooling
    *drops* to 39.3%) — a QbE-embedding finding, not a front-end swap. Run the missing factorial corner
    before writing the causal claim.
-- **Why:** `docs/errors/2026-07/2026-07-06_ssl-spike-fidelity-and-confound.md`.
+3. **A carried / hard-coded / off-corpus scorecard number is not a measurement — re-measure every
+   co-blocker leg on the SAME corpus + encoder + threshold basis before ranking them.** A composite floor
+   that is a *tie* between domains measured on different bases cannot be ranked: you cannot distrust a
+   corpus for one domain and trust it for another. Concretely (2026-07-11): the typical 800 floor was a
+   three-way tie — D2 (robust GSC-19 ~5.6%), **D5-reverb (TORGO **n=3** 81.4%)**, **D3-ambient (a
+   **hard-coded literal** `800`, off-encoder)**. Re-measured on the robust basis, **D5=95.8% (band 900)**
+   and **D3=0.07 FA/hr (band 900)** — *both legs were cross-corpus/hard-coded artifacts, not blockers.*
+   The composite stayed 800, but the **diagnosis** collapsed from "three co-blockers" to "one un-walled
+   domain (D2)." Before a scorecard ranks a domain as the/​a blocker, grep it for a literal (`~800`,
+   `carried`, `off-encoder`) and confirm it was measured with the *current* encoder on the *same* corpus;
+   an un-reconciled tie is a confound, not a ranking.
+- **Why:** `docs/errors/2026-07/2026-07-06_ssl-spike-fidelity-and-confound.md`,
+  `docs/errors/2026-07/2026-07-11_carried-scorecard-number-is-not-a-measurement.md`.
 - **Gate:** **hard (substance)** — `scripts/audits/verify-sota-measurement.mjs` **check 3
   (Fidelity-reproduction gate)** blocks any delta-vs-baseline claim doc whose fidelity statement lacks a
   reproduced baseline **number** (within tolerance) — a fidelity claim without a number is unverifiable.

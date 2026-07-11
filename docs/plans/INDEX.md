@@ -389,6 +389,14 @@ out: **typical composite 800** (D1 900/D2 13.8%→800/D4 900/D5 800/D6 900; D3~8
 **Severe-dysarthric = 500–600** (disorder cap AUC≈0.70, real, transparent). The `<600` was an artifact of
 the artificial size cap + banding only the 3 hardest severe speakers. Harnesses `held_out_d2.py --distinct`,
 `typical_composite.py`. Follow-up: re-validate carried D3/D13 + INT8 on-device.
+**2026-07-11 CONFOUND RESOLUTION (still 🔵 active) — the 800 floor is D2 ALONE.** Closed the "re-validate
+carried D3 + TORGO-n3 D5" follow-up: re-measured on the robust basis (EVAL-004 pt 3), **D5-reverb = 95.8 %
+→ 900** (81.4 % was a TORGO-n3 artifact) and **D3-ambient = 0.07 FA/hr over a real 6 h DEMAND+LibriSpeech
+stream → 900** (the "~800" was a hard-coded literal; naive ~82 FA/hr bridge is pessimistic for the
+speaker-dependent few-shot recognizer). Composite stays **800** but is now gated by **D2 alone** (un-walled,
+5.5 % @ L15) — not a three-way tie. Harnesses `t4_gsc_channel.py`, `t5_gsc_ambient_fahr.py`; report
+`docs/testing/2026-07-11_d5d3-gsc-confound-resolution.md`. Next: D2 hard-voice tail (real levers), real-RIR
++ single-continuous-room D3 (low-priority fidelity).
 
 ## D2-wall follow-up — deep-research bets P1/P2/P3 + N1 (2026-07-10)
 
