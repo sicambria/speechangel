@@ -64,6 +64,12 @@ Phase 3** (Delight & reach). Every remaining Phase 0/1/2/3 ROADMAP item is triag
   normalization (H1) and **refuted** it (control χ²=39.7, p<0.001 — honest negative, no runtime change);
   codified EVAL-003. Reports: `docs/testing/2026-07-06_realistic-conditions-and-rejection-scoring.md`,
   `docs/errors/2026-07/2026-07-06_common-mode-rejection-refuted.md`.
+- `docs/plans/2026-07/frame-pooling-next-30-experiments.md` — 📋 **PLANNED** (advisor-gated) — the next 30
+  experiments after the banked second-moment lever, ranked by EV toward a **binary composite-900 DoD**
+  (deployable-config D2 <5% cross-cohort ∧ no D1/D4/D5/D6 regression). Executes the four named levers
+  (attentive statistics pooling, cross-cohort replication, production-Kotlin std pooling, second-moment on
+  the dysarthric D2 tail). Tier 0 settles the deployable-config fork first; Tier A = the EVAL-005 label gate;
+  Tier B = the composite gate; Tier C = the no-regression gate.
 - `docs/plans/2026-06/external-asset-acquisition.md` — the cross-phase acquisition/integration runbook
   for the ROADMAP "External-asset shortlist": QbE encoder + CC-BY training data, whisper.cpp/sherpa-onnx
   dictation + Path-A models, dysarthric-inclusive corpora (TORGO/SAP/UASpeech/EasyCall), far-field
@@ -428,7 +434,10 @@ different pooling of the same frames broke the mean-pooled wall). **BANKED: the 
 improvement**, scoped GSC-19 × 2 encoders; **composite STAYS 800** (student band 800; teacher 4.71% clears
 the 900 line by only ~3 FR on one cohort — label provisional). Next = attentive statistics pooling +
 cross-cohort + production-Kotlin std pooling. Harness `frame_qbe.py`; report
-`docs/testing/2026-07-11_frame-pooling-second-moment.md`.
+`docs/testing/2026-07-11_frame-pooling-second-moment.md`. **Next 30 experiments authored** (advisor-gated):
+`docs/plans/2026-07/frame-pooling-next-30-experiments.md` — binary composite-900 DoD, Tier 0 (settle the
+deployable-config fork) → Tier A (cross-cohort label gate) → Tier B (deployable-student composite gate) →
+Tier C (no-regression gate), with ASP / cross-cohort / Kotlin-std / dysarthric-second-moment placed.
 
 ## D2-wall follow-up — deep-research bets P1/P2/P3 + N1 (2026-07-10)
 
