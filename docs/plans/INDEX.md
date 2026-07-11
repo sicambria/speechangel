@@ -397,6 +397,16 @@ speaker-dependent few-shot recognizer). Composite stays **800** but is now gated
 5.5 % @ L15) — not a three-way tie. Harnesses `t4_gsc_channel.py`, `t5_gsc_ambient_fahr.py`; report
 `docs/testing/2026-07-11_d5d3-gsc-confound-resolution.md`. Next: D2 hard-voice tail (real levers), real-RIR
 + single-continuous-room D3 (low-priority fidelity).
+**2026-07-11 TYPICAL-D2 LAYER ROUTE CLOSED (still 🔵 active — measured negative).** Ran the "D2 hard-voice
+tail" next-lever on its cheapest axis (layer selection, free from the all-layers cache). **No deployable
+wavlm-large layer lever clears band 900:** best single layer L12 = 5.81%; **held-out per-speaker layer
+selection = 6.80% (worse than baseline)**; mean-cosine fusion 5.59–6.14% — all band 800. An oracle
+per-speaker-best-layer (4.06%, band 900) is **selection-on-test noise** that the held-out version reverses
+(EVAL-005 extended). The 2–3 hard speakers are **genuine hard voice** (clean audio, 0% clip) and hard at
+**every** layer. **Scope: this closes the layer axis only — NOT a wall** (typical D2 AUC 0.988; open axes:
+pooling, enrollment augmentation, larger encoder, tail-verifier). Harnesses `t6_perspeaker_layer_map.py`,
+`t7_layer_negative.py`; report `docs/testing/2026-07-11_typical-d2-layer-route-closed.md`. Next call
+(fresh): open representation axes vs C3 student-fidelity confirm vs UASpeech.
 
 ## D2-wall follow-up — deep-research bets P1/P2/P3 + N1 (2026-07-10)
 

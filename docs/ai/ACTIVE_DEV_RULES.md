@@ -199,9 +199,20 @@ small n means **underpowered / not demonstrated**, never "no effect." This caugh
 in-regime spike's F01 "≈5× tail compression" (FA/hr for 95% det 24→5) looked robust on one speaker but the
 control (FC01) showed a **tail regression** (3.0→6.0; det@5FA/hr 100%→70.6%) — retracted before banking;
 the ~0-FA/hr lift was likewise underpowered (F01 b=1/c=3, p=0.62).
-- **Why:** `docs/errors/2026-07/2026-07-06_cp2-tail-metric-knife-edge.md`.
-- **Gate:** advisory; `scripts/eval/ssl_frontend_spike/in_regime.py` (extreme operating points) and
-  `inregime_paired.py` (paired McNemar + exact-binomial that quantified the fragility) are the references.
+**An oracle over many candidate hyper-parameters is a curve-extreme selection too.** Picking the
+best-of-N configurations (layers, thresholds, exemplars) per item, evaluated on the *same* small test
+fold, manufactures band-crossing headroom by **minimum-of-noise** — the multi-candidate analogue of "the
+single nearest sample moves the tail." The tell: the oracle harvests dips at globally-*worst*
+configurations (a real preference would peak at good ones). **Never bank an oracle/best-of number; measure
+the deployable held-out selection.** This closed the typical-D2 layer route: an oracle per-speaker-best-layer
+hit 4.06% (band 900) over 19 layers on 48 test-queries/speaker, but the **held-out** per-speaker layer pick
+(chosen on train folds by d′) **regressed to 6.80% — worse than the 5.81% single-layer baseline.** Direction
+of the failure is the safety proof: a leakage bug inflates a held-out win; this came out worse.
+- **Why:** `docs/errors/2026-07/2026-07-06_cp2-tail-metric-knife-edge.md`;
+  `docs/testing/2026-07-11_typical-d2-layer-route-closed.md` (oracle-vs-deployable layer selection).
+- **Gate:** advisory; `scripts/eval/ssl_frontend_spike/in_regime.py` (extreme operating points),
+  `inregime_paired.py` (paired McNemar + exact-binomial that quantified the fragility), and
+  `t7_layer_negative.py` (oracle vs held-out deployable selection) are the references.
 
 ### EVAL-006 — Same-demographic control replication ≠ generalization; a personalization lever needs cross-demographic held-out before banking
 A per-user/personalization lever that helps on a target sub-population **and** on a *control* drawn from the
