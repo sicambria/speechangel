@@ -64,12 +64,24 @@ Phase 3** (Delight & reach). Every remaining Phase 0/1/2/3 ROADMAP item is triag
   normalization (H1) and **refuted** it (control χ²=39.7, p<0.001 — honest negative, no runtime change);
   codified EVAL-003. Reports: `docs/testing/2026-07-06_realistic-conditions-and-rejection-scoring.md`,
   `docs/errors/2026-07/2026-07-06_common-mode-rejection-refuted.md`.
-- `docs/plans/2026-07/frame-pooling-next-30-experiments.md` — 📋 **PLANNED** (advisor-gated) — the next 30
-  experiments after the banked second-moment lever, ranked by EV toward a **binary composite-900 DoD**
-  (deployable-config D2 <5% cross-cohort ∧ no D1/D4/D5/D6 regression). Executes the four named levers
-  (attentive statistics pooling, cross-cohort replication, production-Kotlin std pooling, second-moment on
-  the dysarthric D2 tail). Tier 0 settles the deployable-config fork first; Tier A = the EVAL-005 label gate;
-  Tier B = the composite gate; Tier C = the no-regression gate.
+- `docs/plans/2026-07/frame-pooling-next-30-experiments.md` — ✅ **DONE 2026-07-11** (advisor-gated plan +
+  execution) — the next 30 experiments after the banked second-moment lever, ranked by EV toward a **binary
+  composite-900 DoD** (deployable-config D2 <5% cross-cohort ∧ no D1/D4/D5/D6 regression). Executed the four
+  named levers (attentive statistics pooling, cross-cohort replication, production-Kotlin std pooling,
+  second-moment on the dysarthric D2 tail). **Verdict: composite honestly capped at band 800 by the
+  teacher→student deployment gap.** #1 wavlm-large INT8≈**317 MB** > the ≤150 MB bound → the ≤150 MB student
+  is the shipped config; **no deployable config <5%** — best distilhubert-L2 **std 6.36%** (band 800, McNemar
+  p=2.7e-5 vs mean 9.32%; safe default mean⊕std 8.22%). **ASP overfits and loses** (9.87% converged —
+  pre-registered null vindicated); **higher moments/segmentation lose** (mean⊕std is the parameter-free
+  ceiling); **head-level distillation 9.32%** (EVAL-008-clean: post-hoc AND distillation both fail).
+  **Dysarthric second-moment = NULL** on the per-user metric (two tails different; cross-speaker *calibration*
+  signal only; NOT-banked pending UASpeech). Teacher mean⊕std **4.71% is band-900 but not deployable** +
+  triple-gated. **BANKED:** second-moment (std) pooling as the best deployable-D2 lever (D2-scoped,
+  3-encoder-general, passes D1 no-regression); **composite stays 800**; band-900 **blocked (not closed)** on
+  {cross-cohort label gate #2, teacher on-device feasibility + cap audit, full-backbone distillation}. Report
+  `docs/testing/2026-07-11_frame-pooling-30-experiment-program.md`; harnesses `asp_pool.py`, `distill_stats.py`,
+  `d2_second_moment.py`, `frame_qbe.py` (e4 modes). Also modified the **`/journey` skill** to make executing
+  experiments mandatory (never stop at a plan) — `~/.claude/skills/journey/SKILL.md`.
 - `docs/plans/2026-06/external-asset-acquisition.md` — the cross-phase acquisition/integration runbook
   for the ROADMAP "External-asset shortlist": QbE encoder + CC-BY training data, whisper.cpp/sherpa-onnx
   dictation + Path-A models, dysarthric-inclusive corpora (TORGO/SAP/UASpeech/EasyCall), far-field

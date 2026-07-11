@@ -1,9 +1,24 @@
 # Frame-level pooling — next 30 experiments (ranked by EV toward composite-900)
 
-**Status:** planned (authored 2026-07-11; advisor-gated). Successor to the banked frame-pooling journey
-(`docs/testing/2026-07-11_frame-pooling-second-moment.md`). Executes the four named next levers —
-attentive statistics pooling, cross-cohort replication, production-Kotlin std pooling, and second-moment
-on the dysarthric D2 tail — inside a single binary Definition of Done.
+**Status:** done (executed 2026-07-11 — the decisive runnable subset adjudicated; ▶#2/#3/#6 runnable-unrun,
+◐#10/#16–#20 deferred, ⛔#24/#28 corpus-blocked. See
+`docs/testing/2026-07-11_frame-pooling-30-experiment-program.md`. **Program verdict: the composite is honestly
+capped at band 800 by the teacher→student deployment gap.** #1 wavlm-large INT8≈317 MB > the ≤150 MB bound
+(size-measured; latency/cap-audit open) → the ≤150 MB student is the shipped config; **no deployable config
+reaches <5%** — best distilhubert-L2 std 6.36% (band 800, McNemar p=2.7e-5 vs mean 9.32%), safe default
+mean⊕std 8.22%. **ASP (SOTA learned pooling) overfits and loses** (9.87% converged; pre-registered null
+vindicated); **higher moments/segmentation lose** (mean⊕std is the parameter-free ceiling); **head-level
+distillation of the stats-pooled teacher = 9.32%** (fails too — EVAL-008-clean: post-hoc AND distillation
+fail). **Dysarthric second-moment = NULL** on the per-user metric (two tails different; a real cross-speaker
+*calibration* signal that washes out per-user; NOT-banked pending UASpeech). Teacher mean⊕std 4.71% is
+band-900 but **not deployable** + triple-gated. **BANKED:** second-moment (std) pooling as the best
+deployable-D2 lever (D2-scoped, 3-encoder-general, passes D1 no-regression). **Band-900 blocked (not closed)
+on {cross-cohort label gate #2, teacher on-device feasibility + cap audit, full-backbone distillation}.**)
+
+Successor to the banked frame-pooling journey (`docs/testing/2026-07-11_frame-pooling-second-moment.md`).
+Executed the four named next levers — attentive statistics pooling, cross-cohort replication (label gate,
+unrun), production-Kotlin std pooling (deferred — §9 of the report), and second-moment on the dysarthric D2
+tail — inside a single binary Definition of Done.
 
 ## Where we are (the one-paragraph state)
 
