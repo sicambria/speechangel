@@ -1,0 +1,100 @@
+{
+  "98ea0818": {
+    "n_fr": 13,
+    "n_wrong": 10,
+    "n_below": 3,
+    "frac_wrong": 0.7692307692307693,
+    "conc_top2": 0.46153846153846156,
+    "per_word_fr": {
+      "backward": 3,
+      "five": 1,
+      "on": 3,
+      "one": 2,
+      "off": 2,
+      "left": 1,
+      "go": 1
+    },
+    "per_word_n": {
+      "backward": 6,
+      "five": 6,
+      "go": 6,
+      "left": 6,
+      "off": 6,
+      "on": 6,
+      "one": 6,
+      "seven": 6
+    },
+    "confusions": {
+      "backward->left": 1,
+      "on->go": 1,
+      "one->left": 1,
+      "one->on": 1,
+      "off->on": 1,
+      "backward->seven": 1,
+      "left->go": 1,
+      "off->five": 1,
+      "go->left": 1,
+      "on->off": 1
+    }
+  },
+  "2aca1e72": {
+    "n_fr": 12,
+    "n_wrong": 3,
+    "n_below": 9,
+    "frac_wrong": 0.25,
+    "conc_top2": 0.5,
+    "per_word_fr": {
+      "backward": 1,
+      "five": 3,
+      "forward": 3,
+      "go": 3,
+      "down": 1,
+      "four": 1
+    },
+    "per_word_n": {
+      "backward": 6,
+      "down": 6,
+      "eight": 6,
+      "five": 6,
+      "follow": 6,
+      "forward": 6,
+      "four": 6,
+      "go": 6
+    },
+    "confusions": {
+      "go->down": 2,
+      "go->five": 1
+    }
+  },
+  "c1d39ce8": {
+    "n_fr": 9,
+    "n_wrong": 1,
+    "n_below": 8,
+    "frac_wrong": 0.1111111111111111,
+    "conc_top2": 0.4444444444444444,
+    "per_word_fr": {
+      "eight": 2,
+      "four": 2,
+      "go": 1,
+      "no": 2,
+      "nine": 2
+    },
+    "per_word_n": {
+      "down": 6,
+      "eight": 6,
+      "five": 6,
+      "four": 6,
+      "go": 6,
+      "left": 6,
+      "nine": 6,
+      "no": 6
+    },
+    "confusions": {
+      "eight->nine": 1
+    }
+  },
+  "_verdict": {
+    "agg_frac_wrong": 0.4117647058823529,
+    "fork": "DIFFUSE (below-threshold dominates) \u2192 wall-kill framing; alt-encoder/verifier exploratory"
+  }
+}

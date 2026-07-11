@@ -1,0 +1,104 @@
+{
+  "agg_frr": 0.0756578947368421,
+  "agg_far": 0.03344298245614035,
+  "baseline": 0.0581,
+  "hard_moved": 2,
+  "per_speaker": {
+    "b5cf6ea8": {
+      "verifier": 0.02083333333333337,
+      "far": 0.0625,
+      "cosine": 0.04166666666666663
+    },
+    "2aca1e72": {
+      "verifier": 0.22916666666666663,
+      "far": 0.03125,
+      "cosine": 0.25
+    },
+    "c50f55b8": {
+      "verifier": 0.0,
+      "far": 0.0625,
+      "cosine": 0.0
+    },
+    "5ebc1cda": {
+      "verifier": 0.0625,
+      "far": 0.03125,
+      "cosine": 0.0
+    },
+    "5f9cd2eb": {
+      "verifier": 0.0,
+      "far": 0.0,
+      "cosine": 0.04166666666666663
+    },
+    "893705bb": {
+      "verifier": 0.33333333333333337,
+      "far": 0.03125,
+      "cosine": 0.10416666666666663
+    },
+    "ef3367d9": {
+      "verifier": 0.0,
+      "far": 0.03125,
+      "cosine": 0.0
+    },
+    "4c6167ca": {
+      "verifier": 0.0,
+      "far": 0.03125,
+      "cosine": 0.04166666666666663
+    },
+    "b66f4f93": {
+      "verifier": 0.0,
+      "far": 0.0625,
+      "cosine": 0.0
+    },
+    "c1d39ce8": {
+      "verifier": 0.125,
+      "far": 0.0,
+      "cosine": 0.1875
+    },
+    "cce7416f": {
+      "verifier": 0.0,
+      "far": 0.03125,
+      "cosine": 0.0
+    },
+    "ddedba85": {
+      "verifier": 0.0,
+      "far": 0.03125,
+      "cosine": 0.0
+    },
+    "b4ea0d9a": {
+      "verifier": 0.0,
+      "far": 0.0625,
+      "cosine": 0.0
+    },
+    "de89e2ca": {
+      "verifier": 0.0,
+      "far": 0.03125,
+      "cosine": 0.0
+    },
+    "ab46af55": {
+      "verifier": 0.0625,
+      "far": 0.03125,
+      "cosine": 0.0625
+    },
+    "25e95412": {
+      "verifier": 0.0,
+      "far": 0.03125,
+      "cosine": 0.0
+    },
+    "4c6944d6": {
+      "verifier": 0.02083333333333337,
+      "far": 0.03125,
+      "cosine": 0.0625
+    },
+    "98ea0818": {
+      "verifier": 0.5833333333333333,
+      "far": 0.0,
+      "cosine": 0.27083333333333337
+    },
+    "c120e80e": {
+      "verifier": 0.0,
+      "far": 0.041666666666666664,
+      "cosine": 0.04166666666666663
+    }
+  },
+  "verdict": "does NOT move the tail \u2014 wall-confirmer (most expressive admissible fn caps at cosine)"
+}
