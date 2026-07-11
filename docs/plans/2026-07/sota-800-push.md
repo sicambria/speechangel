@@ -4,7 +4,9 @@
 
 **Status:** active (created 2026-07-09; 2026-07-11 — typical 800 floor confound resolved, now
 D2-gated by a single un-walled domain; 2026-07-11 — typical-D2 **layer route closed** as a measured
-negative, D2 still band 800, other representation axes open) · **Owner:** journey run 2026-07-09
+negative, D2 still band 800, other representation axes open; 2026-07-11 — **C3 student-fidelity confirmed**
+(≤150 MB student holds band 800, +3.0 pp) + typical hard-voice tail closed as a **mean-pooled-embedding
+wall** across 5 axes, only frame-pooling untested) · **Owner:** journey run 2026-07-09
 **2026-07-11 CONFOUND RESOLUTION — the typical 800 floor is D2 ALONE, not a three-way tie.** The carried
 800 floor tied D2 (~5.6 %) with **D5-reverb (81.4 %, TORGO n=3)** and **D3-ambient (~800, a hard-coded
 literal, off-encoder)**. Re-measured on the robust basis (the cross-corpus confound, EVAL-004 pt 3):

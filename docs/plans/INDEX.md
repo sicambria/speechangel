@@ -407,6 +407,16 @@ per-speaker-best-layer (4.06%, band 900) is **selection-on-test noise** that the
 pooling, enrollment augmentation, larger encoder, tail-verifier). Harnesses `t6_perspeaker_layer_map.py`,
 `t7_layer_negative.py`; report `docs/testing/2026-07-11_typical-d2-layer-route-closed.md`. Next call
 (fresh): open representation axes vs C3 student-fidelity confirm vs UASpeech.
+**2026-07-11 TYPICAL-900 C3 + WALL-KILL (still 🔵 active — 2 deliverables).** Ran the pruned "next 30"
+(advisor-gated to the decisive subset). **(1) C3 (primary):** every deployable ≤150 MB student holds
+typical D2 **band 800** on the identical GSC-19/K5 manifest — best **wavlm-base-plus 94 MB = 8.77%, +3.0 pp**
+(distilhubert 24 MB +3.5; hubert-base +5.5; wav2vec2-base +7.8, mined/fragile). Confirms the layer-route
+report's inferred "1–3 pp" and corrects the carried GSC-24 "12%/+6 pp" (EVAL-004). **(2) Band-900 wall-kill:**
+the hard-voice tail is a **mean-pooled-embedding wall** — diffuse/below-threshold (t8, not vocab), verifier
+caps below cosine (7.57%, t9), 98ea0818 hardest on 6 encoders (t11), augmentation worse (7.24%, t12). Five
+axes closed (layer/vocab/decision-fn/encoder/augmentation, all mean-pooled); **frame-level pooling untested**
+= honest next. Still milder than the dysarthric wall (AUC 0.988). Harnesses `t8`–`t12`; report
+`docs/testing/2026-07-11_typical-900-c3-and-wall-kill.md`.
 
 ## D2-wall follow-up — deep-research bets P1/P2/P3 + N1 (2026-07-10)
 

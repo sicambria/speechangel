@@ -254,6 +254,24 @@ consequences, both caught the hard way in Round-4 (`docs/testing/2026-07-10_d2-w
   flags FAR-invalid ones) and `r1_frame_dtw_d2.py` / `r2_backend_d2.py` (report AUC as secondary, FRR@FAR as
   verdict) are the reference implementations.
 
+### EVAL-008 — A negative closed across N levers that share a substrate bounds only that substrate, not the capability
+When you bank a "wall" / dead-end after killing several levers, **scope it to the axis they actually vary,
+and name the shared substrate they all sit on** — do not launder "these N levers failed" into "the capability
+is walled." N levers that all operate on the *same representation* (e.g. a mean-pooled single-vector
+embedding, a fixed front-end, a single-template enroll) bound **that substrate**, and a different substrate is
+an untested axis, not a closed one. Always state the untested axis explicitly as the next journey. Caught
+twice on typical D2: the layer-route report first over-reached ("layer axis closed" was nearly written as
+"representation wall"), then the C3/wall-kill journey closed **five** levers (layer, vocab, decision-function,
+encoder-objective, enrollment-augmentation) — but **all five operate on mean-pooled embeddings**, so the honest
+bank is a "**mean-pooled-embedding wall** with frame-level pooling untested," not a "representation wall." The
+tell you're about to over-scope: every lever you killed shares one architectural assumption you never varied.
+- **Why:** `docs/testing/2026-07-11_typical-d2-layer-route-closed.md` (§6 scope) and
+  `docs/testing/2026-07-11_typical-900-c3-and-wall-kill.md` (§6 — five mean-pooled axes, frame-pooling named
+  as the untested next).
+- **Gate:** advisory; the wall-kill harnesses `t9_verifier_gsc.py` / `t11_altencoder_tail.py` /
+  `t12_aug_enroll.py` each vary one axis over the shared mean-pooled substrate and report the hard-speaker
+  side-by-side, making the shared assumption visible.
+
 ### WORKFLOW-001 — Fix the measurement criterion before you look at the target
 When banking any **count / coverage / score** metric (e.g. SOTA domain 15 guardrail coverage), state the
 criterion **before** computing the value, apply it **uniformly to every item**, and report where it lands —
